@@ -142,9 +142,12 @@ main:
 	; EARLY INIT / LOAD STUFF HERE!
 	bl lib_init
 	; R12=top of RAM used.
+
+    ; TODO: Init these at runtime not boottime.
 	bl init_3d_scene
 	bl scroller_init
 	bl logo_init
+	bl check_rows_init
 
 	; Count how long the init takes as a very rough estimate of CPU speed.
 	ldr r1, vsync_count
@@ -737,9 +740,9 @@ rnd_seed:
 screen_addr:
 	.long 0					; ptr to the current VIDC screen bank being written to.
 
+; TODO: Some ordering of these.
 .include "src/fx.asm"
 .include "src/script.asm"
-
 .include "lib/palette.asm"
 .include "src/scroller.asm"
 .include "src/columns.asm"
@@ -747,6 +750,7 @@ screen_addr:
 .include "lib/lz4-decode.asm"
 .include "lib/lib_code.asm"
 .include "src/3d-scene.asm"
+.include "src/checkerboard.asm"
 
 ; ============================================================================
 ; Data Segment
@@ -764,6 +768,14 @@ music_table:
 
 logo_pal_block:
 .incbin "data/logo-palette-hacked.bin"
+
+; ============================================================================
+
+palette_blocks_for_banks_no_adr:
+.rept Screen_Banks
+	.long 0xffffffff
+	.skip 60
+.endr
 
 ; ============================================================================
 ; DATA Segment

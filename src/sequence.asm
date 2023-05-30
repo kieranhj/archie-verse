@@ -2,9 +2,12 @@
 ; The actual sequence for the demo.
 ; ============================================================================
 
+.equ Sequence_Django, 0
+.equ Sequence_Checkerboard, 1
 
 seq_main_program:
 
+    .if Sequence_Django
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                      clear_left_screen       ; bottom layer
     call_3 fx_set_layer_fns, 1, update_columns,         plot_columns            ; columns
@@ -23,6 +26,13 @@ seq_main_program:
 
     ; Call a fn with 3 params
     call_3 fx_set_layer_fns, 2, update_3d_scene,        draw_3d_scene           ; add cube.
+    .endif
+
+    .if Sequence_Checkerboard
+    call_3 fx_set_layer_fns, 0, update_check_layers,            0
+    call_3 fx_set_layer_fns, 1, plot_check_combos,              plot_checks_to_screen
+    call_3 fx_set_layer_fns, 2, calculate_scanline_bitmasks,    check_layers_set_colours
+    .endif
 
     ; THE END.
     end_script

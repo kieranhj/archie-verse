@@ -44,10 +44,10 @@ TODO:
 	6. 3D effect 2
 	7. Credits
 	8. Ending
-- Need to be able to set tick calls and order.
+- Need to be able to set tick calls and order. - DONE
     - E.g. bg fx to logo, different logo motion.
 - Need to be able to set draw calls and order.
-    - Slots or list? => Layers up to 8 FX - Django uses 5 (columns, logo, cube, scroller, menu)
+    - Slots or list? => Layers up to 8 FX - Django uses 5 (columns, logo, cube, scroller, menu) - DONE
     - Script sets callback in layer.
     - Then transitions can be a top layer and/or interact with other layers.
     - Need to be able to send events to fx and/or set values for vars. => Rocket?
