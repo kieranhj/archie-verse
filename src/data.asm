@@ -12,11 +12,11 @@
 
 ; ============================================================================
 
-.if 0
 .p2align 2
 logo_data_no_adr:
 .incbin "build/logo.bin"
 
+.if 0
 .p2align 2
 logo_mask_no_adr:
 .incbin "build/logo.bin.mask"
@@ -50,6 +50,7 @@ scroller_text_string_end_no_adr:
 
 ; ============================================================================
 
+.if 0
 .p2align 6
 dots_y_table_1_no_adr:
 .incbin "data/dots_y_table_1.bin"
@@ -75,3 +76,4 @@ dot_tunnel_x_no_adr:
 
 dot_tunnel_y_no_adr:
     .incbin "data\dot_tunnel_y.bin"
+.endif
