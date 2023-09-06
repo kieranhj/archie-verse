@@ -19,6 +19,8 @@
 .equ _DEBUG_DEFAULT_SHOW_RASTERS, 0
 .equ _DEBUG_DEFAULT_SHOW_INFO, 0		; slow so off by default.
 
+.equ _ROCKET_SYNC_EDITOR, (_DEBUG && 1)
+
 .equ Sample_Speed_SlowCPU, 48		    ; ideally get this down for ARM2
 .equ Sample_Speed_FastCPU, 16		    ; ideally 16us for ARM250+
 
@@ -139,15 +141,17 @@ main:
 	;str r0, rnd_seed
 
     ; Register debug vars.
-    DEBUG_REGISTER_VAR vsync_count
     DEBUG_REGISTER_VAR Anaglyph_Enable_Skew
+    .if !_ROCKET_SYNC_EDITOR
+    DEBUG_REGISTER_VAR vsync_count
     DEBUG_REGISTER_KEY RMKey_Space,      debug_toggle_main_loop_pause,  0
     DEBUG_REGISTER_KEY RMKey_A,          debug_restart_sequence,        0
     DEBUG_REGISTER_KEY RMKey_S,          debug_set_byte_true,           debug_main_loop_step
+    DEBUG_REGISTER_KEY RMKey_ArrowRight, debug_skip_to_next_pattern,    0
+    .endif
     DEBUG_REGISTER_KEY RMKey_D,          debug_toggle_byte,             debug_show_info
     DEBUG_REGISTER_KEY RMKey_R,          debug_toggle_byte,             debug_show_rasters
     DEBUG_REGISTER_KEY RMKey_K,          debug_toggle_byte,             Anaglyph_Enable_Skew
-    DEBUG_REGISTER_KEY RMKey_ArrowRight, debug_skip_to_next_pattern,    0
     DEBUG_REGISTER_KEY RMKey_C,          debug_toggle_palette,          0
     DEBUG_REGISTER_KEY RMKey_0,          debug_set_eye_distance,        0
     DEBUG_REGISTER_KEY RMKey_1,          debug_set_eye_distance,        1
@@ -163,7 +167,8 @@ main:
 	; Install our own IRQ handler - thanks Steve! :)
 	bl install_irq_handler
 
-	; EARLY INIT / LOAD STUFF HERE! 
+	; EARLY INIT / LOAD STUFF HERE!
+    bl rocket_init
 	bl lib_init
 	; R12=top of RAM used.
 
@@ -218,7 +223,9 @@ main:
 	SWI OS_Claim
 
 	; Play music!
-	swi QTM_Start
+    ; TODO: Make this sequence_start or such?
+    bl rocket_start
+	; swi QTM_Start
 
 	; Enable key pressed event.
 	mov r0, #OSByte_EventEnable
@@ -235,7 +242,7 @@ main_loop:
     bl debug_do_key_callbacks
     .endif
 
-	.if _DEBUG
+	.if _DEBUG && !_ROCKET_SYNC_EDITOR
 	ldrb r0, debug_main_loop_pause
 	cmp r0, #0
 	bne .3
@@ -250,10 +257,13 @@ main_loop:
 	; TICK
 	; ========================================================================
 
+    ldr r0, vsync_delta
+    bl rocket_update
+    bl event_update
 	bl script_tick_all
 	bl fx_tick_layers
 
-    ; TODO: Update frame counter.
+    ; TODO: Update frame counter. [Now driven by Rocket.]
 
 main_loop_skip_tick:
 
@@ -736,9 +746,10 @@ rnd_seed:
 .include "src/starfield.asm"
 .include "src/dots.asm"
 
+.include "src/event.asm"
+.include "lib/rocket.asm"
 .include "lib/palette.asm"
 .include "lib/mode9-screen.asm"
-.include "lib/line.asm"
 .include "lib/lib_code.asm"
 
 ; ============================================================================

@@ -81,7 +81,18 @@ script_add_program:
     cmp r2, r1
     blt .1
 
-    ; TODO: Assert ran out of contexts.
+    ; Assert ran out of contexts.
+    .if _DEBUG
+    adr r0, error_noscriptsleft
+    swi OS_GenerateError
+
+error_noscriptsleft:
+	.long 0
+	.byte "Ran out of script contexts!"
+	.p2align 2
+	.long 0
+    .endif
+
     mov pc, lr
 
 ; R12=context.
