@@ -337,3 +337,15 @@ script_call_swi:
 .macro call_swi swi_no, reg0, reg1
     .long script_call_swi, \swi_no, \reg0, \reg1
 .endm
+
+.macro debug_key keycode, func, param
+.if _DEBUG
+    call_3 debug_register_key, \keycode, \func, \param
+.endif
+.endm
+
+.macro debug_var addr
+.if _DEBUG
+    call_1 debug_register_var, \addr
+.endif
+.endm

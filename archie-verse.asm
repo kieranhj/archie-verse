@@ -81,17 +81,6 @@ main:
 	; Param R12=top of RAM used.
     bl app_init_audio
 
-    ; Register debug vars. NOTE: These could go in the sequence script...
-    DEBUG_REGISTER_VAR vsync_count
-    DEBUG_REGISTER_VAR frame_counter
-    DEBUG_REGISTER_VAR music_pos
-    DEBUG_REGISTER_KEY RMKey_Space,      debug_toggle_main_loop_pause,  0
-    DEBUG_REGISTER_KEY RMKey_A,          debug_restart_sequence,        0
-    DEBUG_REGISTER_KEY RMKey_S,          debug_set_byte_true,           debug_main_loop_step
-    DEBUG_REGISTER_KEY RMKey_D,          debug_toggle_byte,             debug_show_info
-    DEBUG_REGISTER_KEY RMKey_R,          debug_toggle_byte,             debug_show_rasters
-    DEBUG_REGISTER_KEY RMKey_ArrowRight, debug_skip_to_next_pattern,    0
-
 	; Bootstrap the main sequence.
     bl sequence_init
 

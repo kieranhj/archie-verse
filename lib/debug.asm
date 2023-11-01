@@ -18,6 +18,17 @@ debug_pressed_mask:
 debug_prev_mask:
     .long 0
 
+debug_init:
+    mov r0, #0
+    str r0, debug_num_keys
+    mov r1, #Debug_MaxVars
+    adr r2, debug_var_stack
+.1:
+    str r0, [r2], #4
+    subs r1, r1, #1
+    bne .1
+    mov pc, lr
+
 ; Plot a string to the screen at the current cursor position.
 ; R0=ptr to null terminated string.
 debug_plot_string:

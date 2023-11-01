@@ -12,6 +12,10 @@ sequence_init:
     mov r0, #0
     str r0, frame_counter
 
+    .if _DEBUG
+    bl debug_init
+    .endif
+
     bl script_init
 
     .if _DEBUG && 0
