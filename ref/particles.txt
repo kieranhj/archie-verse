@@ -123,9 +123,10 @@ TODO 3D
 TODO Font
 ~~~
 - Investigate RISCOS font library.
-    - Three fonts always available?
-    - Wrapper to plot words and copy out as sprites.
+    - Three fonts always available? - YEP.
+    - Wrapper to plot words and copy out as sprites. - DONE
     - Use VDU type codes for position & size etc.?
+
 
 Timing on ARM2.
 ~~~

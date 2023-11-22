@@ -59,7 +59,7 @@ outline_font_paint_to_buffer:
     ; Paint to screen.
     mov r0, r6                              ; font handle.
     mov r1, r7                              ; ptr to string.
-    mov r2, #0x10                           ; pixel coords.
+    mov r2, #0x10                           ; os coords.
 
     ; Ensure string is painted exactly in top left of the screen buffer.
 

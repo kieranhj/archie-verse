@@ -125,6 +125,7 @@ app_init_audio:
 
 ; R12=screen addr.
 app_late_init:
+    b sys_req_init
     b bits_logo_init
 ; TODO: Make this more generic or include in sequence?
 
@@ -287,6 +288,7 @@ app_vsync_code:
 .include "src/fx/balls.asm"
 .include "src/fx/scene-3d.asm"
 .include "src/fx/bits.asm"
+.include "src/fx/sys-req.asm"
 
 ; ============================================================================
 ; Support library code modules used by the FX sequence.

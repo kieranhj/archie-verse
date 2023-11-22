@@ -81,12 +81,13 @@ main:
     bl sequence_init
 
 	; LATE INITALISATION HERE!
-    bl mark_write_bank_as_pending_display
+    ;bl mark_write_bank_as_pending_display
 	bl get_next_bank_for_writing
 
     ; Can now write to the screen for final init.
     ldr r12, screen_addr
     bl app_late_init
+    b exit
 
 	; Enable key pressed event.
 	mov r0, #OSByte_EventEnable
