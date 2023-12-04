@@ -336,20 +336,23 @@ balls_resolve_collisions:
     mul r7, r10, r7                 ; dy*dy [20.12]
 
     add r7, r6, r7                  ; distsq=dx*dx + dy*dy [20.12]
-    mov r7, r7, asr #16             ; distsq/4             [16.0]
-    ; TODO: ERROR    ^^ SHOULD BE #14 so distsq/4  TEST THIS!!
+    mov r7, r7, asr #14             ; distsq/4             [18.0]
 
     ; SQRT table goes from [1, 512*512) = [0x00001, 0x40000) (18 bits)
     ; Contains 65536 = 0x10000 entries                       (16 bits)
     ; Values are in 16.16 format.
 
+    .if _DEBUG
+    ; Limited precision.
+    cmp r7, #LibSqrt_Entries    ; Test for numerator too large
+    adrge r0,divrange           ; and flag an error
+    swige OS_GenerateError      ; when necessary
+    .endif
+
     subs r7, r7, #1
     movmi r10, #MATHS_CONST_1       ; should be 0 but avoid div by 0.
     ldrpl r3, balls_sqrt_p
     ldrpl r10, [r3, r7, lsl #2]     ; sqrt(distsq / 4) [16.16]
-
-    mov r10, r10, asl #1            ; dist=2*sqrt(distsq / 4)
-    ; TODO: ERROR    ^^ can just remove this line  TEST THIS!!
 
     ; Calc combined distance.
     ldr r7, [r11, #Ball_radius]
@@ -366,22 +369,27 @@ balls_resolve_collisions:
     cmp r2, r7                      ; push > ball.radius?
     movgt r2, r7                    ; limit push to our own radius.
 
-   ; Calculate 1/dist.
-    ldr r3, balls_recip_p
-
     ; Put divisor in table range.
+    .if _DEBUG
+    mov r3, r10
+    .endif
+
     mov r10, r10, asr #16-LibDivide_Reciprocal_s    ; [16.6]    (b<<s)
 
     .if _DEBUG
     cmp r10, #0
-    adrle r0,divbyzero          ; and flag an error
-    swile OS_GenerateError      ; when necessary
-
+    bgt .123
+    adr r0,divbyzero          ; and flag an error
+    swi OS_GenerateError      ; when necessary
+    .123:
     ; Limited precision.
     cmp r10, #1<<LibDivide_Reciprocal_t    ; Test for numerator too large
     adrge r0,divrange           ; and flag an error
     swige OS_GenerateError      ; when necessary
     .endif
+
+   ; Calculate 1/dist.
+    ldr r3, balls_recip_p
 
     ; Lookup 1/dist.
     ldr r10, [r3, r10, lsl #2]    ; [0.16]    (1<<16+s)/(b<<s) = (1<<16)/b

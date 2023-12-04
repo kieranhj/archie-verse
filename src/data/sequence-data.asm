@@ -45,12 +45,14 @@
     wait_secs 10.0
     write_addr scene3d_entity_p, cobra_entity
     wait_secs 10.0
+.endif
 
     ; Balls!
     call_3 fx_set_layer_fns, 2, balls_tick_all,         balls_draw_all
     call_3 fx_set_layer_fns, 3, circles_reset_for_frame,circles_plot_all
+    end_script
+
     wait_secs 10.0
-.endif
 
     fork seq_loop
     end_script
