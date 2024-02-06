@@ -17,8 +17,8 @@
 ; Sequence config.
 ; ============================================================================
 
-.equ SeqConfig_EnableLoop, 1
-.equ SeqConfig_MaxPatterns, 39
+.equ SeqConfig_EnableLoop,              1
+.equ SeqConfig_MaxPatterns,             39
 
 .equ SeqConfig_ProTracker_Tempo,        108
 .equ SeqConfig_ProTracker_TicksPerRow,  3
@@ -54,9 +54,9 @@
 .equ VideoConfig_Widescreen,    0
 .equ VideoConfig_ScreenBanks,   3
 
-.equ Screen_Mode,               9
+.equ Screen_Mode,               13
 .equ Screen_Width,              320
-.equ Screen_PixelsPerByte,      2
+.equ Screen_PixelsPerByte,      1
 
 .if VideoConfig_Widescreen
 .equ VideoConfig_VduMode,       97  ; MODE 9 widescreen (320x180)

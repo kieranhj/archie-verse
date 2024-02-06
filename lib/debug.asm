@@ -24,6 +24,10 @@ debug_prev_mask:
 ; R0=ptr to null terminated string.
 .if Screen_Mode==9
 .equ debug_plot_string, debug_plot_string_mode9
+.else
+debug_plot_string:
+    swi OS_WriteO
+    mov pc, lr
 .endif
 ; TODO: debug font for MODE!=9
 
@@ -354,9 +358,14 @@ debug_plot_string_mode9:
     b debug_cursor_home
 
 debug_cursor_home:
+.if Screen_Mode==9
     mov r1, #0
     mov r2, #0
     b debug_set_cursor
+.else
+    swi OS_WriteI+VDU_Home
+    mov pc, lr
+.endif
 
 debug_cursor_right:
     ldrb r1, debug_cursor_x

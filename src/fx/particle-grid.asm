@@ -655,36 +655,29 @@ particle_grid_draw_all_as_points:
     cmp r7, #14
     movgt r7, #14
     add r7, r7, #1
+    orr r7, r7, r7, lsl #4
 
     ; For now just plot 2D particles.
     add r1, r1, #ParticleGrid_CentreX               ; [s15.16]
     rsb r2, r2, #ParticleGrid_CentreY               ; [s15.16]
 
     mov r1, r1, asr #16
+    mov r2, r2, asr #16
+
     cmp r1, #0
     blt .3                              ; clip left - TODO: destroy particle?
     cmp r1, #Screen_Width
     bge .3                              ; clip right - TODO: destroy particle?
 
-    mov r2, r2, asr #16
     cmp r2, #0
     blt .3                              ; clip top - TODO: destroy particle?
     cmp r2, #Screen_Height
     bge .3                              ; clip bottom - TODO: destroy particle?
 
-    add r10, r12, r2, lsl #7
-    add r10, r10, r2, lsl #5            ; screen_y=screen_addr+y*160
+    add r10, r12, r2, lsl #8
+    add r10, r10, r2, lsl #6            ; screen_y=screen_addr+y*160
 
-    ldrb r8, [r10, r1, lsr #1]          ; screen_y[screen_x/2]
-
-    ; TODO: If we want individual pixels then MODE 12/13 is faster!
-    tst r1, #1
-	andeq r8, r8, #0xf0		    ; mask out left hand pixel
-	orreq r8, r8, r7			; mask in colour as left hand pixel
-	andne r8, r8, #0x0f		    ; mask out right hand pixel
-	orrne r8, r8, r7, lsl #4	; mask in colour as right hand pixel
-
-    strb r8, [r10, r1, lsr #1]!         ; screen_y[screen_x]=colour index.
+    strb r7, [r10, r1]                  ; screen_y[screen_x]
 
 .3:
     add r11, r11, #ParticleGrid_SIZE
@@ -854,23 +847,77 @@ particle_grid_draw_all_as_2x2_tinted:
     ;  r14 = tint
 
     ; Calculate screen ptr.
+    add r10, r12, r2, lsl #8
+    add r10, r10, r2, lsl #6            ; y*320
+    add r10, r10, r1
+
+    strb r14, [r10]
+    strb r14, [r10, #1]
+    strb r14, [r10, #Screen_Stride]
+    strb r14, [r10, #Screen_Stride+1]
+
+.3:
+    add r11, r11, #ParticleGrid_SIZE
+    subs r9, r9, #1
+    bne .1
+
+    ldr pc, [sp], #4
+
+; R12=screen addr
+particle_grid_draw_all_as_3x3_tinted:
+    str lr, [sp, #-4]!
+
+    mov r8, #Screen_Width-2
+    ldr r9, particle_grid_total
+    ldr r11, particle_grid_array_p
+.1:
+    ldmia r11, {r1-r2, r14}
+
+    ; Clamp distance to calculate colour index.
+    mov r14, r14, asr #17                 ; ((int) dist) / 2 [0-30] -> [1.15]
+    cmp r14, #13
+    movgt r14, #13
+    add r14, r14, #2
+    orr r14, r14, r14, lsl #4
+    orr r14, r14, r14, lsl #4
+    sub r14, r14, #0x101
+    sub r7, r14, #0x111
+
+    ; For now just plot 2D particles.
+    add r1, r1, #ParticleGrid_CentreX               ; [s15.16]
+    rsb r2, r2, #ParticleGrid_CentreY               ; [s15.16]
+
+    mov r1, r1, asr #16
+    mov r2, r2, asr #16
+
+    sub r1, r1, #1
+
+    ; Clipping.
+    cmp r1, #0
+    blt .3                              ; cull left
+    cmp r1, r8  ;#Screen_Width-1
+    bge .3                              ; cull right
+
+    cmp r2, #0
+    blt .3                              ; cull top
+    cmp r2, #Screen_Height-2
+    bge .3                              ; cull bottom
+    ; TODO: Clip to sides of screen..?
+
+    ;  r1 = X centre
+    ;  r2 = Y centre
+    ;  r14 = tint
+
+    ; Calculate screen ptr.
     add r10, r12, r2, lsl #7
     add r10, r10, r2, lsl #5            ; y*160
     add r10, r10, r1, lsr #1
 
     and r0, r1, #7                      ; x shift
-    tst r0, #1
+    cmp r0, #6
+    blt .4    
 
-    ; [0, 2, 4, 6]
-    streqb r14, [r10]                   ;
-    streqb r14, [r10, #Screen_Stride]   ;
-    beq .3
-
-    ; [1, 3, 5, 7]
-    cmp r0, #7
-    bne .4
-
-    ; [7] - worst case!
+    ; [6, 7] - worst case!
     ldrb r3, [r10]
     bic r3, r3, #0xf0
     orr r3, r3, r14, lsl #4
@@ -879,6 +926,10 @@ particle_grid_draw_all_as_2x2_tinted:
     bic r3, r3, #0xf0
     orr r3, r3, r14, lsl #4
     strb r3, [r10, #Screen_Stride]
+    ldrb r3, [r10, #2*Screen_Stride]
+    bic r3, r3, #0xf0
+    orr r3, r3, r14, lsl #4
+    strb r3, [r10, #2*Screen_Stride]
     ldrb r3, [r10, #1]
     bic r3, r3, #0x0f
     orr r3, r3, r14, lsr #4
@@ -887,21 +938,29 @@ particle_grid_draw_all_as_2x2_tinted:
     bic r3, r3, #0x0f
     orr r3, r3, r14, lsr #4
     strb r3, [r10, #Screen_Stride+1]
+    ldrb r3, [r10, #2*Screen_Stride+1]
+    bic r3, r3, #0x0f
+    orr r3, r3, r14, lsr #4
+    strb r3, [r10, #2*Screen_Stride+1]
     b .3
 
 .4:
-    ; [1, 3, 5]
+    ; [0, 1, 2, 3, 4, 5]
     bic r10, r10, #3                ; word
     mov r0, r0, lsl #2              ; shift*4
-    mov r4, #0xff
+    mov r4, #0xfff
     ldr r3, [r10]
     bic r3, r3, r4, lsl r0
-    orr r3, r3, r14, lsl r0
+    orr r3, r3, r7, lsl r0
     str r3, [r10]
     ldr r3, [r10, #Screen_Stride]
     bic r3, r3, r4, lsl r0
     orr r3, r3, r14, lsl r0
     str r3, [r10, #Screen_Stride]
+    ldr r3, [r10, #2*Screen_Stride]
+    bic r3, r3, r4, lsl r0
+    orr r3, r3, r7, lsl r0
+    str r3, [r10, #2*Screen_Stride]
 
 .3:
     add r11, r11, #ParticleGrid_SIZE

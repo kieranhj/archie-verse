@@ -245,11 +245,11 @@ seq_part4:
     ;call_6 particle_grid_make_spiral, 400, MATHS_CONST_1*5.0, MATHS_CONST_1*1.0, MATHS_CONST_1*0.5, MATHS_CONST_1*0.0, MATHS_CONST_1*128.0
 
 	; Setup layers of FX.
-;    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_points
+    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_points
 
     ; Sprite version.
     write_addr particle_grid_sprite_def_p, block_sprite_sheet_def_no_adr
-    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_2x2_tinted
+;    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_2x2_tinted
 
     ; Environment setup.
     ;make_and_add_env_plane the_env_floor_plane, 0.0, 0.0, 0.0

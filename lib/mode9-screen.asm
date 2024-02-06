@@ -16,19 +16,19 @@ screen_cls_with_word:
 	mov r5, r0
 	mov r6, r0
 	mov r7, r0
-.if 0
-	add r9, r12, #Screen_Bytes
-.1:
-	.rept Screen_Stride / 32
-	stmia r12!, {r0-r7}
+	mov r8, r0
+	mov r9, r0
+	mov r10, r0
+	mov r11, r0
+    .rept Screen_Bytes / 48
+	stmia r12!, {r0-r11}
     .endr
-	cmp r12, r9
-	blt .1
-.else
-    .rept Screen_Bytes / 32
+    .if Screen_Bytes-48*(Screen_Bytes/48)==32
 	stmia r12!, {r0-r7}
-    .endr
-.endif
+    .endif
+    .if Screen_Bytes-48*(Screen_Bytes/48)==16
+	stmia r12!, {r0-r3}
+    .endif
 	mov pc, lr
 
 screen_cls_grey:

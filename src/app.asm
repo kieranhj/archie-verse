@@ -173,7 +173,8 @@ app_init_audio:
 
 ; R12=screen addr.
 app_late_init:
-    b bits_logo_init
+    mov pc, lr
+;    b bits_logo_init
 ; TODO: Make this more generic or include in sequence?
 
 

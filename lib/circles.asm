@@ -405,8 +405,8 @@ circles_plot_all_in_order:
     mov r4, r14 ; now line count.
 
 	LDR r11, circles_screen_addr
-	ADD r11, r11, r8, LSL #7
-	ADD r11, r11, r8, LSL #5 ;r11 = screen addr
+	ADD r11, r11, r8, LSL #8
+	ADD r11, r11, r8, LSL #6 ;r11 = screen addr
 	.if Screen_Width == 352
 	ADD r11, r11, r8, LSL #4 ;r11 = screen addr
 	.else
@@ -430,7 +430,7 @@ circles_plot_all_in_order:
 	MOVCS r1, #Screen_Width
 	SUBCS r1, r1, #1
 
-	MOV r3, r2, LSR #3
+	MOV r3, r2, LSR #2
 	ADD r10, r11, r3, LSL #2 ;Start word
 
 	SUB r3, r1, r2 ;length
@@ -442,9 +442,9 @@ circles_plot_all_in_order:
 	.endif
 
 	;MOV r3, #1
-	AND r2, r2, #7 ;start offset
+	AND r2, r2, #3 ;start offset
 	LDR r6, gen_code_pointers_p
-	ADD r2, r2, r3, LSL #3
+	ADD r2, r2, r3, LSL #2
     adr r14, .2
 	LDR pc, [r6, r2, LSL #2]
 
