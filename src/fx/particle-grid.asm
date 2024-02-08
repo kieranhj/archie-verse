@@ -22,7 +22,8 @@
 .equ ParticleGrid_CentreX,      (160.0 * MATHS_CONST_1)
 .equ ParticleGrid_CentreY,      (128.0 * MATHS_CONST_1)
 
-.equ ParticleGrid_Minksy_Rotation, 12       ; 12=slow, 0=none
+.equ ParticleGrid_Minksy_Rotation,  12      ; 12=slow, 0=none
+.equ ParticleGrid_Minksy_Expansion, 12      ; 12=slow, 0=none
 
 ; ============================================================================
 
@@ -114,6 +115,101 @@ error_gridtoolarge:
 	.p2align 2
 	.long 0
 .endif
+
+; Fill a line.
+; R0=Count
+; R1=X Pos
+; R2=Y Pos
+; R7=X Inc.
+; R8=Y Inc.
+; R11=array ptr
+; R12=count
+particle_gridlines_fill:
+    mov r3, #0      ; X Vel
+    mov r4, #0      ; Y Vel
+.1:
+    mov r5, r1      ; X Origin
+    mov r6, r2      ; Y Origin
+
+    stmia r11!, {r1-r6}
+
+    add r1, r1, r7
+    add r2, r2, r8
+
+    add r12, r12, #1
+    .if _DEBUG
+    cmp r12, #ParticleGrid_Max
+    adrgt r0, error_gridtoolarge
+    swigt OS_GenerateError
+    .endif
+
+    subs r0, r0, #1
+    bne .1
+    mov pc, lr
+
+; R0=Num X          #0
+; R1=Num Y          #4
+; R2=X Start        #8
+; R3=Y Start        #12
+; R4=Minor Step     #16
+; R5=Minors per Major    #20
+particle_gridlines_make:
+    stmfd sp!, {r0-r5, lr}
+
+    ldr r11, particle_grid_array_p
+    mov r12, #0
+
+    ; Y loop.
+    ldr r2, [sp, #12]               ; YPos
+    ldr r10, [sp, #4]               ; NumY
+    sub r10, r10, #1
+.1:
+    ldr r8, [sp, #16]               ; YInc
+    ldr r0, [sp, #20]               ; Minors per major
+    mul r0, r8, r0                  ; YInc*MpM
+    add r2, r2, r0                  ; YPos+=YInc*MpM
+
+    ldr r1, [sp, #8]                ; XPos
+    ldr r7, [sp, #16]               ; XInc
+    mov r8, #0                      ; YInc
+
+    ldr r9, [sp, #0]                ; NumX
+    ldr r0, [sp, #20]               ; Minors per major
+    mul r0, r9, r0                  ; NumX*MpM
+    add r0, r0, #1
+
+    bl particle_gridlines_fill
+
+    subs r10, r10, #1
+    bne .1
+
+    ; X loop.
+    ldr r1, [sp, #8]                ; XPos
+    ldr r9, [sp, #0]                ; NumX
+    sub r9, r9, #1
+.2:
+    ldr r7, [sp, #16]               ; XInc
+    ldr r0, [sp, #20]               ; Minors per major
+    mul r0, r7, r0                  ; YInc*MpM
+    add r1, r1, r0                  ; XPos+=XInc*MpM
+
+    ldr r2, [sp, #12]               ; YPos
+    mov r7, #0                      ; XInc
+    ldr r8, [sp, #16]               ; YInc
+
+    ldr r10, [sp, #4]               ; NumY
+    ldr r0, [sp, #20]               ; Minors per major
+    mul r0, r10, r0                  ; NumY*MpM
+    add r0, r0, #1
+
+    bl particle_gridlines_fill
+
+    subs r9, r9, #1
+    bne .2
+
+    str r12, particle_grid_total
+
+    ldmfd sp!, {r0-r5, pc}
 
 ; R0=total particles
 ; R1=angle increment [brads]
@@ -484,7 +580,8 @@ particle_grid_tick_all_dave_equation:
     ldr r3, particle_grid_gloop_factor       ; factor [1.16]
     ldr r12, particle_grid_total
     ldr r11, particle_grid_array_p
-.1:
+
+particle_grid_tick_all_dave_loop:
     ldmia r11, {r1-r2}                  ; pos.x, pos.y
 
     ; Particle dynamics as per Dave's Blender graph.
@@ -570,13 +667,11 @@ particle_grid_tick_all_dave_equation:
     ldr r8, [r11, #ParticleGrid_XOrigin]    ; orig.x
     ldr r9, [r11, #ParticleGrid_YOrigin]    ; orig.y
 
-    ; Minksy rotation.
-    ; xnew = xold - (yold >> k)
-    ; ynew = yold + (xnew >> k)
-    .if ParticleGrid_Minksy_Rotation > 0
-    sub r8, r8, r9, asr #ParticleGrid_Minksy_Rotation
-    add r9, r9, r8, asr #ParticleGrid_Minksy_Rotation
-    .endif
+    ; NB. Updating the original position here with rotation
+    ;     and expansion, causes the desired vector to get large
+    ;     and therefore changes the colour of the particles.
+    ;     This is an interesting effect which may or may not be
+    ;     intended!!
 
     ; Calculate desired position - original position:
     sub r1, r1, r8                  ; desired.x - orig.x
@@ -623,6 +718,21 @@ particle_grid_tick_all_dave_equation:
     mov r1, r1, asr #8              ; [~9.8]
     mov r2, r2, asr #8              ; [~9.8]
 
+    ; Minksy rotation.
+    ; xnew = xold - (yold >> k)
+    ; ynew = yold + (xnew >> k)
+particle_grid_tick_all_dave_rotation_code:
+    sub r8, r8, r9, asr #ParticleGrid_Minksy_Rotation
+    add r9, r9, r8, asr #ParticleGrid_Minksy_Rotation
+
+    ; Minksy expansion.
+    ; xnew = xold + (xold >> k)
+    ; ynew = yold + (yold >> k)
+particle_grid_tick_all_dave_expansion_code:
+    add r8, r8, r8, asr #ParticleGrid_Minksy_Expansion
+    add r9, r9, r9, asr #ParticleGrid_Minksy_Expansion
+
+    ; Lerp between desired and original position.
     mla r1, r14, r1, r8             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
     mla r2, r14, r2, r9             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
 
@@ -633,9 +743,60 @@ particle_grid_tick_all_dave_equation:
     stmia r11!, {r1-r2, r5-r6, r8-r9}       ; note just pos.x, pos.y - no velocity!
 
     subs r12, r12, #1
-    bne .1
+    bne particle_grid_tick_all_dave_loop
 
     ldr pc, [sp], #4
+
+; ============================================================================
+
+; R0=Minksy shift value for rotation.
+particle_grid_set_dave_rotation:
+    cmp r0, #0
+    adreq r1, particle_grid_minsky_no_rotate
+    adrgt r1, particle_grid_minsky_rotate_left
+    adrlt r1, particle_grid_minsky_rotate_right
+    adr r2, particle_grid_tick_all_dave_rotation_code
+particle_grid_poke_dave_code:
+    ldmia r1!, {r3-r4}
+    rsbmi r0, r0, #0
+    beq .1                      ; skip for NOP
+    bic r3, r3, #0x00000F80     ; mask out bits 7-11
+    bic r4, r4, #0x00000F80     ; mask out bits 7-11
+    orr r3, r3, r0, lsl #7      ; mask shift value into bits 7-11
+    orr r4, r4, r0, lsl #7      ; mask shift value into bits 7-11
+    .1:
+    stmia r2, {r3-r4}
+    mov pc, lr
+
+; R0=Minksy shift value for expansion.
+particle_grid_set_dave_expansion:
+    cmp r0, #0
+    adreq r1, particle_grid_minsky_no_expand
+    adrgt r1, particle_grid_minsky_expand
+    adrlt r1, particle_grid_minsky_contract
+    adr r2, particle_grid_tick_all_dave_expansion_code
+    b particle_grid_poke_dave_code
+
+particle_grid_minsky_no_expand:
+particle_grid_minsky_no_rotate:
+    mov r8, r8
+    mov r9, r9
+
+particle_grid_minsky_rotate_left:
+    sub r8, r8, r9, asr #ParticleGrid_Minksy_Rotation
+    add r9, r9, r8, asr #ParticleGrid_Minksy_Rotation
+
+particle_grid_minsky_rotate_right:
+    add r8, r8, r9, asr #ParticleGrid_Minksy_Rotation
+    sub r9, r9, r8, asr #ParticleGrid_Minksy_Rotation
+
+particle_grid_minsky_expand:
+    add r8, r8, r8, asr #ParticleGrid_Minksy_Expansion
+    add r9, r9, r9, asr #ParticleGrid_Minksy_Expansion
+
+particle_grid_minsky_contract:
+    sub r8, r8, r8, asr #ParticleGrid_Minksy_Expansion
+    sub r9, r9, r9, asr #ParticleGrid_Minksy_Expansion
 
 ; ============================================================================
 

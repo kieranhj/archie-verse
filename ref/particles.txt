@@ -449,7 +449,9 @@ Ideas to prototype
     - How to identify which ball to control in script?
 
 - Particle grid rendered as sprites? - DONE
-    - How many is feasible? - 250
+    - How many is feasible? ~250
+    - Or as handcoded 2x2 fat pixels ~340
+    - As single pixels this is ~430
 
 - Particle grid rotation? - DONE
     - This is likely expensive? - MINSKY ROTATION FTW!
@@ -476,17 +478,56 @@ Direction from Dave:
     - Try green to white. Ramp. - DONE
     - Can we do this without yet another sqrt? - NO :)
     - Another option as 4x4 sprite for a glow. (Or 3x3 and hand code?)
+
 - If two balls they could affect different particle systems.
     - Different colours for the balls / particles.
     - Wouldn't necessarily have to collide.
     - What happens to the colours when they overlap? Hmmm.
-- Not grid based.
+
+- Not grid based. <== NEXT
     - Circle, spiral etc. - STARTED
+    - Grid lines (like Geometry Wars.)
+    - Concentric circles.
+    - Concentric squares.
+    - Word outlines - use OBJs from Mikroreise?
+
+    - What if all the particles formed a solid circle?
+        - At ~360 max particles, can have a 18*18 box, which is 36*36 pixels.
+        - This is larger than the The Orb currently...
+        - This doesn't work very well with Minsky rotation.
+        - Turns out it's not so interesting... oh well!
+          (Doesn't 'explode' just gets 'stretched' like elastic.)
+
 - Particle to move of their own accord.
     - Use small angle rotation formula for speed? - DONE
-- Possibly size of sprites? Stick with pixels for now.
-    - Try fat pixels!
+    - Particles move slowly in a constant direction.
+    - Move apart from centre by adding a small fraction of X,Y. - DONE
+    - Possible to use the velocity vector? Or self-mod into code for speed?
 
-- How to start?
+- Ball motions?
+    - Lissajous
+    - Around an attractor (in the centre)
+
+- Ball collisions?
+    - Edges of the grid whilst it is rotating (i.e. rotate the planes)
+
+- Possibly size of sprites? Stick with pixels for now.
+    - Try fat pixels! - DONE
+
+- Colours
+    - Orb colour pulse
+    - Grid colours?
+
+- How to start? <== NEXT
     - Orb grows to size.
     - Eminates the particles that form the grid. Free particles for a while then lerp.
+
+
+MODE 13?
+~~~
+- Pixel plotting is faster than MODE 9!
+- But the CLS time dominates this as have to clear 80K. :(((
+- Conclusion that this would only be viable if using a widescreen mode,
+    so 320x180, which is ~56K.
+    ==> Could be interesting for a future MODE 13 demo?
+        Perhaps a free particle system demo for NOVA or Deadline?
