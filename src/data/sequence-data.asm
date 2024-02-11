@@ -49,7 +49,7 @@ seq_part1:
 ;    call_6 particle_grid_make, 22, 16, MATHS_CONST_1*-147.0, MATHS_CONST_1*-105.0, MATHS_CONST_1*14.0, MATHS_CONST_1*14.0
     call_6 particle_gridlines_make, 8, 6, MATHS_CONST_1*-128.0, MATHS_CONST_1*-96.0, MATHS_CONST_1*8.0, 4
 
-    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_2x2_tinted
+    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_points
 
     ; Setup the ball.
     call_2f the_env_set_constant_force, 0.0, 0.0    ; zero gravity
@@ -123,7 +123,7 @@ seq_part2:
     ; Y [-105, 105] step 14 = 16 total (border 23)
 ;    call_6 particle_grid_make, 22, 16, MATHS_CONST_1*-147.0, MATHS_CONST_1*-105.0, MATHS_CONST_1*14.0, MATHS_CONST_1*14.0
     call_6 particle_grid_make_spiral, 400, MATHS_CONST_1*5.0, MATHS_CONST_1*1.0, MATHS_CONST_1*0.5, MATHS_CONST_1*0.0, MATHS_CONST_1*0.0
-    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_2x2_tinted
+    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_points
 
     ; Setup the ball.
     call_2f the_env_set_constant_force, 0.0, 0.0    ; zero gravity
@@ -189,7 +189,7 @@ seq_part3:
     ; X [-147, 147] step 14 = 22 total (border 13)
     ; Y [-105, 105] step 14 = 16 total (border 23)
     call_6 particle_grid_make, 22, 16, MATHS_CONST_1*-147.0, MATHS_CONST_1*-105.0, MATHS_CONST_1*14.0, MATHS_CONST_1*14.0
-    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_2x2_tinted
+    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_points
 
     ; Setup the ball.
     call_2f the_env_set_constant_force, 0.0, 0.0    ; zero gravity
@@ -274,13 +274,13 @@ seq_part4:
 ;   call_6 particle_grid_make, 22, 16, MATHS_CONST_1*-147.0, MATHS_CONST_1*-105.0, MATHS_CONST_1*14.0, MATHS_CONST_1*14.0
     call_6 particle_gridlines_make, 8, 6, MATHS_CONST_1*-128.0, MATHS_CONST_1*-96.0, MATHS_CONST_1*8.0, 4
 
-    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_2x2_tinted
+    call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_points
 
     ; Environment setup.
-    make_and_add_env_plane the_env_floor_plane, 0.0, -128.0, 0.0
-    make_and_add_env_plane the_env_left_plane, -160.0, -128.0, 64.0        ; +90 degrees
+    make_and_add_env_plane the_env_floor_plane, 0.0, -90.0, 0.0
+    make_and_add_env_plane the_env_left_plane, -160.0, 0.0, 64.0        ; +90 degrees
 ;    make_and_add_env_plane the_env_left_slope, -80.0, -128.0, 32.0         ; +45 degrees
-    make_and_add_env_plane the_env_right_plane, 160.0, -128.0, -64.0       ; -90 degrees
+    make_and_add_env_plane the_env_right_plane, 160.0, 0.0, -64.0       ; -90 degrees
 ;    make_and_add_env_plane the_env_right_slope, 80.0, -128.0, -32.0        ; -45 degrees
 
     ; Setup the ball.
