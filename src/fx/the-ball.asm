@@ -27,7 +27,7 @@ the_ball_block:
 ; ============================================================================
 
 .equ TheEnv_CentreX,            (160.0 * MATHS_CONST_1)
-.equ TheEnv_CentreY,            (128.0 * MATHS_CONST_1)
+.equ TheEnv_CentreY,            (90.0 * MATHS_CONST_1)
 .equ TheEnv_MaxPlanes,          8
 
 .equ EnvPlane_Next,     0

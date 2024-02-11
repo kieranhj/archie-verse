@@ -20,7 +20,7 @@
 .equ ParticleGrid_Max,          (24*18)     ; runs at 50Hz with the Dave equation.
 
 .equ ParticleGrid_CentreX,      (160.0 * MATHS_CONST_1)
-.equ ParticleGrid_CentreY,      (128.0 * MATHS_CONST_1)
+.equ ParticleGrid_CentreY,      (90.0 * MATHS_CONST_1)
 
 .equ ParticleGrid_Minksy_Rotation,  12      ; 12=slow, 0=none
 .equ ParticleGrid_Minksy_Expansion, 12      ; 12=slow, 0=none

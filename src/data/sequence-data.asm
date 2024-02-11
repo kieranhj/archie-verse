@@ -277,10 +277,10 @@ seq_part4:
     call_3 fx_set_layer_fns, 1, particle_grid_tick_all_dave_equation,    particle_grid_draw_all_as_2x2_tinted
 
     ; Environment setup.
-    make_and_add_env_plane the_env_floor_plane, 0.0, -128.0, 0.0
-    make_and_add_env_plane the_env_left_plane, -160.0, -128.0, 64.0        ; +90 degrees
+    make_and_add_env_plane the_env_floor_plane, 0.0, -90.0, 0.0
+    make_and_add_env_plane the_env_left_plane, -160.0, 0.0, 64.0        ; +90 degrees
 ;    make_and_add_env_plane the_env_left_slope, -80.0, -128.0, 32.0         ; +45 degrees
-    make_and_add_env_plane the_env_right_plane, 160.0, -128.0, -64.0       ; -90 degrees
+    make_and_add_env_plane the_env_right_plane, 160.0, 0.0, -64.0       ; -90 degrees
 ;    make_and_add_env_plane the_env_right_slope, 80.0, -128.0, -32.0        ; -45 degrees
 
     ; Setup the ball.
