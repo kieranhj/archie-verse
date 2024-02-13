@@ -21,7 +21,6 @@ screen_cls_with_word:
 	mov r10, r0
 	mov r11, r0
     .rept Screen_Bytes / 48
-	stmia r12, {r0-r11}
 	stmia r12!, {r0-r11}
     .endr
     .if Screen_Bytes-48*(Screen_Bytes/48)==32
