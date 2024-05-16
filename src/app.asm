@@ -377,3 +377,4 @@ app_vsync_code:
 .endif
 .include "lib/mode9-screen.asm"
 .include "lib/outline-font.asm"
+.include "lib/line.asm"

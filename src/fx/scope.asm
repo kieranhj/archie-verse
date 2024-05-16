@@ -2,13 +2,19 @@
 ; Scope FX.
 ; ============================================================================
 
+.equ Scope_DrawLines,       1       ; otherwise points.
+.equ Scope_StepBuffer,      1       ; otherwise truncate the buffer.
+
 .equ Scope_Channel,         -1      ; or -1 for all four averaged
 
+.equ Scope_YPos,            128
 .equ Scope_XStep,           MATHS_CONST_1*320/Scope_TotalSamples
 .equ Scope_YScale,          MATHS_CONST_1*0.5
 .equ Scope_PixelColour,     15
-.equ Scope_TotalSamples,    64      ; Max samples = 208
-; TODO: Could also step through sample buffer not truncate it?
+.equ Scope_TotalSamples,    128      ; Max samples = 208
+
+.equ Scope_MaxSamples,      208
+.equ Scope_SampleStep,      MATHS_CONST_1*Scope_MaxSamples/Scope_TotalSamples
 
 scope_log_to_lin_p:
     .long scope_log_to_lin_no_adr
@@ -53,7 +59,7 @@ scope_tick:
     ldmia r8!, {r0-r7}
     stmia r9!, {r0-r7}
     add r10, r10, #8
-    cmp r10, #208
+    cmp r10, #Scope_MaxSamples
     blt .1
     mov pc, lr
 
@@ -73,10 +79,8 @@ scope_draw:
     ldr r9, scope_log_to_lin_p
 
     mov r10, #0                 ; sample no.
-    mov r14, #0                 ; xpos in FP
+    mov r6, #0                  ; xpos in FP
 .1:
-    mov r7, r14, asr #16        ; xpos FP to int.
-
 .if Scope_Channel >= 0
     ldrb r1, [r0], #4       ; 4 channels so step over.
 
@@ -85,7 +89,12 @@ scope_draw:
     mov r1, r1, asl #24
     mov r1, r1, asr #24     ; sign extend.
 .else
-    ldr r1, [r0], #4        ; 4 channels so step over.
+    .if Scope_StepBuffer
+    mov r1, r10, lsr #16    ; FP to int
+    ldr r1, [r0, r1, lsl #2]
+    .else
+    ldr r1, [r0], #4
+    .endif
 
     mov r4, r1, lsr #24     ; byte 3
     ldrb r4, [r9, r4]       ; log to lin.
@@ -118,12 +127,13 @@ scope_draw:
 .endif
 
     ; y value = sample value * scale.
-    mov r6, #Scope_YScale
-    mul r1, r6, r1
+    mov r2, #Scope_YScale
+    mul r1, r2, r1
 
     mov r1, r1, asr #16
-    add r1, r1, #128            ; centre
+    add r1, r1, #Scope_YPos            ; centre
 
+    .if !Scope_DrawLines
     ; Calculate plot address.
     add r11, r12, r1, lsl #7
     add r11, r11, r1, lsl #5    ; y*160
@@ -132,6 +142,7 @@ scope_draw:
     ; Plot pixel.
 	ldrb r8, [r11]				; load screen byte
 
+    mov r7, r6, asr #16         ; xpos FP to int.
 	tst r7, #1					; odd or even pixel?
 	andeq r8, r8, #0xF0		    ; mask out left hand pixel
 	orreq r8, r8, r5			; mask in colour as left hand pixel
@@ -140,13 +151,34 @@ scope_draw:
 	orrne r8, r8, r5, lsl #4	; mask in colour as right hand pixel
 
 	strb r8, [r11]				; store screen byte
+    .else
+    stmfd sp!, {r0,r6,r9}
+
+    mov r0, r6, asr #16         ; startx
+    add r2, r6, #Scope_XStep    ; endx
+    mov r2, r2, asr #16
+    mov r3, r1                  ; endy
+    cmp r10, #0
+    movne r1, r11               ; starty
+    mov r11, r3                 ; remember prev y
+    mov r4, #Scope_PixelColour
+
+    bl mode9_drawline_orr
+
+    ldmfd sp!, {r0,r6,r9}
+    .endif
 
     ; Step xpos FP
-    add r14, r14, #Scope_XStep
+    add r6, r6, #Scope_XStep
 
     ; Next sample.
+    .if Scope_StepBuffer
+    add r10, r10, #Scope_SampleStep
+    cmp r10, #Scope_MaxSamples*MATHS_CONST_1
+    .else
     add r10, r10, #1
-    cmp r10, #Scope_TotalSamples               ; total samples.
+    cmp r10, #Scope_TotalSamples
+    .endif
     blt .1
 
     ldr pc, [sp], #4
