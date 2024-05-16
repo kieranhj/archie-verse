@@ -158,6 +158,10 @@ scope_log_to_lin_no_adr:
 scope_dma_buffer_copy_no_adr:
     .skip Scope_MaxSamples*4
 
+scope_dma_buffer_histories_no_adr:
+    .skip Scope_TotalSamples*Scope_NumHistories
+scope_dma_buffer_histories_top_no_adr:
+
 ; ============================================================================
 ; Library BSS (must come last)
 ; ============================================================================

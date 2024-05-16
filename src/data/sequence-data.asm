@@ -36,7 +36,8 @@
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls
 ;    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
-    call_3 fx_set_layer_fns, 2, scope_tick,                 scope_draw
+    ;call_3 fx_set_layer_fns, 2, scope_tick,                 scope_draw
+    call_3 fx_set_layer_fns, 2, scope_tick_with_history,    scope_draw_with_history
     call_3 fx_set_layer_fns, 3, 0,                          0
 
     ; Simple logo.
