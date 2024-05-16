@@ -135,21 +135,47 @@
 .equ Font_SetPalette, 0x40093
 .equ Font_ScanString, 0x400a1
 
+.equ Wimp_SlotSize, 0x400EC
+
+.equ Sound_Configure, 0x40140
+.equ Sound_SoundLog, 0x40181
+
 .equ QTM_SwiBase, 0x47E40
 .equ QTM_Load, 0x47E40
 .equ QTM_Start, 0x47E41
 .equ QTM_Stop, 0x47E42
 .equ QTM_Pause, 0x47E43
 .equ QTM_Clear, 0x47E44
+.equ QTM_Info, 0x47E45
 .equ QTM_Pos, 0x47E46
+.equ QTM_QTM_EffectControl, 0x47E47
 .equ QTM_Volume, 0x47E48
 .equ QTM_SetSampleSpeed, 0x47E49
+.equ QTM_DMABuffer, 0x47E4A
+.equ QTM_RemoveChannel, 0x47E4B
+.equ QTM_RestoreChannel, 0x47E4C
 .equ QTM_Stereo, 0x47E4D
+.equ QTM_ReadSongLength, 0x47E4E
+.equ QTM_ReadSequenceTable, 0x47E4F
 .equ QTM_VUBarControl, 0x47E50
 .equ QTM_ReadVULevels, 0x47E51
+.equ QTM_ReadSampleTable, 0x47E52
+.equ QTM_ReadSpeed, 0x47E53
+.equ QTM_PlaySample, 0x47E54
+.equ QTM_SongStatus, 0x47E55
+.equ QTM_ReadPlayingTime, 0x47E56
+.equ QTM_PlayRawSample, 0x47E57
 .equ QTM_SoundControl, 0x47E58
+.equ QTM_SWITableAddress, 0x47E59
+.equ QTM_RegisterSample, 0x47E5A
+.equ QTM_SetSpeed, 0x47E5B
+.equ QTM_MusicVolume, 0x47E5C
+.equ QTM_SampleVolume, 0x47E5D
 .equ QTM_MusicOptions, 0x47E5E
 .equ QTM_MusicInterrupt, 0x47E5F
+.equ QTM_ReadChannelData, 0x47E60
+.equ QTM_ReadNoteWord, 0x47E61
+.equ QTM_DMAHandler, 0x47E62
 
 .equ MusicInterrupt_SongEnded, 0
 

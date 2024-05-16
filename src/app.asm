@@ -366,6 +366,7 @@ app_vsync_code:
 ; ============================================================================
 
 .include "src/fx/bits.asm"
+.include "src/fx/scope.asm"
 
 ; ============================================================================
 ; Support library code modules used by the FX sequence.

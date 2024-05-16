@@ -28,13 +28,15 @@
 ; ============================================================================
 
     ; Init FX modules.
+    call_0 scope_init
 
     ; Screen setup.
+    write_addr palette_array_p, seq_palette_red_additive
 
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls
-    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
-    call_3 fx_set_layer_fns, 2, 0,                          0
+;    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
+    call_3 fx_set_layer_fns, 2, scope_tick,                 scope_draw
     call_3 fx_set_layer_fns, 3, 0,                          0
 
     ; Simple logo.
@@ -69,6 +71,8 @@ seq_unlink_palette_lerp:
 ;  Use 'end_script_if_zero <var>' to terminate a script conditionally.
 ;
 ; (Yes I know this is starting to head into 'real language' territory.)
+;
+; ==> NB. This is now better done by using palette_lerp macros above.
 ; ============================================================================
 
 .if 0

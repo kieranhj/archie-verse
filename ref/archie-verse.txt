@@ -5,6 +5,7 @@ Contains all accumulated libraries and code from previous prods.
 
 Framework TODOs as of 15/5/24:
 ~~~
+=> Add logo on screen and submit as blank framework. - DONE
 - Separate tick/draw order from being tied together.
 - Improve build using Tom's Python scripts and makefile-foo.
 - Does ErrorV actually do anything?
@@ -14,4 +15,12 @@ Framework TODOs as of 15/5/24:
 - Create text-pool module from code in fx/bits.asm.
 
 
-=> Add logo on screen and submit as blank framework.
+ArchieKlang Announcetro
+~~~
+=> Like the oscilloscope view more when all channels are combined together.
+- Kinda want this to fade?
+
+Try?
+- Lines not dots (expensive?)
+- Previous buffers plotted above/below in darker colour to fade out?
+- Use a Y buffer so they don't overlap?
