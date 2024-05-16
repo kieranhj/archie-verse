@@ -1,108 +1,17 @@
 Verse-chorus-verse. Aka Into the Archie-Verse.
 ~~~
-Follow the usual template...
-- Decrunch with sysinfo.
-- <Group> introduces <demo> at <party>. => Pseudo character mode w/ masked logo?
-- Show a 2D effect to get things going. => Plasma?
-- Show a nice 3D effect to move things on. => Glenz and morph?
-- Interstitial with greets. => Lissajous dots + masked text?
-- Another 2D effect. => Rotate and scale but looks good?
-- A final more impressive 3D effect. => Multiple lighting and morph?
-- Fun credits. => Dot or line tunnel + masked text?
-- Clean ending or long trawl of text in Amiga case.
+An Archimedes demo framework.
+Contains all accumulated libraries and code from previous prods.
 
-=> Doesn't need a high concept theme.
-=> Can just be fun, with a kicking soundtrack and nice gfx.
-=> Focus on things that Sarah hasn't done already. ;)
-=> Minimise number of new effects. Focus on quick wins.
-=> Don't outstay your welcome: 3.5-5 mins.
-=> No black screens / black backgrounds!
-=> Excellent colour palette helps, along with good pacing.
-
-Open questions:
+Framework TODOs as of 15/5/24:
 ~~~
-- ARM2 or ARM250?
-- Loading?
-- Scripting solution? Rocket or otherwise?
-- Musician => Rhino?
-- Artist for artwork and palettes => Spiny? Titus?
-- Resolution? 320x256 or go 16:9 so 320x180 => common for modern Amiga.
-	=> Propose 320x180 for ARM2 demos. Assume 320x256 for ARM250 demos.
-
-TODO:
-~~~
-- New repo based on arc-django-2 and perf-test code. - DONE
-- Setup 320x180 screen mode - have this from Rose repo. - DONE
-	- (what about equivalent to MODE 13?) - DONE
-- Add temporary music to set the tone/tempo. - DONE
-- Create temporary scenes & sequence:
-	1. Group/demo/party.
-	2. 2D effect 1
-	3. 3D effect 1
-	4. Greets
-	5. 2D effect 2
-	6. 3D effect 2
-	7. Credits
-	8. Ending
-- Need to be able to set tick calls and order. - DONE
-    - E.g. bg fx to logo, different logo motion.
-- Need to be able to set draw calls and order. - DONE
-    - Slots or list? => Layers up to 8 FX - Django uses 5 (columns, logo, cube, scroller, menu)
-    - Script sets callback in layer.
-    - Then transitions can be a top layer and/or interact with other layers.
-
-- Need to be able to send events to fx and/or set values for vars. => Rocket?
-      Alternative is a bytecode script with waits etc.
-      Previous learnings:
-        - Using WAITs is pain.
-        - Scripts get long and difficult to edit.
-        - Making scripts out of MACROs gets tedious.
-        - Having too many Rocket tracks for every possible var also becomes unwieldy.
-        - Ability to preview / scrub / rewind is powerful.
-        - Hot reloading of scripts or event tracks is powerful.
-      Combine best of both?
-        - Keep script snippets short.
-        - Avoid WAITs in scripts for now (until we need it).
-        - Avoid multiple concurrent scripts for now (until we need it).
-        - Bake scripts into exe for now but could be stored as a separate file for hot reload.
-        - Trigger scripts from events, e.g. Event_RunScript <script no>
-        - Triggers could just be keypress for now. Play script <1> to <9> or <space> to move to next script.
-        - Later on think about balance of vars vs events vs scripts.
-      More pondering:
-        - It's not really a script if you can't use logic, loops etc.
-        - If you want actual scripting logic then use a higher level language, cf. Rose.
-        - At the moment all of the above boils down to: on frame <n> call function <f> with params <a> <b> <c> etc.
-        - Power comes from hot reload and real-time controls.
-        - Rocket gives us continuous (interpolated) variables, but don't want to have one var per FX layer.
-        - Works well for PC where cost of everything being driven by a var is zero (e.g. interp colours all the time)
-        - Rocket works poorly for triggers (as these can't be reversed).
-        - Rocket works poorly for frame-synced interpolation (inc by 1 per frame)
-      Ideal?
-        - Write events in text editor.
-        - Have a file watcher to 'compile' events (with error checking etc.) on file change.
-        - Place compiled file in emulator folder.
-        - Editor build of the demo to pause/play, reload events and restart. (This was NOVA Invite).
-        - Controls to jump forward a pattern at a time.
-      For complex motion, e.g. nice trajectories of 3D objects better off scripting externally and exporting motion data.
-      Probably overthinking this for now.
-        - Bake into build until need hot reload.
-        - Wait <frames>
-        - Call <fn>
-        - Editor controls to restart, pause/play and jump fwd.
-        - Perhaps have ability to run many scripts?
-        (Or just go all in with default Rocket.)
-
-- Could even just have a key press to switch between the scenes at this point?
-    - Bookmarks? Key to move to next? tbd.
-        => Chequered Past skip to next pattern was invaluable.
-	- Integrate Rocket later => need to decide which version/finish integration.
-	- Perhaps this depends if Rhino is onboard with doing the editing?
-- Need placeholder gfx.
-	- RISCOS font plot?
+- Separate tick/draw order from being tied together.
 - Improve build using Tom's Python scripts and makefile-foo.
-- Add debug keys: - DONE
-    - Play/pause
-    - Step frame
-    - Step pattern
-    - Restart
-- Move set_layer_fns to Lua script when needed (as tracks)
+- Does ErrorV actually do anything?
+- Move png2arc to Python 3.
+- MOD file analyser to configure code / script.
+- Move scripting to use seconds throughout?
+- Create text-pool module from code in fx/bits.asm.
+
+
+=> Add logo on screen and submit as blank framework.

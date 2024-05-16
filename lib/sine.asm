@@ -1,6 +1,5 @@
 ; ============================================================================
 ; Sine and cosine functions.
-; TODO: Add run-time sinus table generation routine from Rose.
 ; ============================================================================
 
 .if LibSine_MakeSinusTable

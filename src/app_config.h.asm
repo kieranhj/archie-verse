@@ -10,8 +10,6 @@
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 .equ AppConfig_UseQtmEmbedded,          1
 
-.equ AppConfig_SpriteBufferSize,        8192    ; should be LibConfig?
-
 ; ============================================================================
 ; Sequence config.
 ; ============================================================================
@@ -23,7 +21,6 @@
 .equ SeqConfig_ProTracker_TicksPerRow,  4
 
 .equ SeqConfig_PatternLength_Rows,      64
-; TODO: Calculate dependent vars.
 .equ SeqConfig_PatternLength_Secs,      (2.5*SeqConfig_ProTracker_TicksPerRow*SeqConfig_PatternLength_Rows)/SeqConfig_ProTracker_Tempo
 .equ SeqConfig_PatternLength_Frames,    SeqConfig_PatternLength_Secs*50.0
 

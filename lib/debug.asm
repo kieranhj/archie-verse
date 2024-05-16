@@ -1,6 +1,5 @@
 ; ============================================================================
 ; Debug helpers.
-; TODO: Replace OS VDU routines with faster version.
 ; TODO: Could do log to open file (on HostFS) if useful.
 ; ============================================================================
 

@@ -6,10 +6,9 @@
 ; Defines for a specific build.
 ; ============================================================================
 
-.equ _DEBUG,                    0
-.equ _SMALL_EXE,                1               ; TODO: Configure from Makefile?
+.equ _DEBUG,                    1
+.equ _SMALL_EXE,                0               ; TODO: Configure from Makefile?
 .equ _LOG_SAMPLES,              1
-; TODO: DON'T FORGET TO REMOVE UNUSED CODE!!!! OR ADD A DEFINE FOR THIS????
 
 .equ _DEBUG_RASTERS,            (_DEBUG && 1)
 .equ _DEBUG_SHOW,               (_DEBUG && 1)

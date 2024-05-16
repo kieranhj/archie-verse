@@ -75,6 +75,7 @@ bits_font_def_trinity_bold_italic:
     .byte 0
 .p2align 2
 
+.if 0
 bits_logo_vert_array_p:
     .long bits_logo_vert_array_no_adr
 
@@ -83,6 +84,7 @@ tmt_logo_vert_array_p:
 
 prod_logo_vert_array_p:
     .long prod_logo_vert_array_no_adr
+.endif
 
 bits_text_widths:
     .skip Bits_Text_Max*4
@@ -105,6 +107,8 @@ bits_text_defs_p:
 bits_text_total:
     .long 0
 
+; ============================================================================
+; TODO: Move this into a library module text-pool.
 ; ============================================================================
 
 ; R12=screen addr.
@@ -216,6 +220,7 @@ bits_text_init:
 
     ldr pc, [sp], #4
 
+.if 0 ; Push
 ; R12=screen addr.
 bits_logo_init:
     str lr, [sp, #-4]!
@@ -287,7 +292,7 @@ bits_make_verts_from_text:
     bl bits_create_vert_array_from_image
 
     ldr pc, [sp], #4
-
+.endif
 
 .if _DEBUG
 err_bitbufoverflow: ;The error block
@@ -338,6 +343,7 @@ bits_logo_draw:
 
 ; ============================================================================
 
+.if 0
 ; Get a pixel from the image.
 ; R0=width in words (stride)
 ; R1=row
@@ -485,6 +491,7 @@ bits_rnd_seed:
 
 bits_rnd_bit:
     .long 0x11111111
+.endif
 
 ; ============================================================================
 
@@ -545,6 +552,7 @@ bits_convert_mode4_to_mode9:
 
 ; ============================================================================
 
+.if 0
 ; Create an array of vertices from an image (top-bit marked pixels).
 ; Params:
 ;  R0=width in words
@@ -639,6 +647,7 @@ err_randomfail:
 .byte "Failed to select all random verts."
 .align 4
 .long 0
+.endif
 .endif
 
 ; ============================================================================

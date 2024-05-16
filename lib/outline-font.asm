@@ -55,8 +55,6 @@ outline_font_paint_to_buffer:
     mov r8, r8, lsr #2                      ; pixel width.
     mov r9, r4, lsr #2                      ; pixel height.
 
-    ; TODO: CLS? swi OS_WriteI+12
-
     ; Paint to screen.
     mov r0, r6                              ; font handle.
     mov r1, r7                              ; ptr to string.

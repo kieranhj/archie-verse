@@ -188,7 +188,6 @@ app_init_audio:
 app_late_init:
     str lr, [sp, #-4]!
     bl bits_text_init
-    bl bits_logo_init
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?
 
@@ -366,12 +365,7 @@ app_vsync_code:
 ; FX code modules.
 ; ============================================================================
 
-.include "src/fx/math-emitter.asm"
-.include "src/fx/particles.asm"
-.include "src/fx/particle-dave.asm"
-.include "src/fx/particle-grid.asm"
 .include "src/fx/bits.asm"
-.include "src/fx/the-ball.asm"
 
 ; ============================================================================
 ; Support library code modules used by the FX sequence.

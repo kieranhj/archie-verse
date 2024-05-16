@@ -58,6 +58,13 @@ r_CircleBufPtrs_no_adr:
 
 ; ============================================================================
 
+.if LibConfig_IncludeSprites
+sprite_buffer_no_adr:
+    .skip LibConfig_SpriteBufferSize
+.endif
+
+; ============================================================================
+
 .if LibConfig_IncludeSpanGen
 gen_code_pointers_no_adr:
 	.skip	4*8*LibSpanGen_MaxSpan
@@ -66,3 +73,4 @@ gen_code_start_no_adr:
 .endif
 
 ; ============================================================================
+; NB. Gen Code must be last!!

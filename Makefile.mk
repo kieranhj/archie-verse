@@ -26,7 +26,7 @@ PNG2ARC=./bin/png2arc.py
 PNG2ARC_FONT=./bin/png2arc_font.py
 PNG2ARC_SPRITE=./bin/png2arc_sprite.py
 PNG2ARC_DEPS:=./bin/png2arc.py ./bin/arc.py ./bin/png2arc_font.py ./bin/png2arc_sprite.py
-FOLDER=!Push
+FOLDER=!Verse
 HOSTFS=../arculator/hostfs
 # TODO: Need a copy command that copes with forward slash directory separator. (Maybe MSYS cp?)
 
@@ -39,11 +39,10 @@ deploy: $(FOLDER)
 	$(MKDIR_P) "$(HOSTFS)\$(FOLDER)"
 	$(COPY) "$(FOLDER)\*.*" "$(HOSTFS)\$(FOLDER)\*.*"
 
-$(FOLDER): build ./build/archie-verse.bin ./build/!run.txt ./build/icon.bin
+$(FOLDER): build ./build/archie-verse.bin ./build/!run.txt
 	$(RM_RF) $(FOLDER)
 	$(MKDIR_P) $(FOLDER)
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
-	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ff8"
 
 .PHONY:seq
@@ -58,18 +57,16 @@ compress: shrink
 	$(COPY) "$(FOLDER)\*.*" "$(HOSTFS)\$(FOLDER)\*.*"
 
 .PHONY:shrink
-shrink: build ./build/!run.txt ./build/icon.bin ./build/loader.bin
+shrink: build ./build/!run.txt ./build/loader.bin
 	$(RM_RF) $(FOLDER)
 	$(MKDIR_P) $(FOLDER)
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
-	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) .\build\loader.bin "$(FOLDER)\!RunImage,ff8"
 
 build:
 	$(MKDIR_P) "./build"
 
-./build/assets.txt: build ./build/icon.bin ./build/block-sprites.bin ./build/bbc_owl.bin ./build/greetz1.bin \
-	./build/greetz2.bin
+./build/assets.txt: build ./build/block-sprites.bin
 	echo done > $@
 
 ./build/archie-verse.shri: build ./build/archie-verse.bin

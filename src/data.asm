@@ -143,6 +143,7 @@ bits_draw_file_no_adr:
 bits_draw_file_end_no_adr:
 .endif
 
+.if 0 ; Push
 bits_owl_no_adr:
     .incbin "build/bbc_owl.bin"
 
@@ -151,18 +152,7 @@ greetz1_mode4_no_adr:
 
 greetz2_mode4_no_adr:
     .incbin "build/greetz2.bin"
-
-; ============================================================================
-
-.macro VERT x, y, z
-VECTOR2 100.0*\x, 100.0*\z
-.endm
-
-;bits_verts_no_adr:
-;    .include "src/obj/bs_obj.asm"
-
-;circ_verts_no_adr:
-;    .include "src/obj/circ_obj.asm"
+.endif
 
 ; ============================================================================
 ; QTM Embedded.
@@ -172,9 +162,9 @@ VECTOR2 100.0*\x, 100.0*\z
 .p2align 2
 QtmEmbedded_Base:
 .if _LOG_SAMPLES
-.incbin "data/lib/tinyQ149t2,ffa"
+.incbin "data/riscos/tinyQ149t2,ffa"
 .else
-.incbin "data/lib/tinyQTM149,ffa"
+.incbin "data/riscos/tinyQTM149,ffa"
 .endif
 .endif
 

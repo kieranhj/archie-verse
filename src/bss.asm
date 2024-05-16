@@ -85,6 +85,7 @@ particles_array_no_adr:
 
 ; ============================================================================
 
+.if 0 ; Push
 ; src/particle-grid.asm
 particle_grid_array_no_adr:
     .skip ParticleGrid_SIZE * ParticleGrid_Max
@@ -94,6 +95,7 @@ particle_grid_array_no_adr:
 ; src/particle-dave.asm
 particle_dave_array_no_adr:
     .skip ParticleDave_SIZE * ParticleDave_Max
+.endif
 
 ; ============================================================================
 
@@ -105,6 +107,7 @@ balls_array_no_adr:
 
 ; ============================================================================
 
+.if 0 ; Push
 bits_logo_vert_array_no_adr:
     .skip VECTOR2_SIZE*520
 
@@ -113,6 +116,7 @@ tmt_logo_vert_array_no_adr:
 
 prod_logo_vert_array_no_adr:
     .skip VECTOR2_SIZE*520
+.endif
 
 .skip Screen_Stride
 bits_text_pool_base_no_adr:
@@ -121,6 +125,7 @@ bits_text_pool_top_no_adr:
 
 ; ============================================================================
 
+.if 0 ; Push
 bits_owl_mode9_no_adr:
     .skip Bits_Owl_Mode9_Bytes
 
@@ -132,6 +137,7 @@ greetz1_mode9_no_adr:
 
 greetz2_mode9_no_adr:
     .skip Screen_Bytes
+.endif
 
 ; ============================================================================
 
@@ -142,13 +148,10 @@ additive_block_sprite_buffer_no_adr:
 
 temp_sprite_ptrs_no_adr:
     .skip 4*8   ; sizeof(ptr) * 8 pixel shifts
-
-sprite_buffer_no_adr:
-    .skip AppConfig_SpriteBufferSize
 .endif
 
 ; ============================================================================
-; Library BSS.
+; Library BSS (must come last)
 ; ============================================================================
 
 .include "lib/lib_bss.asm"
