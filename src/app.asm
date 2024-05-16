@@ -198,8 +198,7 @@ app_late_init:
 
 ; Always called, regardless of tick status.
 app_pre_tick_frame:
-    b circles_reset_for_frame   ; TODO: Should this be lib_tick?
-
+    mov pc, lr
 
 ; ============================================================================
 ; Interrupt handling.

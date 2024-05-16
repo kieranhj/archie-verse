@@ -35,17 +35,27 @@ scope_histories_top:
 
 
 scope_init:
-    ; Get ptr to log conversion table.
-    ; Much faster than using swi Sound_SoundLog!
     mov r0, #0
     mov r1, #0
     mov r2, #0
     mov r3, #0
+
+    ; Clear history buffers.
+    ldr r7, scope_histories_base
+    ldr r8, scope_histories_top
+.2:
+    stmia r7!, {r0-r3}
+    cmp r7, r8
+    blt .2
+
+    ; Get ptr to log conversion table.
+    ; Much faster than using swi Sound_SoundLog!
     mov r4, #0
     swi Sound_Configure
     ldr r10, [r3, #8]   ; lin to log ptr.
 
-    ldr r9, scope_log_to_lin_p    ; TODO: Move to bss.
+    ; Make log to linear table.
+    ldr r9, scope_log_to_lin_p
 
     mov r1, #0          ; lin
 .1:
@@ -325,6 +335,10 @@ scope_draw_one_history:
     mov r1, r1, asr #16
     add r1, r1, r8              ; ypos.
 
+    cmp r10, #0
+    moveq r11, r1
+    beq .2
+
     ; Draw line.
     stmfd sp!, {r6,r8,r9}
 
@@ -332,8 +346,7 @@ scope_draw_one_history:
     add r2, r6, #Scope_XStep    ; endx
     mov r2, r2, asr #16
     mov r3, r1                  ; endy
-    cmp r10, #0
-    movne r1, r11               ; starty
+    mov r1, r11                 ; starty
     mov r11, r3                 ; remember prev y
 
     bl mode9_drawline_orr       ; TODO: Replace with custom line draw?
@@ -343,6 +356,7 @@ scope_draw_one_history:
     ; Step xpos FP
     add r6, r6, #Scope_XStep
 
+    .2:
     ; Next sample.
     add r10, r10, #1
     cmp r10, #Scope_TotalSamples

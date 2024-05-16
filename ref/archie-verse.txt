@@ -13,6 +13,7 @@ Framework TODOs as of 15/5/24:
 - MOD file analyser to configure code / script.
 - Move scripting to use seconds throughout?
 - Create text-pool module from code in fx/bits.asm.
+- Automatic clearing of BSS by loader?
 
 
 ArchieKlang Announcetro
@@ -21,6 +22,8 @@ ArchieKlang Announcetro
 - Kinda want this to fade?
 
 Try?
-- Lines not dots (expensive?)
-- Previous buffers plotted above/below in darker colour to fade out?
+- Lines not dots (expensive?) - DONE
+- Previous buffers plotted above/below in darker colour to fade out? - DONE
 - Use a Y buffer so they don't overlap?
+- Add palette fade as lines move up.
+- Custom faster line algo.

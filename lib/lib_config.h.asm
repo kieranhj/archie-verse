@@ -6,14 +6,14 @@
 
 .equ LibConfig_ShowInitProgress,        1
 
-.equ LibConfig_IncludeSqrt,             1
+.equ LibConfig_IncludeSqrt,             0
 .equ LibConfig_IncludeLine,             0
 .equ LibConfig_IncludeTriangle,         0
 .equ LibConfig_IncludePolygon,          0
 .equ LibConfig_IncludeDivide,           1
 .equ LibConfig_IncludeVector,           0
 .equ LibConfig_IncludeMatrix,           0
-.equ LibConfig_IncludeCircles,          1
+.equ LibConfig_IncludeCircles,          0
 .equ LibConfig_IncludeSprites,          0
 .equ LibConfig_IncludeMathVar,          1
 
