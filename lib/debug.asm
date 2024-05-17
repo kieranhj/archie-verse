@@ -358,11 +358,18 @@ debug_plot_string_mode9:
     b debug_cursor_home
 
 debug_cursor_home:
+.if Screen_Mode==9
+
     mov r1, #0
     mov r2, #0
     b debug_set_cursor
+.else
+    swi OS_WriteI+VDU_Home
+    mov pc, lr
+.endif
 
 debug_cursor_right:
+.if Screen_Mode==9
     ldrb r1, debug_cursor_x
     ldrb r2, debug_cursor_y
     add r1, r1, #1
@@ -372,6 +379,10 @@ debug_cursor_right:
     cmp r2, #32
     movge r2, #0
 ; FALL THROUGH!
+.else
+    swi OS_WriteI+ASCII_Space
+    mov pc, lr
+.endif
 
 ; R1=x, R2=y
 debug_set_cursor:

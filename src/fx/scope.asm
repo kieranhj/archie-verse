@@ -16,7 +16,9 @@
 .equ Scope_MaxSamples,      208
 .equ Scope_SampleStep,      MATHS_CONST_1*Scope_MaxSamples/Scope_TotalSamples
 
-.equ Scope_NumHistories,    8
+.equ Scope_NumHistories,    8       ; TODO: Dynamically reduce for ARM2?
+
+; ============================================================================
 
 scope_log_to_lin_p:
     .long scope_log_to_lin_no_adr
@@ -33,6 +35,13 @@ scope_histories_base:
 scope_histories_top:
     .long scope_dma_buffer_histories_top_no_adr
 
+scope_draw_line_seg_code_ptrs:
+    .long line_segments_ptrs_no_adr
+
+scope_draw_line_seg_y_buffer:
+    .long line_segments_y_buffer_no_adr
+
+; ============================================================================
 
 scope_init:
     mov r0, #0
@@ -69,6 +78,8 @@ scope_init:
 
     mov pc, lr
 
+; ============================================================================
+.if 0
 ; R0=frame counter.
 ; R1=vsync delta.
 scope_tick:
@@ -86,7 +97,6 @@ scope_tick:
     cmp r10, #Scope_MaxSamples
     blt .1
     mov pc, lr
-
 
 ; R12=screen addr.
 scope_draw:
@@ -207,19 +217,31 @@ scope_draw:
     blt .1
 
     ldr pc, [sp], #4
-
+.endif
+; ============================================================================
 
 ; R0=frame counter.
 ; R1=vsync delta.
 scope_tick_with_history:
-    mov r12, r0
+    ldr r7, scope_histories_p
 
+    ands r12, r0, #15
+    str r12, scope_history_offset
+    bne .2
+
+    ; Ring buffer.
+    add r7, r7, #Scope_TotalSamples
+    ldr r11, scope_histories_top
+    cmp r7, r11
+    ldrge r7, scope_histories_base
+    str r7, scope_histories_p
+
+.2:
     QTMSWI QTM_DMABuffer
     ; R0 = address of last used DMA sound buffer (208 bytes per channel)
     ; Interleaved 1 byte per channel in 8-bit log format.
 
     mov r8, r0
-    ldr r7, scope_histories_p
     ldr r9, scope_log_to_lin_p
     mov r10, #0             ; sample no.
 .1:
@@ -272,16 +294,6 @@ scope_tick_with_history:
     .endif
     blt .1
 
-    ands r12, r12, #15
-    str r12, scope_history_offset
-    movne pc, lr
-
-    ; Ring buffer.
-    ldr r11, scope_histories_top
-    cmp r7, r11
-    ldrge r7, scope_histories_base
-    str r7, scope_histories_p
-
     mov pc, lr
 
 scope_history_offset:
@@ -291,31 +303,39 @@ scope_history_offset:
 scope_draw_with_history:
     str lr, [sp, #-4]!
 
-    ldr r9, scope_histories_p
-    add r9, r9, #Scope_TotalSamples
-    ldr r11, scope_histories_top
-    cmp r9, r11
-    ldrge r9, scope_histories_base
+    ; Reset y buffer.
+    mov r0, #0xffffffff
+    mov r1, r0
+    mov r2, r0
+    mov r3, r0
+    ldr r4, scope_draw_line_seg_y_buffer
+    mov r5, #Screen_Stride
+.2:
+    stmia r4!, {r0-r3}
+    subs r5, r5, #16
+    bgt .2
 
-    mov r4, #16-Scope_NumHistories
+    ; Plot all the history buffers.
+    ldr r9, scope_histories_p
+
+    mov r4, #15
     ldr r8, scope_history_offset
-    rsb r8, r8, #80
+    rsb r8, r8, #192
 .1:
     bl scope_draw_one_history
 
-    ldr r1, scope_histories_top
+    sub r9, r9, #Scope_TotalSamples
+    ldr r1, scope_histories_base
     cmp r9, r1
-    ldrge r9, scope_histories_base
+    ldrle r9, scope_histories_top
+    sub r9, r9, #Scope_TotalSamples
 
-    add r8, r8, #128/Scope_NumHistories
-    add r4, r4, #1
-    cmp r4, #16
-    blt .1
+    sub r8, r8, #128/Scope_NumHistories
+    sub r4, r4, #1
+    cmp r4, #16-Scope_NumHistories
+    bge .1
 
     ldr pc, [sp], #4
-
-scope_draw_line_seg_code_ptrs:
-    .long line_segments_ptrs_no_adr
 
 ; R4=pixel colour.
 ; R8=y pos
@@ -326,6 +346,7 @@ scope_draw_one_history:
 
     orr r4, r4, r4, lsl #4      ; byte
 
+    ldr r3, scope_draw_line_seg_y_buffer
     ldr r7, scope_draw_line_seg_code_ptrs
 
     mov r6, #0                  ; xpos in FP
@@ -336,10 +357,12 @@ scope_draw_one_history:
     mov r1, r1, asr #24     ; sign extend.
 
     ; y value = sample value * scale.
-    mov r2, #Scope_YScale
-    mul r1, r2, r1              ; TODO: Could be shift when final scale fixed?
+    ;mov r2, #Scope_YScale
+    ;mul r1, r2, r1              ; TODO: Could be shift when final scale fixed?
+    ;mov r1, r1, asr #16
+    mov r1, r1, asr #1          ; div 2
+    ; TODO: Combine 3x asr's into 1!
 
-    mov r1, r1, asr #16
     add r1, r1, r8              ; ypos.
 
     .if 0
@@ -365,17 +388,20 @@ scope_draw_one_history:
     ; Step xpos FP
     add r6, r6, #Scope_XStep
     .else
+    sub r5, r1, r6              ; dy=y - prev_y
+
     cmp r10, #0
     addeq r11, r12, r1, lsl #8
     addeq r11, r11, r1, lsl #6  ; calc screen start address.
+    ldreqb r2, [r3]
     beq .2
 
-    sub r5, r1, r6              ; dy=y - prev_y
     and r5, r5, #0xff
     adr lr, .2
     ldr pc, [r7, r5, lsl #2]    ; (line_seg[dy])();
+
     .2:
-    mov r6, r1                  ; prev y
+    mov r6, r1                  ; new prev y
     .endif
 
     ; Next sample.

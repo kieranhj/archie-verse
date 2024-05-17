@@ -2,6 +2,8 @@
 ; Line Segments.
 ; ============================================================================
 
+.equ LineSegments_UseYBuffer,   1
+
 .equ LineSegments_Fixed_dx,     5       ; fixed.
 .equ LineSegments_Total_dy,     256
 
@@ -17,6 +19,7 @@ line_segments_ptrs_p:
 
 ; Generate all the code combinations
 line_segments_init:
+    str lr, [sp, #-4]!
     ldr r2, line_seg_rts
 
     ; R12=code gen ptr
@@ -43,12 +46,10 @@ line_segments_init:
     ; y+=yi each iter.
     ; x+=[0|1]
     cmp r9, #0
-    ldrgt r6, line_seg_y_plus_1             ; x+=0;y+=yi
-    ldrle r6, line_seg_y_minus_1
-    ldrgt r7, line_seg_x_plus_1_y_plus_1    ; x+=1:y+=yi
-    movgt r5, #0
-    ldrle r7, line_seg_x_plus_1_y_minus_1
-    ldrle r5, line_seg_x_plus_1_y_minus_1+4  ; ARGH!
+    adrgt r6, line_seg_y_plus_1             ; x+=0;y+=yi
+    adrle r6, line_seg_y_minus_1
+    adrgt r7, line_seg_x_plus_1_y_plus_1    ; x+=1:y+=yi
+    adrle r7, line_seg_x_plus_1_y_minus_1
 
     ; r4=error = 2*dx - abs(dy)
     rsb r4, r8, #2*LineSegments_Fixed_dx
@@ -57,12 +58,9 @@ line_segments_init:
     mov r3, r8
 .21:
     cmp r4, #0
-    strle r6, [r12], #4                     ; x+=0;y+=yi
-    ble .22
-    str r7, [r12], #4                     ; x+=1:y+=yi
-    cmp r5, #0                              ; ARGH!
-    str r5, [r12], #4                     ; x+=1:y+=yi
-    .22:
+    movle r5, r6                     ; x+=0;y+=yi
+    movgt r5, r7                     ; x+=1:y+=yi
+    bl line_seg_copy_code
 
     cmp r4, #0
     add r4, r4, #2*LineSegments_Fixed_dx    ; error += 2*dx
@@ -80,12 +78,10 @@ line_segments_init:
     ; Shallow line.
     ; x+=1 each iter.
     ; y+=[-1|0|1]
-    ldr r6, line_seg_x_plus_1               ; x+=1:y+=0
+    adr r6, line_seg_x_plus_1               ; x+=1:y+=0
     cmp r9, #0
-    ldrgt r7, line_seg_x_plus_1_y_plus_1    ; x+=1:y+=yi
-    movgt r5, #0
-    ldrle r7, line_seg_x_plus_1_y_minus_1
-    ldrle r5, line_seg_x_plus_1_y_minus_1+4  ; ARGH!
+    adrgt r7, line_seg_x_plus_1_y_plus_1    ; x+=1:y+=yi
+    adrle r7, line_seg_x_plus_1_y_minus_1
 
     ; r4=error = 2*abs(dy) - dx
     mov r4, r8, asl #1
@@ -96,12 +92,9 @@ line_segments_init:
 .31:
     ; 'Plot' pixel.
     cmp r4, #0
-    strle r6, [r12], #4                     ; x+=1:y+=0
-    ble .32
-    str r7, [r12], #4                     ; x+=1:y+=yi
-    cmp r5, #0                              ; ARGH!
-    str r5, [r12], #4                     ; x+=1:y+=yi
-    .32:
+    movle r5, r6                     ; x+=1:y+=0
+    movgt r5, r7                     ; x+=1:y+=yi
+    bl line_seg_copy_code
 
     cmp r4, #0
     add r4, r4, r8, asl #1                  ; error += 2*abs(dy)
@@ -118,23 +111,84 @@ line_segments_init:
     cmp r10, #LineSegments_Total_dy
     blt .1
 
-    mov pc, lr
+    ldr pc, [sp], #4
 
+; R5=code start
+line_seg_copy_code:
+.1:
+    ldr r0, [r5], #4
+    cmp r0, #0
+    moveq pc, lr
+    str r0, [r12], #4
+    b .1
+
+
+; R3=y buffer
+; R2=min y value
+; R1=current y value
+
+.if !LineSegments_UseYBuffer
 line_seg_x_plus_1:
     strb r4, [r11], #1
+.long 0
 
 line_seg_y_plus_1:
     strb r4, [r11], #Screen_Stride
+.long 0
 
 line_seg_y_minus_1:
     strb r4, [r11], #-Screen_Stride
+.long 0
 
 line_seg_x_plus_1_y_plus_1:
     strb r4, [r11], #Screen_Stride+1
+.long 0
 
 line_seg_x_plus_1_y_minus_1:
     strb r4, [r11], #-Screen_Stride
     add r11, r11, #1
+.long 0
+.else
+line_seg_x_plus_1:
+    cmp r6, r2
+    strltb r4, [r11]
+    strltb r6, [r3]
+    add r11, r11, #1
+    ldrb r2, [r3, #1]!
+.long 0
+
+line_seg_y_plus_1:
+    cmp r6, r2
+    strltb r4, [r11]
+    add r11, r11, #Screen_Stride
+    add r6, r6, #1
+.long 0
+
+line_seg_y_minus_1:
+    cmp r6, r2
+    strltb r4, [r11]
+    sub r11, r11, #Screen_Stride
+    sub r6, r6, #1
+.long 0
+
+line_seg_x_plus_1_y_plus_1:
+    cmp r6, r2
+    strltb r4, [r11]
+    strltb r6, [r3]
+    add r11, r11, #Screen_Stride+1
+    add r6, r6, #1
+    ldrb r2, [r3, #1]!
+.long 0
+
+line_seg_x_plus_1_y_minus_1:
+    cmp r6, r2
+    strltb r4, [r11]
+    strltb r6, [r3]
+    sub r11, r11, #Screen_Stride-1
+    sub r6, r6, #1
+    ldrb r2, [r3, #1]!
+.long 0
+.endif
 
 line_seg_rts:
     mov pc, lr

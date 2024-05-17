@@ -78,8 +78,13 @@ gen_code_start_no_adr:
 ; ============================================================================
 
 .if LibConfig_IncludeLineSegments
+.if LineSegments_UseYBuffer
+line_segments_y_buffer_no_adr:
+    .skip Screen_Stride
+.endif
+
 line_segments_ptrs_no_adr:
-	.skip	4*LineSegments_Total_dy
+	.skip 4*LineSegments_Total_dy
 
 line_segments_code_gen_no_adr:
 .endif
