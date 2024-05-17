@@ -3,7 +3,7 @@
 ; ============================================================================
 
 .equ LibLine_IncludeMode_9, 1
-.equ LibLine_IncludeMode_12, 0
+.equ LibLine_IncludeMode_12, 1
 .equ LibLine_IncludeBatch, 0
 
 line_reciprocal_table_p:

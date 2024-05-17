@@ -87,6 +87,12 @@ lib_init:
     swi OS_WriteI+'.'
     .endif
     .endif
+    .if LibConfig_IncludeLineSegments
+    bl line_segments_init
+    .if LibConfig_ShowInitProgress
+    swi OS_WriteI+'.'
+    .endif
+    .endif
     ; Keep this last so R12 returns top of RAM.
     ldr pc, [sp], #4
 
@@ -135,6 +141,9 @@ lib_init:
 .endif
 .if LibConfig_IncludeMathVar
 .include "lib/math-var.asm"
+.endif
+.if LibConfig_IncludeLineSegments
+.include "lib/line-segments.asm"
 .endif
 
 ; ============================================================================

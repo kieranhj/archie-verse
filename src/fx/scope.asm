@@ -314,6 +314,9 @@ scope_draw_with_history:
 
     ldr pc, [sp], #4
 
+scope_draw_line_seg_code_ptrs:
+    .long line_segments_ptrs_no_adr
+
 ; R4=pixel colour.
 ; R8=y pos
 ; R9=history buffer ptr.
@@ -321,8 +324,12 @@ scope_draw_with_history:
 scope_draw_one_history:
     str lr, [sp, #-4]!
 
-    mov r10, #0                 ; sample no.
+    orr r4, r4, r4, lsl #4      ; byte
+
+    ldr r7, scope_draw_line_seg_code_ptrs
+
     mov r6, #0                  ; xpos in FP
+    mov r10, #0                 ; sample no.
 .1:
     ldrb r1, [r9], #1
     mov r1, r1, asl #24
@@ -335,12 +342,13 @@ scope_draw_one_history:
     mov r1, r1, asr #16
     add r1, r1, r8              ; ypos.
 
+    .if 0
     cmp r10, #0
     moveq r11, r1
     beq .2
 
     ; Draw line.
-    stmfd sp!, {r6,r8,r9}
+    stmfd sp!, {r6,r8,r9,r10}
 
     mov r0, r6, asr #16         ; startx
     add r2, r6, #Scope_XStep    ; endx
@@ -349,17 +357,32 @@ scope_draw_one_history:
     mov r1, r11                 ; starty
     mov r11, r3                 ; remember prev y
 
-    bl mode9_drawline_orr       ; TODO: Replace with custom line draw?
+    bl mode12_drawline       ; TODO: Replace with custom line draw?
 
-    ldmfd sp!, {r6,r8,r9}
-
-    ; Step xpos FP
-    add r6, r6, #Scope_XStep
+    ldmfd sp!, {r6,r8,r9,r10}
 
     .2:
+    ; Step xpos FP
+    add r6, r6, #Scope_XStep
+    .else
+    cmp r10, #0
+    addeq r11, r12, r1, lsl #8
+    addeq r11, r11, r1, lsl #6  ; calc screen start address.
+    beq .2
+
+    sub r5, r1, r6              ; dy=y - prev_y
+    and r5, r5, #0xff
+    adr lr, .2
+    ldr pc, [r7, r5, lsl #2]    ; (line_seg[dy])();
+    .2:
+    mov r6, r1                  ; prev y
+    .endif
+
     ; Next sample.
     add r10, r10, #1
     cmp r10, #Scope_TotalSamples
     blt .1
+
+    and r4, r4, #0xf
 
     ldr pc, [sp], #4

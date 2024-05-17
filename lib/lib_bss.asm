@@ -74,3 +74,15 @@ gen_code_start_no_adr:
 
 ; ============================================================================
 ; NB. Gen Code must be last!!
+
+; ============================================================================
+
+.if LibConfig_IncludeLineSegments
+line_segments_ptrs_no_adr:
+	.skip	4*LineSegments_Total_dy
+
+line_segments_code_gen_no_adr:
+.endif
+
+; ============================================================================
+; NB. Gen Code must be last!!

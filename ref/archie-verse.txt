@@ -19,7 +19,7 @@ Framework TODOs as of 15/5/24:
 ArchieKlang Announcetro
 ~~~
 => Like the oscilloscope view more when all channels are combined together.
-- Kinda want this to fade?
+    Kinda want this to fade?
 
 Try?
 - Lines not dots (expensive?) - DONE
@@ -27,3 +27,21 @@ Try?
 - Use a Y buffer so they don't overlap?
 - Add palette fade as lines move up.
 - Custom faster line algo.
+
+TODO:
+- Add ArchieKlang sample gen at some point!
+- Plot samples as they're generated?
+
+Line segment drawing.
+dx is fixed == 4
+dy limited: -128 <= dy <= 127
+Line segments are connected.
+
+Use MODE 12.
+Unroll all 256 possible code paths.
+Just do Bresenham, steep and shallow paths with
+x+=1:y+=0 => strb r4, [r11], #1
+x+=1:y+=1 => strb r4, [r11], #-ScreenStride+1
+x+=1:y-=1 => strb r4, [r11], #ScreenStride+1
+x+=0:y+=1 => strb r4, [r11], #-ScreenStride
+x+=0:y-=1 => strb r4, [r11], #ScreenStride
