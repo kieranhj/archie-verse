@@ -36,18 +36,14 @@
 
 .org 0x8000
 
-Start:
-    ldr sp, stack_p
-	B main
-
-stack_p:
-	.long stack_base_no_adr
-
 ; ============================================================================
 ; Main
 ; ============================================================================
 
+Start:
 main:
+    ldr sp, stack_p
+
 	; Claim the Event vector.
 	MOV r0, #EventV
 	ADR r1, event_handler
@@ -350,6 +346,9 @@ debug_skip_to_next_pattern:
 ; ============================================================================
 ; System stuff.
 ; ============================================================================
+
+stack_p:
+	.long stack_base_no_adr
 
 screen_addr_input:
 	.long VD_ScreenStart, -1

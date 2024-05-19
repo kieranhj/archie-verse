@@ -17,10 +17,14 @@
 .org 0x8000
 
 main:
+    ; Set our RAM requirement.
+    ; Not sure what happens if this fails?! :S
+    mov r0, #_WIMPSLOT
+    swi Wimp_SlotSize
+
     adr r0, message_text
     swi OS_WriteO
 
-    ; NB. Could calculate this from end of free RAM SWI call.
     ldr r8, reloc_to                ; reloc_to
 
     ; Relocate decoder.

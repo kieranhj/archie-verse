@@ -5,7 +5,7 @@
 
 .equ AppConfig_StackSize,               1024
 .equ AppConfig_LoadModFromFile,         0
-.equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 1)
+.equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 1)   ; Because table gen takes time at boot...
 .equ AppConfig_InstallIrqHandler,       0       ; otherwise uses Event_VSync.
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 .equ AppConfig_UseQtmEmbedded,          1
