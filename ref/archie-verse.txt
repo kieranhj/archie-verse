@@ -33,10 +33,11 @@ Try?
 
 TODO:
 - Add ArchieKlang sample gen at some point!
-- Plot samples as they're generated?
+- Plot samples as they're generated? Use same effect?
+    - Plot and move after each one? Hmmm!
 
 Line segment drawing.
-dx is fixed == 4
+dx is fixed == 4 (or whatever)
 dy limited: -128 <= dy <= 127
 Line segments are connected.
 

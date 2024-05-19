@@ -118,10 +118,10 @@ prod_logo_vert_array_no_adr:
     .skip VECTOR2_SIZE*520
 .endif
 
-.skip Screen_Stride
-bits_text_pool_base_no_adr:
-    .skip Bits_Text_PoolSize
-bits_text_pool_top_no_adr:
+.skip Screen_Stride         ; BODGE IT.
+text_pool_base_no_adr:
+    .skip Text_Pool_PoolSize
+text_pool_top_no_adr:
 
 ; ============================================================================
 

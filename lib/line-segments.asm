@@ -122,9 +122,12 @@ line_seg_copy_code:
     b .1
 
 
+; R11=screen address
+; R6=current y value
+; R4=pixel byte
 ; R3=y buffer
 ; R2=min y value
-; R1=current y value
+; R1=target y value
 
 .if !LineSegments_UseYBuffer
 line_seg_x_plus_1:

@@ -164,3 +164,60 @@ err_spriteoutofrange: ;The error block
 .align 4
 .long 0
 .endif
+
+; ============================================================================
+
+; Expand MODE 4 (1bpp) image data to MODE 9 (4bpp).
+; Params:
+;  R0=src address.
+;  R1=dst address.
+;  R2=src width in bytes.
+;  R3=src height in rows.
+;  R4=colour index.
+sprite_utils_convert_mode4_to_mode9:
+    ; Make colour index a colour word.
+    orr r4, r4, r4, lsl #4
+    orr r4, r4, r4, lsl #8
+    orr r4, r4, r4, lsl #16
+
+    ; Row loop.
+.1:
+
+    ; Byte loop.
+    mov r7, r2
+.2:
+    ldr r5, [r0], #1
+    mov r6, #0
+
+    ; convert 1bpp byte to 4bpp word
+    ; %abcdefgh
+    tst r5, #0b00000001
+    orrne r6, r6, #0x0000000f
+    tst r5, #0b00000010
+    orrne r6, r6, #0x000000f0
+    tst r5, #0b00000100
+    orrne r6, r6, #0x00000f00
+    tst r5, #0b00001000
+    orrne r6, r6, #0x0000f000
+    tst r5, #0b00010000
+    orrne r6, r6, #0x000f0000
+    tst r5, #0b00100000
+    orrne r6, r6, #0x00f00000
+    tst r5, #0b01000000
+    orrne r6, r6, #0x0f000000
+    tst r5, #0b10000000
+    orrne r6, r6, #0xf0000000
+
+    ; Mask in colour and store word.
+    and r6, r6, r4
+    str r6, [r1], #4
+
+    ; Next byte.
+    subs r7, r7, #1
+    bne .2
+
+    ; Next row.
+    subs r3, r3, #1
+    bne .1
+
+    mov pc, lr

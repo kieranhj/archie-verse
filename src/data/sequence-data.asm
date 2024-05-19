@@ -34,9 +34,8 @@
     write_addr palette_array_p, seq_palette_red_additive
 
 	; Setup layers of FX.
-    call_3 fx_set_layer_fns, 0, 0,                          screen_cls
-;    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
-    ;call_3 fx_set_layer_fns, 2, scope_tick,                 scope_draw
+    call_3 fx_set_layer_fns, 0, 0,                          0
+    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
     call_3 fx_set_layer_fns, 2, scope_tick_with_history,    scope_draw_with_history
     call_3 fx_set_layer_fns, 3, 0,                          0
 
@@ -44,11 +43,23 @@
     write_addr bits_text_curr, 1            ; bitshifters
 
     ; Drive y pos from a sine fn.
-    math_make_var bits_text_ypos, 0.0, 64.0, math_sin, 0.0, 1.0/200.0
+    ;math_make_var bits_text_ypos, 0.0, 64.0, math_sin, 0.0, 1.0/200.0
+    write_fp bits_text_ypos, 96.0
 
 seq_loop:
     ; Start!
-    
+
+    wait_secs 10.0
+    ; Fade to B&W.
+    palette_lerp_over_secs seq_palette_red_additive, seq_palette_all_white, 5.0
+
+    wait_secs 10.0
+    ; Fade to fire palette.
+    palette_lerp_over_secs seq_palette_all_white, seq_palette_red_additive, 5.0
+
+    ; Loop.
+    fork seq_loop
+
     ; END HERE
     end_script
 
@@ -56,12 +67,10 @@ seq_loop:
 ; Support functions.
 ; ============================================================================
 
-.if 0
 seq_unlink_palette_lerp:
     math_kill_var seq_palette_blend
     math_kill_var seq_palette_id
     end_script
-.endif
 
 ; ============================================================================
 ; Sequence tasks can be forked and self-terminate on completion.
@@ -140,7 +149,6 @@ seq_palette_red_additive:
     .long 0x00c0e0e0                    ; 14 = 1110 = oranges
     .long 0x00f0f0f0                    ; 15 = 1111 = white
 
-.if 0
 seq_palette_all_black:
     .rept 16
     .long 0x00000000
@@ -154,7 +162,6 @@ seq_palette_all_white:
 seq_palette_lerped:
     .skip 15*4
     .long 0x00ffffff
-.endif
 
 ; ============================================================================
 ; Sequence specific bss.
@@ -164,6 +171,9 @@ seq_rgb_blend:
     .long 0
 
 seq_palette_blend:
+    .long 0
+
+seq_palette_id:
     .long 0
 
 ; ============================================================================

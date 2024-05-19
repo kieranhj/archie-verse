@@ -67,7 +67,7 @@ outline_font_paint_to_buffer:
     sub r3, r3, r8, lsl #1                  ; 6400-(x1+os width/2)
     mov r8, #Screen_Width                   ; screen width
     .else
-    rsb r3, r11, #0                         ; 0-x1
+    rsb r3, r11, #0                         ; 0-x1 (LEFT ADJUST)
     .endif
     mov r4, #1024
     sub r4, r4, r5                          ; 1024-y1
@@ -97,3 +97,67 @@ outline_font_paint_to_buffer:
 
 outline_font_coord_block:
     .long 0, 0, 0, 0, -1, 0, 0, 0, 0
+
+; ============================================================================
+; RISCOS Outline font definitions.
+; ============================================================================
+
+outline_font_def_homerton_bold:
+    .byte "Homerton.Bold"
+    .byte 0
+.p2align 2
+
+outline_font_def_homerton_regular:
+    .byte "Homerton.Medium"
+    .byte 0
+.p2align 2
+
+outline_font_def_homerton_italic:
+    .byte "Homerton.Oblique"
+    .byte 0
+.p2align 2
+
+outline_font_def_homerton_bold_italic:
+    .byte "Homerton.Bold.Oblique"
+    .byte 0
+.p2align 2
+
+outline_font_def_corpus_bold:
+    .byte "Corpus.Bold"
+    .byte 0
+.p2align 2
+
+outline_font_def_corpus_regular:
+    .byte "Corpus.Medium"
+    .byte 0
+.p2align 2
+
+outline_font_def_corpus_italic:
+    .byte "Corpus.Oblique"
+    .byte 0
+.p2align 2
+
+outline_font_def_corpus_bold_italic:
+    .byte "Corpus.Bold.Oblique"
+    .byte 0
+.p2align 2
+
+outline_font_def_trinity_bold:
+    .byte "Trinity.Bold"
+    .byte 0
+.p2align 2
+
+outline_font_def_trinity_regular:
+    .byte "Trinity,Medium"
+    .byte 0
+.p2align 2
+
+outline_font_def_trinity_italic:
+    .byte "Trinity.Oblique"
+    .byte 0
+.p2align 2
+
+outline_font_def_trinity_bold_italic:
+    .byte "Trinity.Bold.Oblique"
+    .byte 0
+.p2align 2

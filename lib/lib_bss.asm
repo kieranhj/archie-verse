@@ -78,6 +78,10 @@ gen_code_start_no_adr:
 ; ============================================================================
 
 .if LibConfig_IncludeLineSegments
+.if LibConfig_IncludeSpanGen
+.error "Line Segment code generation not currently compatible with Span code gen!"
+.endif
+
 .if LineSegments_UseYBuffer
 line_segments_y_buffer_no_adr:
     .skip Screen_Stride

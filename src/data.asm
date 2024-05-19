@@ -120,22 +120,24 @@ block_sprites_no_adr:
 ; ============================================================================
 
 .macro text_def font, point, height, colour, text
-    .long bits_font_def_\font, \point*16, \height*16, \colour
+    .long outline_font_def_\font, \point*16, \height*16, \colour
     .byte "\text", 0
     .p2align 2
 .endm
 
 ; Font def, points size, point size height, text string, null terminated.
-bits_text_defs_no_adr:
-    text_def homerton_bold, 78, 78*1.2, 7, "PUSH"          ; 0
-    text_def homerton_bold, 78, 78*1.5, 7, "BITSHIFTERS"    ; 1
-    text_def trinity_bold, 90, 90*1.2, 7, "TORMENT"         ; 2
-    text_def homerton_bold, 90,90*1.2, 7, "kieran"          ; 3
-    text_def homerton_bold, 90, 90*1.2, 7, "rhino"          ; 4
+text_pool_defs_no_adr:
+    text_def homerton_bold, 78, 78*1.2, 0xf, "PUSH"          ; 0
+    text_def homerton_bold, 64, 64*1.5, 0xf, "BITSHIFTERS"    ; 1
+    text_def trinity_bold, 90, 90*1.2, 0xf, "TORMENT"         ; 2
+    text_def homerton_bold, 90,90*1.2, 0xf, "kieran"          ; 3
+    text_def homerton_bold, 90, 90*1.2, 0xf, "rhino"          ; 4
     text_def homerton_bold, 36, 36*1.2, 0xf, "code"        ; 5
     text_def homerton_bold, 36, 36*1.2, 0xf, "music"       ; 6
     text_def homerton_bold, 30, 30*1.2, 0xf, "presented at revision 2024"       ; 7
     .long -1
+
+; ============================================================================
 
 .if 0
 bits_draw_file_no_adr:
@@ -193,6 +195,8 @@ music_mod_no_adr:
 .rodata
 seq_main_program:
 .include "src/data/sequence-data.asm"
+.if _DEBUG
 .p2align 12     ; 4K
+.endif
 
 ; ============================================================================

@@ -2,9 +2,7 @@
 ; Bits logo.
 ; ============================================================================
 
-.equ Bits_Text_Max,         16
-.equ Bits_Text_PoolSize,    Screen_Stride*64*6
-
+.if 0 ; Push
 .equ Bits_Num_Verts,        490 ; was 520
 
 .equ Bits_Owl_Width_Pixels, 256
@@ -12,70 +10,6 @@
 .equ Bits_Owl_Height_Rows,  256
 .equ Bits_Owl_Mode9_Bytes,  (Bits_Owl_Width_Pixels/2)*Bits_Owl_Height_Rows
 
-bits_font_handle:
-    .long 0
-
-bits_font_def_homerton_bold:
-    .byte "Homerton.Bold"
-    .byte 0
-.p2align 2
-
-bits_font_def_homerton_regular:
-    .byte "Homerton.Medium"
-    .byte 0
-.p2align 2
-
-bits_font_def_homerton_italic:
-    .byte "Homerton.Oblique"
-    .byte 0
-.p2align 2
-
-bits_font_def_homerton_bold_italic:
-    .byte "Homerton.Bold.Oblique"
-    .byte 0
-.p2align 2
-
-bits_font_def_corpus_bold:
-    .byte "Corpus.Bold"
-    .byte 0
-.p2align 2
-
-bits_font_def_corpus_regular:
-    .byte "Corpus.Medium"
-    .byte 0
-.p2align 2
-
-bits_font_def_corpus_italic:
-    .byte "Corpus.Oblique"
-    .byte 0
-.p2align 2
-
-bits_font_def_corpus_bold_italic:
-    .byte "Corpus.Bold.Oblique"
-    .byte 0
-.p2align 2
-
-bits_font_def_trinity_bold:
-    .byte "Trinity.Bold"
-    .byte 0
-.p2align 2
-
-bits_font_def_trinity_regular:
-    .byte "Trinity,Medium"
-    .byte 0
-.p2align 2
-
-bits_font_def_trinity_italic:
-    .byte "Trinity.Oblique"
-    .byte 0
-.p2align 2
-
-bits_font_def_trinity_bold_italic:
-    .byte "Trinity.Bold.Oblique"
-    .byte 0
-.p2align 2
-
-.if 0
 bits_logo_vert_array_p:
     .long bits_logo_vert_array_no_adr
 
@@ -84,143 +18,7 @@ tmt_logo_vert_array_p:
 
 prod_logo_vert_array_p:
     .long prod_logo_vert_array_no_adr
-.endif
 
-bits_text_widths:
-    .skip Bits_Text_Max*4
-
-bits_text_heights:
-    .skip Bits_Text_Max*4
-
-bits_text_pixel_ptrs:
-    .skip Bits_Text_Max*4
-
-bits_text_pool_p:
-    .long bits_text_pool_base_no_adr
-
-bits_text_pool_top_p:
-    .long bits_text_pool_top_no_adr
-
-bits_text_defs_p:
-    .long bits_text_defs_no_adr
-
-bits_text_total:
-    .long 0
-
-; ============================================================================
-; TODO: Move this into a library module text-pool.
-; ============================================================================
-
-; R12=screen addr.
-bits_text_init:
-    str lr, [sp, #-4]!
-
-    ldr r11, bits_text_defs_p
-    b .2
-
-.1:
-    ; Get font handle.
-    ldmia r11!, {r2-r3}                     ; get point sizes
-    mov r4, #0
-    mov r5, #0
-    swi Font_FindFont
-    str r0, bits_font_handle
-
-    ; Set colours for this logo.
-    mov r0, #0                              ; font handle.
-    ldr r0, bits_font_handle
-    mov r1, #0                              ; background logical colour
-    ldr r2, [r11], #4                       ; get colour
-    mov r3, #0                              ; how many colours
-    swi Font_SetColours
-
-    ; Paint text to a MODE 9 buffer.
-    mov r0, #0
-    ldr r0, bits_font_handle
-    mov r1, r11
-    ldr r2, bits_text_pool_p
-    bl outline_font_paint_to_buffer
-
-    mov r11, r7
-    ldr r0, bits_text_total
-    .if _DEBUG
-    cmp r0, #Bits_Text_Max
-    adrge r0, err_bitoutoftexts
-    swige OS_GenerateError
-    .endif
-
-    ; Store width & height.
-    adr r1, bits_text_widths
-    str r8, [r1, r0, lsl #2]
-    adr r1, bits_text_heights
-    str r9, [r1, r0, lsl #2]
-
-    ; Store pixel ptr.
-    .if _DEBUG
-    ldr r7, bits_text_pool_top_p
-    cmp r10, r7
-    adrge r0, err_bitpooloverflow
-    swige OS_GenerateError
-    .endif
-
-    adr r1, bits_text_pixel_ptrs
-    ldr r2, bits_text_pool_p
-    str r2, [r1, r0, lsl #2]
-
-    ; BODGE-O-MATIC.
-    mov r1, #0
-    mov r2, #Screen_Stride
-.5:
-    str r1, [r10], #4
-    subs r2, r2, #1
-    bne .5
-    .if _DEBUG
-    cmp r10, r7
-    adrge r0, err_bitpooloverflow
-    swige OS_GenerateError
-    .endif
-    str r10, bits_text_pool_p
-
-    add r0, r0, #1
-    str r0, bits_text_total
-
-    ; Skip over text to next def.
-.3:
-    ldrb r1, [r11], #1
-    cmp r1, #0
-    bne .3
-    add r11, r11, #3
-    bic r11, r11, #3
-
-.if 0
-;    swi OS_WriteI+12
-.else
-    ; Clear screen of previous font stuffs.
-    mov r0, #0
-    mov r1, #0
-    mov r2, #0
-    mov r3, #0
-    mov r4, #0
-    mov r5, #0
-    mov r6, #0
-    mov r7, #0
-    mov r10, r12
-.4:
-    .rept Screen_Stride/32
-    stmia r10!, {r0-r7}
-    .endr
-    subs r9, r9, #1
-    bpl .4
-.endif
-
-.2:
-    ldr r1, [r11], #4                       ; ptr to font def
-    cmp r1, #-1
-    bne .1
-
-    ldr pc, [sp], #4
-
-.if 0 ; Push
 ; R12=screen addr.
 bits_logo_init:
     str lr, [sp, #-4]!
@@ -292,26 +90,6 @@ bits_make_verts_from_text:
     bl bits_create_vert_array_from_image
 
     ldr pc, [sp], #4
-.endif
-
-.if _DEBUG
-err_bitbufoverflow: ;The error block
-.long 18
-.byte "Bits buffer overflow!"
-.align 4
-.long 0
-
-err_bitoutoftexts: ;The error block
-.long 18
-.byte "Out of Bits text slots!"
-.align 4
-.long 0
-
-err_bitpooloverflow: ;The error block
-.long 18
-.byte "Bits text pool overflow!"
-.align 4
-.long 0
 .endif
 
 ; ============================================================================
@@ -492,63 +270,6 @@ bits_rnd_seed:
 bits_rnd_bit:
     .long 0x11111111
 .endif
-
-; ============================================================================
-
-; Expand MODE 4 (1bpp) image data to MODE 9 (4bpp).
-; Params:
-;  R0=src address.
-;  R1=dst address.
-;  R2=src width in bytes.
-;  R3=src height in rows.
-;  R4=colour index.
-bits_convert_mode4_to_mode9:
-    ; Make colour index a colour word.
-    orr r4, r4, r4, lsl #4
-    orr r4, r4, r4, lsl #8
-    orr r4, r4, r4, lsl #16
-
-    ; Row loop.
-.1:
-
-    ; Byte loop.
-    mov r7, r2
-.2:
-    ldr r5, [r0], #1
-    mov r6, #0
-
-    ; convert 1bpp byte to 4bpp word
-    ; %abcdefgh
-    tst r5, #0b00000001
-    orrne r6, r6, #0x0000000f
-    tst r5, #0b00000010
-    orrne r6, r6, #0x000000f0
-    tst r5, #0b00000100
-    orrne r6, r6, #0x00000f00
-    tst r5, #0b00001000
-    orrne r6, r6, #0x0000f000
-    tst r5, #0b00010000
-    orrne r6, r6, #0x000f0000
-    tst r5, #0b00100000
-    orrne r6, r6, #0x00f00000
-    tst r5, #0b01000000
-    orrne r6, r6, #0x0f000000
-    tst r5, #0b10000000
-    orrne r6, r6, #0xf0000000
-
-    ; Mask in colour and store word.
-    and r6, r6, r4
-    str r6, [r1], #4
-
-    ; Next byte.
-    subs r7, r7, #1
-    bne .2
-
-    ; Next row.
-    subs r3, r3, #1
-    bne .1
-
-    mov pc, lr
 
 ; ============================================================================
 
@@ -927,15 +648,14 @@ bits_text_colour:
 ; 
 ; R12=screen adrr.
 bits_draw_text:
-    ldr r0, bits_text_curr
+    str lr, [sp, #-4]!
 
-    ; TODO: Could have stored these as a block...
-    adr r11, bits_text_pixel_ptrs
-    ldr r11, [r11, r0, lsl #2]
-    adr r8, bits_text_widths
-    ldr r8, [r8, r0, lsl #2]
-    adr r9, bits_text_heights
-    ldr r9, [r9, r0, lsl #2]
+    ldr r0, bits_text_curr
+    bl text_pool_get_sprite
+    ; Returns:
+    ;  R8=width in words.
+    ;  R9=height in rows.
+    ;  R11=ptr to pixel data.
 
     ldr r10, bits_text_ypos
     mov r10, r10, asr #16
@@ -1001,6 +721,6 @@ bits_draw_text:
     cmp r7, #128
     blt .1
 
-    mov pc, lr
+    ldr pc, [sp], #4
 
 ; ============================================================================

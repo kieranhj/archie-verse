@@ -187,7 +187,7 @@ app_init_audio:
 ; R12=screen addr.
 app_late_init:
     str lr, [sp, #-4]!
-    bl bits_text_init
+    bl text_pool_init
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?
 
@@ -377,3 +377,4 @@ app_vsync_code:
 .include "lib/mode9-screen.asm"
 .include "lib/outline-font.asm"
 .include "lib/line.asm"
+.include "lib/text-pool.asm"
