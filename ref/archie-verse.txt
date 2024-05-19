@@ -24,9 +24,12 @@ ArchieKlang Announcetro
 Try?
 - Lines not dots (expensive?) - DONE
 - Previous buffers plotted above/below in darker colour to fade out? - DONE
-- Use a Y buffer so they don't overlap?
+- Use a Y buffer so they don't overlap? - DONE
 - Add palette fade as lines move up.
-- Custom faster line algo.
+- Custom faster line algo. - DONE
+- More lines but with smaller amplitude - DONE
+- Add 'zero' signal left and right of the wave lines - DONE
+
 
 TODO:
 - Add ArchieKlang sample gen at some point!

@@ -178,7 +178,10 @@ music_mod_no_adr:
 .if _LOG_SAMPLES
 .incbin "data/music/particles_15.002"
 .else
-.incbin "data/music/particles_15.mod"
+;.incbin "data/music/changing-waves.mod"
+;.incbin "data/music/maze-funky-delicious.mod"
+;.incbin "data/music/mikroreise.mod"    ; requires all the RAM!!
+.incbin "data/music/Revision_house_06.mod"
 .endif
 .endif
 

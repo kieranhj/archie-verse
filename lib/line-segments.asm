@@ -4,7 +4,6 @@
 
 .equ LineSegments_UseYBuffer,   1
 
-.equ LineSegments_Fixed_dx,     5       ; fixed.
 .equ LineSegments_Total_dy,     256
 
 ;.equ LineSegments_Min_dy,       -128

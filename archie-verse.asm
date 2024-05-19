@@ -8,7 +8,7 @@
 
 .equ _DEBUG,                    1
 .equ _SMALL_EXE,                0               ; TODO: Configure from Makefile?
-.equ _LOG_SAMPLES,              1
+.equ _LOG_SAMPLES,              0
 
 .equ _DEBUG_RASTERS,            (_DEBUG && 1)
 .equ _DEBUG_SHOW,               (_DEBUG && 1)

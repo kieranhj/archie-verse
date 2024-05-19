@@ -2,21 +2,29 @@
 ; Scope FX.
 ; ============================================================================
 
-.equ Scope_DrawLines,       1       ; otherwise points.
 .equ Scope_StepBuffer,      1       ; otherwise truncate the buffer.
+.equ LineSegments_Fixed_dx, 3       ; fixed.
 
-.equ Scope_Channel,         -1      ; or -1 for all four averaged
+.equ Scope_DrawBaseLine,    1
 
-.equ Scope_YPos,            128
+; Legacy features.
+;.equ Scope_DrawLines,      1       ; otherwise points.
+;.equ Scope_Channel,        -1      ; or -1 for all four averaged
+
 .equ Scope_XStep,           MATHS_CONST_1*320/Scope_TotalSamples
-.equ Scope_YScale,          MATHS_CONST_1*0.5
+;.equ Scope_YScale,          MATHS_CONST_1*0.5  ; now fixed by shift.
 .equ Scope_PixelColour,     15
 .equ Scope_TotalSamples,    64      ; Max samples = 208
 
 .equ Scope_MaxSamples,      208
 .equ Scope_SampleStep,      MATHS_CONST_1*Scope_MaxSamples/Scope_TotalSamples
 
-.equ Scope_NumHistories,    8       ; TODO: Dynamically reduce for ARM2?
+.equ Scope_NumHistories,    15      ; TODO: Dynamically reduce for ARM2?
+.equ Scope_YPos,            192     ; Position of active scope.
+.equ Scope_YTop,            72      ; Or fix YStep?
+.equ Scope_YStep,           (Scope_YPos-Scope_YTop)/Scope_NumHistories
+
+.equ Scope_BaseLine_Len,    (Screen_Stride-(Scope_TotalSamples*LineSegments_Fixed_dx))/2
 
 ; ============================================================================
 
@@ -225,7 +233,12 @@ scope_draw:
 scope_tick_with_history:
     ldr r7, scope_histories_p
 
-    ands r12, r0, #15
+;    ands r12, r0, #15
+    ; TODO: DO a MOD calc not a loop that's going to get slower over time!
+.3:
+    subs r0, r0, #Scope_YStep
+    bpl .3
+    adds r12, r0, #Scope_YStep
     str r12, scope_history_offset
     bne .2
 
@@ -320,7 +333,7 @@ scope_draw_with_history:
 
     mov r4, #15
     ldr r8, scope_history_offset
-    rsb r8, r8, #192
+    rsb r8, r8, #Scope_YPos
 .1:
     bl scope_draw_one_history
 
@@ -330,7 +343,7 @@ scope_draw_with_history:
     ldrle r9, scope_histories_top
     sub r9, r9, #Scope_TotalSamples
 
-    sub r8, r8, #128/Scope_NumHistories
+    sub r8, r8, #Scope_YStep
     sub r4, r4, #1
     cmp r4, #16-Scope_NumHistories
     bge .1
@@ -346,26 +359,38 @@ scope_draw_one_history:
 
     orr r4, r4, r4, lsl #4      ; byte
 
+.if Scope_DrawBaseLine
+    orr r4, r4, r4, lsl #8      ; half word.
+    orr r4, r4, r4, lsl #16     ; full word.
+
+    ; Zero baseline.
+    add r11, r12, r8, lsl #8
+    add r11, r11, r8, lsl #6  ; calc screen start address.
+
+    .rept (Scope_BaseLine_Len)/4
+    str r4, [r11], #4
+    .endr
+.endif
+
     ldr r3, scope_draw_line_seg_y_buffer
     ldr r7, scope_draw_line_seg_code_ptrs
 
-    mov r6, #0                  ; xpos in FP
+    ldrb r2, [r3]               ; min_y[0]
+    mov r6, r8                  ; prev_y (or xpos in FP)
     mov r10, #0                 ; sample no.
 .1:
     ldrb r1, [r9], #1
     mov r1, r1, asl #24
-    mov r1, r1, asr #24     ; sign extend.
+    mov r1, r1, asr #24         ; sign extend [-128,127]
 
     ; y value = sample value * scale.
     ;mov r2, #Scope_YScale
-    ;mul r1, r2, r1              ; TODO: Could be shift when final scale fixed?
+    ;mul r1, r2, r1
     ;mov r1, r1, asr #16
-    mov r1, r1, asr #1          ; div 2
-    ; TODO: Combine 3x asr's into 1!
-
+    mov r1, r1, asr #1          ; div 2 [-64,63]
     add r1, r1, r8              ; ypos.
 
-    .if 0
+    .if 0                       ; Test with full Bresenham line draw.
     cmp r10, #0
     moveq r11, r1
     beq .2
@@ -380,7 +405,7 @@ scope_draw_one_history:
     mov r1, r11                 ; starty
     mov r11, r3                 ; remember prev y
 
-    bl mode12_drawline       ; TODO: Replace with custom line draw?
+    bl mode12_drawline
 
     ldmfd sp!, {r6,r8,r9,r10}
 
@@ -390,12 +415,15 @@ scope_draw_one_history:
     .else
     sub r5, r1, r6              ; dy=y - prev_y
 
+    .if !Scope_DrawBaseLine
     cmp r10, #0
     addeq r11, r12, r1, lsl #8
     addeq r11, r11, r1, lsl #6  ; calc screen start address.
     ldreqb r2, [r3]
     beq .2
+    .endif
 
+    ; Fast line segment draw.
     and r5, r5, #0xff
     adr lr, .2
     ldr pc, [r7, r5, lsl #2]    ; (line_seg[dy])();
@@ -408,6 +436,26 @@ scope_draw_one_history:
     add r10, r10, #1
     cmp r10, #Scope_TotalSamples
     blt .1
+
+.if Scope_DrawBaseLine
+    ; Zero baseline.
+    sub r5, r8, r6              ; dy=base_y - prev_y
+    and r5, r5, #0xff
+    adr lr, .3
+    ldr pc, [r7, r5, lsl #2]    ; (line_seg[dy])();
+    .3:
+
+    tst r11, #3
+    strneb r4, [r11], #1
+    tst r11, #3
+    strneb r4, [r11], #1
+    tst r11, #3
+    strneb r4, [r11], #1
+
+    .rept (Scope_BaseLine_Len-4)/4
+    str r4, [r11], #4
+    .endr
+.endif
 
     and r4, r4, #0xf
 
