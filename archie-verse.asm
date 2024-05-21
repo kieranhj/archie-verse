@@ -524,7 +524,7 @@ error_handler:
 	SWI OS_Byte
 
 	; Do these help?
-	QTMSWI QTM_Stop
+;	QTMSWI QTM_Stop
 
 	LDMIA sp!, {r0-r2, lr}
 	MOVS pc, lr

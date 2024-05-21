@@ -40,7 +40,7 @@
     call_3 fx_set_layer_fns, 3, 0,                          0
 
     ; Simple logo.
-    write_addr bits_text_curr, 1            ; bitshifters
+    fork seq_header
 
     ; Drive y pos from a sine fn.
     ;math_make_var bits_text_ypos, 0.0, 64.0, math_sin, 0.0, 1.0/200.0
@@ -62,6 +62,31 @@ seq_loop:
 
     ; END HERE
     end_script
+
+seq_header:
+    write_addr bits_text_curr, 0            ; bitshifters
+    wait_secs 5.0
+    write_addr bits_text_curr, 1            ; alcatraz
+    wait_secs 5.0
+    write_addr bits_text_curr, 2            ; torment
+    wait_secs 5.0
+    write_addr bits_text_curr, 3            ; present
+    wait_secs 5.0
+    write_addr bits_text_curr, 4            ; ArchieKlang
+    wait_secs 5.0
+    write_addr bits_text_curr, 5            ; code
+    wait_secs 5.0
+    write_addr bits_text_curr, 6            ; kieran
+    wait_secs 5.0
+    write_addr bits_text_curr, 7            ; music
+    wait_secs 5.0
+    write_addr bits_text_curr, 8            ; Rhino
+    wait_secs 5.0
+    write_addr bits_text_curr, 9            ; samples & synth
+    wait_secs 5.0
+    write_addr bits_text_curr, 10           ; Virgill
+    wait_secs 5.0
+    fork seq_header
 
 ; ============================================================================
 ; Support functions.

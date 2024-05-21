@@ -119,22 +119,19 @@ block_sprites_no_adr:
 ; Text.
 ; ============================================================================
 
-.macro text_def font, point, height, colour, text
-    .long outline_font_def_\font, \point*16, \height*16, \colour
-    .byte "\text", 0
-    .p2align 2
-.endm
-
 ; Font def, points size, point size height, text string, null terminated.
 text_pool_defs_no_adr:
-    text_def homerton_bold, 78, 78*1.2, 0xf, "PUSH"          ; 0
-    text_def homerton_bold, 64, 64*1.5, 0xf, "BITSHIFTERS"    ; 1
-    text_def trinity_bold, 90, 90*1.2, 0xf, "TORMENT"         ; 2
-    text_def homerton_bold, 90,90*1.2, 0xf, "kieran"          ; 3
-    text_def homerton_bold, 90, 90*1.2, 0xf, "rhino"          ; 4
-    text_def homerton_bold, 36, 36*1.2, 0xf, "code"        ; 5
-    text_def homerton_bold, 36, 36*1.2, 0xf, "music"       ; 6
-    text_def homerton_bold, 30, 30*1.2, 0xf, "presented at revision 2024"       ; 7
+    TextDef homerton_bold_italic, 64, 64*1.5, 0xf, "BITSHIFTERS"   ; 0
+    TextDef homerton_bold, 64, 64*1.5, 0xf, "ALCATRAZ"      ; 1
+    TextDef trinity_bold,  90, 90*1.2, 0xf, "TORMENT"       ; 2
+    TextDef homerton_bold, 80, 80*1.2, 0xf, "present"       ; 3
+    TextDef homerton_bold, 80, 80*1.2, 0xf, "ArchieKlang"   ; 4
+    TextDef homerton_bold_italic, 36, 36*1.2, 0xf, "code"          ; 5
+    TextDef homerton_bold, 36, 36*1.2, 0xf, "kieran"        ; 6
+    TextDef homerton_bold_italic, 36, 36*1.2, 0xf, "music"         ; 7
+    TextDef homerton_bold, 36, 36*1.2, 0xf, "Rhino"         ; 8
+    TextDef homerton_bold_italic, 36, 36*1.2, 0xf, "samples & synth" ; 9
+    TextDef homerton_bold, 36, 36*1.2, 0xf, "Virgill"       ; 10
     .long -1
 
 ; ============================================================================

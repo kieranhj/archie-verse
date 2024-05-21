@@ -1,5 +1,6 @@
 ; ============================================================================
-; Bits logo.
+; Bitshifters logo.
+; And bits & pieces that don't necessarily have a home or are in prototype.
 ; ============================================================================
 
 .if 0 ; Push
@@ -722,5 +723,88 @@ bits_draw_text:
     blt .1
 
     ldr pc, [sp], #4
+
+; ============================================================================
+
+.if 0
+bits_glyphs_a:
+    .long -1
+
+; R12=screen adrr.
+bits_glyphs_init:
+    str lr, [sp, #-4]!
+
+    adr r11, bits_glyph_def
+    mov r0, #0
+    strb r0, [r11, #17]         ; one char only.
+
+.1:
+    ldr r1, [r11], #4           ; ptr to font def
+    bl text_pool_make_sprite
+
+    ; Store index for 'A'.
+    ldr r1, bits_glyphs_a
+    cmp r1, #-1
+    streq r0, bits_glyphs_a
+
+    ; Increment letter.
+    adr r11, bits_glyph_def
+    ldrb r0, [r11, #16]         ; string offset.
+    add r0, r0, #1
+    strb r0, [r11, #16]         ; string offset.
+    cmp r0, #91 ; 'Z'
+    blt .1
+
+    ldr pc, [sp], #4
+
+bits_glyph_def:
+    TextDef corpus_bold, 36, 36*1.2, 0xf, "AB"    ; macro needs >1 char?!
+
+; R12=screen adrr.
+bits_glyph_draw:
+    str lr, [sp, #-4]!
+
+    adr r10, bits_text
+.1:
+    ldrb r0, [r10], #1
+    cmp r0, #0
+    beq .2
+
+    sub r0, r0, #65 ; 'A'
+    bl text_pool_get_sprite
+    ; Returns:
+    ;  R8=width in words.
+    ;  R9=height in rows.
+    ;  R11=ptr to pixel data.
+
+    ; Screen addr.
+    mov r6, r12
+
+    ; Row loop.
+.3:
+    ; Col loop.
+    mov r7, r8
+.4:
+    ldr r0, [r11], #4
+    str r0, [r6], #4
+    subs r7, r7, #1
+    bne .4
+
+    sub r6, r6, r8, lsl #2
+    add r6, r6, #Screen_Stride
+
+    subs r9, r9, #1
+    bne .3
+
+    add r12, r12, r8, lsl #2        ; x+=width
+    b .1
+
+.2:
+    ldr pc, [sp], #4
+
+bits_text:
+    .byte "BITSHIFTERS", 0
+.p2align 2
+.endif
 
 ; ============================================================================

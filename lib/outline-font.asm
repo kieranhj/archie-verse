@@ -7,7 +7,12 @@
 ;  Trinity. [Bold|Medium].[Oblique]
 ; ============================================================================
 
-.equ _OUTLINE_FONT_CENTRE_TO_SCREEN, 1  ; TODO: Left, right and centre adjust.
+.equ _OUTLINE_FONT_CENTRE_TO_SCREEN, 1
+; TODO:
+;  Option to justify left, right and centre to buffer.
+;  Option to specify buffer width (e.g. screen width) or automatically calculate it.
+;  Option to specify vertical position in buffer.
+;  Option for different screen configurations (MODE 9,12,13 etc.)
 
 ; Paint a string to the screen using RISCOS outline fonts.
 ; Then copies the bounding box of the screen data to a buffer.
@@ -41,18 +46,26 @@ outline_font_paint_to_buffer:
     ldr r1, outline_font_coord_block+20     ; x1
     ldr r2, outline_font_coord_block+24     ; y1
     swi Font_ConverttoOS
-    mov r11, r1
-    mov r5, r2
+    mov r11, r1                             ; x1 (os units)
+    mov r5, r2                              ; y1 (os units)
 
-    ldr r1, outline_font_coord_block+28     ; x2
-    ldr r2, outline_font_coord_block+32     ; y2
+    ldr r1, outline_font_coord_block+28     ; x2 (os units)
+    ldr r2, outline_font_coord_block+32     ; y2 (os units)
     swi Font_ConverttoOS
-    sub r8, r1, r11                         ; x2-x1 os units
+
+    ; Calculate width and height in os units.
+    sub r8, r1, r11                         ; width = x2-x1 (os units)
     add r8, r8, #4                          ; inclusive so round up
-    sub r4, r2, r5                          ; y2-y1 os units
+    sub r4, r2, r5                          ; height = y2-y1 (os units)
     add r4, r4, #4                          ; inclusive so round up
 
+    ; Convert os units into pixels.
+    ; TODO: Keep in os units for as long as possible.
+    .if Screen_Width == 640
+    mov r8, r8, lsr #1                      ; pixel width.
+    .else
     mov r8, r8, lsr #2                      ; pixel width.
+    .endif
     mov r9, r4, lsr #2                      ; pixel height.
 
     ; Paint to screen.
@@ -61,19 +74,20 @@ outline_font_paint_to_buffer:
     mov r2, #0x10                           ; os units.
 
     ; Ensure string is painted exactly in top left of the screen buffer.
-
     .if _OUTLINE_FONT_CENTRE_TO_SCREEN
     rsb r3, r11, #640                       ; 640-x1
-    sub r3, r3, r8, lsl #1                  ; 6400-(x1+os width/2)
+    sub r3, r3, r8;, lsl #1                  ; 640-x1-(os width/2)
     mov r8, #Screen_Width                   ; screen width
     .else
     rsb r3, r11, #0                         ; 0-x1 (LEFT ADJUST)
     .endif
+
     mov r4, #1024
     sub r4, r4, r5                          ; 1024-y1
     sub r4, r4, r9, lsl #2                  ; 1024-y1-os height
     swi Font_Paint
 
+    ; Assumes 4bpp here!
     add r8, r8, #7                          ; round up to full word.
     mov r8, r8, lsr #3                      ; word width.
 

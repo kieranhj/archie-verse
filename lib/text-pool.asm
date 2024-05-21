@@ -4,13 +4,13 @@
 ; ============================================================================
 
 .equ Text_Pool_Max,         16
-.equ Text_Pool_PoolSize,    Screen_Stride*64*6
+.equ Text_Pool_PoolSize,    Screen_Stride*64*Text_Pool_Max
 
 ; ============================================================================
 ; Text pool vars.
 ; ============================================================================
 
-bits_font_handle:
+text_pool_font_handle:
     .long 0
 
 ; TODO: Could have stored these as a block...
@@ -35,24 +35,26 @@ text_pool_defs_p:
 text_pool_total:
     .long 0
 
-; R12=screen addr.
-text_pool_init:
+
+; R1=ptr to font def
+; R11=text def vars
+; R12=screen addr
+; Return:
+;  R0=text no.
+;  R11=end of text def
+text_pool_make_sprite:
     str lr, [sp, #-4]!
 
-    ldr r11, text_pool_defs_p               ; TODO: Pass this in?
-    b .2
-
-.1:
     ; Get font handle.
     ldmia r11!, {r2-r3}                     ; get point sizes
     mov r4, #0
     mov r5, #0
     swi Font_FindFont
-    str r0, bits_font_handle
+    str r0, text_pool_font_handle
 
     ; Set colours for this logo.
     mov r0, #0                              ; font handle.
-    ldr r0, bits_font_handle
+    ldr r0, text_pool_font_handle
     mov r1, #0                              ; background logical colour
     ldr r2, [r11], #4                       ; get colour
     mov r3, #0                              ; how many colours
@@ -60,7 +62,7 @@ text_pool_init:
 
     ; Paint text to a MODE 9 buffer.
     mov r0, #0
-    ldr r0, bits_font_handle
+    ldr r0, text_pool_font_handle
     mov r1, r11
     ldr r2, text_pool_p
     bl outline_font_paint_to_buffer
@@ -91,13 +93,16 @@ text_pool_init:
     ldr r2, text_pool_p
     str r2, [r1, r0, lsl #2]
 
-    ; BODGE-O-MATIC.
+    ; BODGE-O-MATIC (because Push was displaying centre aligned text not at x=0)
+.if 0
     mov r1, #0
     mov r2, #Screen_Stride
 .5:
     str r1, [r10], #4
     subs r2, r2, #1
     bne .5
+.endif
+
     .if _DEBUG
     cmp r10, r7
     adrge r0, err_bitpooloverflow
@@ -105,6 +110,8 @@ text_pool_init:
     .endif
     str r10, text_pool_p
 
+    ; Increment total.
+    mov r8, r0
     add r0, r0, #1
     str r0, text_pool_total
 
@@ -116,9 +123,6 @@ text_pool_init:
     add r11, r11, #3
     bic r11, r11, #3
 
-.if 0
-;    swi OS_WriteI+12
-.else
     ; Clear screen of previous font stuffs.
     mov r0, #0
     mov r1, #0
@@ -130,12 +134,26 @@ text_pool_init:
     mov r7, #0
     mov r10, r12
 .4:
-    .rept Screen_Stride/32
+    .rept Screen_Stride/32                  ; TODO: Does this need to be full screen width?
     stmia r10!, {r0-r7}
     .endr
     subs r9, r9, #1
     bpl .4
-.endif
+
+    ; Return text no.
+    mov r0, r8
+    ldr pc, [sp], #4
+
+
+; R12=screen addr.
+text_pool_init:
+    str lr, [sp, #-4]!
+
+    ldr r11, text_pool_defs_p               ; TODO: Pass this in?
+    b .2
+
+.1:
+    bl text_pool_make_sprite
 
 .2:
     ldr r1, [r11], #4                       ; ptr to font def
