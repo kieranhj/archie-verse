@@ -29,8 +29,9 @@ Try?
 - Custom faster line algo. - DONE
 - More lines but with smaller amplitude - DONE
 - Add 'zero' signal left and right of the wave lines - DONE
-
-- Fade in messages at the top.
+- Add header text - DONE
+- Fade in header messages at the top (separate colour)
+- Add iterator to header?
 - Simple scroller at the bottom?
     - Use RISCOS font? Corpus is fixed width (but might look meh?)
     - Still need to figure out how to draw at the same Y pos for all glyphs.

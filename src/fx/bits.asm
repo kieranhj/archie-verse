@@ -706,7 +706,7 @@ bits_draw_text:
     add r7, r7, #1
     cmp r7, #128
     blt .1
-    mov pc, lr
+    ldr pc, [sp], #4
 
 .2:
     mov r0, #0
@@ -721,7 +721,97 @@ bits_draw_text:
     add r7, r7, #1
     cmp r7, #128
     blt .1
+    ldr pc, [sp], #4
 
+; ============================================================================
+
+.if 0
+bits_text_y_func:
+    .long 0         ; func[y] that returns which sprite line to plot.
+
+bits_text_colour_func:
+    .long 0         ; func[y] that returns which colour to plot.
+
+bits_text_t:
+    .long 0
+
+; Plot the current text to the screen along with a CLS.
+; 
+; R12=screen adrr.
+bits_draw_text_with_iterator:
+    str lr, [sp, #-4]!
+
+    ldr r0, bits_text_t
+    add r0, r0, #1
+    str r0, bits_text_t
+
+    ldr r0, bits_text_curr
+    bl text_pool_get_sprite
+    ; Returns:
+    ;  R8=width in words.
+    ;  R9=height in rows.
+    ;  R11=ptr to pixel data.
+    mov r8, r9                      ; fix width for now.
+
+    mov r7, #0                      ; scanline.
+.1:
+    ldr r0, bits_text_t
+    add r0, r0, r7                  ; t+i
+    ldr r10, bits_text_y_func       ; needs to be reset
+    cmp r10, #0
+    blne math_evaluate_func
+    moveq r0, r0, asl #16
+
+    ; R0=line no. [16.16]
+    mov r0, r0, asr #16             ; line no. [16.0]
+
+    ; Clip to top & bottom of sprite.
+    cmp r0, #0
+    blt .2
+    cmp r0, r8
+    bge .2
+
+    ; Calculate src ptr (assume fixed to 320 byte stride).
+    add r6, r11, r0, asl #8
+    add r6, r6, r0, asl #6          ; 320*line no.
+
+    ; Get colour (could be iterator).
+    ldr r5, bits_text_colour
+    mov r5, r5, asr #16
+    orr r5, r5, r5, lsl #4
+    orr r5, r5, r5, lsl #8
+    orr r5, r5, r5, lsl #16
+
+    ; Copy a line to screen.
+    ; Fix everything to screen width for speed.
+    .rept Screen_Stride/16
+    ldmia r6!, {r0-r3}
+    and r0, r0, r5
+    and r1, r1, r5
+    and r2, r2, r5
+    and r3, r3, r5
+    stmia r12!, {r0-r3}
+    .endr
+
+    ; Code duplicated below.
+    add r7, r7, #1
+    cmp r7, #Screen_Height
+    blt .1
+    ldr pc, [sp], #4
+
+.2:
+    mov r0, #0
+    mov r1, #0
+    mov r2, #0
+    mov r3, #0
+    .rept Screen_Stride/16
+    stmia r12!, {r0-r3}
+    .endr
+
+    ; Code duplicated above.
+    add r7, r7, #1
+    cmp r7, #Screen_Height
+    blt .1
     ldr pc, [sp], #4
 
 ; ============================================================================
@@ -805,6 +895,7 @@ bits_glyph_draw:
 bits_text:
     .byte "BITSHIFTERS", 0
 .p2align 2
+.endif
 .endif
 
 ; ============================================================================
