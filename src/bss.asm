@@ -162,6 +162,14 @@ scope_dma_buffer_histories_no_adr:
 scope_dma_buffer_histories_top_no_adr:
 
 ; ============================================================================
+
+scroll_text_hash_values_no_adr:
+    .skip 4*ScrollText_MaxSprites
+
+scroll_text_as_sprites_no_adr:
+    .skip ScrollText_MaxLength
+
+; ============================================================================
 ; Library BSS (must come last)
 ; ============================================================================
 

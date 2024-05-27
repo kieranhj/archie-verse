@@ -20,8 +20,8 @@
 .equ Scope_SampleStep,      MATHS_CONST_1*Scope_MaxSamples/Scope_TotalSamples
 
 .equ Scope_NumHistories,    15      ; TODO: Dynamically reduce for ARM2?
-.equ Scope_YPos,            192     ; Position of active scope.
-.equ Scope_YTop,            72      ; Or fix YStep?
+.equ Scope_YPos,            208     ; Position of active scope.
+.equ Scope_YTop,            88      ; Or fix YStep?
 .equ Scope_YStep,           (Scope_YPos-Scope_YTop)/Scope_NumHistories
 
 .equ Scope_BaseLine_Len,    (Screen_Stride-(Scope_TotalSamples*LineSegments_Fixed_dx))/2

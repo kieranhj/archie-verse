@@ -85,7 +85,7 @@ main:
 
 	; LATE INITALISATION HERE!
     bl mark_write_bank_as_pending_display
-	bl get_next_bank_for_writing
+	bl get_next_bank_for_writing    ; NB. Replace with bl get_screen_addr to see font plotting.
 
     ; Can now write to the screen for final init.
     ldr r12, screen_addr
@@ -485,6 +485,7 @@ get_next_bank_for_writing:
 	mov r0, #OSByte_WriteVDUBank
 	swi OS_Byte
 
+get_screen_addr:
 	; Back buffer address for writing bank stored at screen_addr
 	adrl r0, screen_addr_input
 	adrl r1, screen_addr

@@ -121,6 +121,7 @@ block_sprites_no_adr:
 
 ; Font def, points size, point size height, text string, null terminated.
 text_pool_defs_no_adr:
+.long -1
     TextDef homerton_bold_italic, 64, 64*1.5, 0xf, "BITSHIFTERS"   ; 0
     TextDef homerton_bold, 64, 64*1.5, 0xf, "ALCATRAZ"      ; 1
     TextDef trinity_bold,  90, 90*1.2, 0xf, "TORMENT"       ; 2
@@ -132,7 +133,6 @@ text_pool_defs_no_adr:
     TextDef homerton_bold, 36, 36*1.2, 0xf, "Rhino"         ; 8
     TextDef homerton_bold_italic, 36, 36*1.2, 0xf, "samples & synth" ; 9
     TextDef homerton_bold, 36, 36*1.2, 0xf, "Virgill"       ; 10
-    .long -1
 
 ; ============================================================================
 
@@ -152,6 +152,10 @@ greetz1_mode4_no_adr:
 greetz2_mode4_no_adr:
     .incbin "build/greetz2.bin"
 .endif
+
+; ============================================================================
+
+.include "src/data/scroll-text-klang.asm"
 
 ; ============================================================================
 ; QTM Embedded.
@@ -180,7 +184,8 @@ music_mod_no_adr:
 ;.incbin "data/music/changing-waves.mod"
 ;.incbin "data/music/maze-funky-delicious.mod"
 ;.incbin "data/music/mikroreise.mod"    ; requires all the RAM!!
-.incbin "data/music/Revision_house_06.mod"
+;.incbin "data/music/Revision_house_06.mod"
+.incbin "data/music/archieklang_smp.mod"
 .endif
 .endif
 

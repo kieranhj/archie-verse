@@ -188,6 +188,7 @@ app_init_audio:
 app_late_init:
     str lr, [sp, #-4]!
     bl text_pool_init
+    bl scroll_text_init
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?
 
@@ -364,8 +365,8 @@ app_vsync_code:
 ; FX code modules.
 ; ============================================================================
 
-.include "src/fx/bits.asm"
 .include "src/fx/scope.asm"
+.include "src/fx/bits.asm"
 
 ; ============================================================================
 ; Support library code modules used by the FX sequence.

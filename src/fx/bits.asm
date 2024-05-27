@@ -899,3 +899,291 @@ bits_text:
 .endif
 
 ; ============================================================================
+
+.equ ScrollText_MaxSprites,     256
+.equ ScrollText_MaxLength,      1024
+.equ ScrollText_SpaceColumns,   4
+
+scroll_text_text_p:
+    .long scroll_text_text_no_adr
+
+scroll_text_ptr:
+    .long scroll_text_as_sprites_no_adr
+
+scroll_text_offset:
+    .long 0                         ; column in sprite.
+
+scroll_text_fixed_height:
+    .long 0
+
+scroll_text_fixed_y:
+    .long 0
+
+scroll_text_as_sprites_p:
+    .long scroll_text_as_sprites_no_adr
+
+scroll_text_hash_values_p:
+    .long scroll_text_hash_values_no_adr
+
+scroll_text_y_pos:
+    FLOAT_TO_FP 200.0
+
+scroll_text_text_def:
+    TextDef homerton_bold_italic, 64, 64*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA"    ; macro needs >1 char?!
+
+scroll_text_init:
+    str lr, [sp, #-4]!
+
+    adr r11, scroll_text_text_def
+    ldr r1, [r11], #4               ; font def
+    bl text_pool_get_bounding_box
+    ; Returns:
+    ;  r11= x1 (os units)
+    ;  r5 = y1 (os units)
+    ;  r1 = x2 (os units)
+    ;  r2 = y2 (os units)
+    ;  r8 = width (os units)
+    ;  r4 = height (os units)
+
+    ; So want to plot the string at 1024-y2 into a buffer of height to ensure all on the same line.
+    str r4, scroll_text_fixed_height
+    str r5, scroll_text_fixed_y
+
+    ldr r6, scroll_text_as_sprites_p
+    ldr r8, scroll_text_hash_values_p
+    mov r9, #0                  ; num sprites.
+
+    ; Convert scroll text into sprites using a dictionary to avoid repetition.
+    ldr r10, scroll_text_text_p
+.1:
+    bl get_jenkins_hash_for_string
+    ; R0=hash value.
+
+    ; Find hash.
+    mov r7, #0                  ; index
+.2:
+    cmp r7, r9
+    bge .3                      ; not found.
+    ldr r1, [r8, r7, lsl #2]
+    cmp r1, r0                  ; compare hash.
+    beq .30                      ; found.
+    add r7, r7, #1
+    b .2
+
+    ; Hash not found.
+.3:
+    ; Store hash.
+    str r0, [r8, r9, lsl #2]
+
+.30:
+    ; Copy string to text def.
+    adr r11, scroll_text_text_def
+    ldr r1, [r11], #4               ; font def
+    add r2, r11, #12                ; text base
+.31:
+    ldrb r0, [r10], #1
+    cmp r0, #0
+    beq .32
+    cmp r0, #ASCII_Space
+    beq .32
+    strb r0, [r2], #1
+    b .31
+.32:
+    mov r0, #0
+    strb r0, [r2], #1               ; terminate string.
+
+    cmp r7, r9
+    blt .4
+
+    ; Generate new sprite.
+    add r9, r9, #1
+    .if _DEBUG
+    cmp r9, #ScrollText_MaxSprites
+    adrge r0, err_scrolltextmax
+    swige OS_GenerateError    
+    .endif
+
+    stmfd sp!, {r6,r8-r10}
+    mov r3, #1                      ; store as columns.
+    ldr r4, scroll_text_fixed_height
+    ldr r5, scroll_text_fixed_y
+    bl text_pool_make_sprite
+    ; Returns:
+    ;  R0=text no.
+    ldmfd sp!, {r6,r8-r10}
+
+    ; TODO: index==sprite num for now
+    mov r7, r0
+.4:
+    ; Hash found.
+    strb r7, [r6], #1
+
+    ; Continue until EOS.
+    ldrb r0, [r10, #-1]
+    cmp r0, #0
+    bne .1
+
+    mov r0, #-1
+    strb r0, [r6], #1
+
+    ldr pc, [sp], #4
+
+.if _DEBUG
+err_scrolltextmax: ;The error block
+.long 18
+.byte "Out of scrolltext sprites!"
+.align 4
+.long 0
+.endif
+
+; ============================================================================
+
+scroll_text_tick:
+    str lr, [sp, #-4]!
+
+    ldr r10, scroll_text_ptr
+    ldrb r0, [r10]
+    bl text_pool_get_sprite
+    ; Returns:
+    ;  R8=width in words.
+    ;  R9=height in rows.
+    ;  R11=ptr to pixel data.
+    add r8, r8, #ScrollText_SpaceColumns
+    ldr r1, scroll_text_offset
+    add r1, r1, #1
+    cmp r1, r8
+    blt .1
+
+    ; Next sprite.
+    ldrb r0, [r10, #1]!
+    cmp r0, #0xff
+    ldreq r10, scroll_text_as_sprites_p
+    str r10, scroll_text_ptr
+
+    ; First column.
+    mov r1, #0
+.1:
+    str r1, scroll_text_offset
+    ldr pc, [sp], #4
+
+; R12=screen addr.
+scroll_text_draw:
+    str lr, [sp, #-4]!
+
+    ; Calculate screen address.
+    ldr r0, scroll_text_y_pos
+    mov r0, r0, asr #16
+    add r12, r12, r0, lsl #8
+    add r12, r12, r0, lsl #6
+
+    ldr r10, scroll_text_ptr
+    ldrb r0, [r10]
+    cmp r0, #0xff
+    beq .3
+    bl text_pool_get_sprite
+    ; Returns:
+    ;  R8=width in words.
+    ;  R9=height in rows.
+    ;  R11=ptr to pixel data.
+
+    ldr r6, scroll_text_offset
+    mul r0, r9, r6                  ; height * columns
+    add r11, r11, r0, lsl #2        ; each column is a word.
+
+    ; Keep column counter 0-79 for screen width.
+    mov r7, #0                      ; column count.
+.1:
+    cmp r6, r8
+    bge .3
+
+    mov r4, r12
+
+    ; Plot a column slowly for now.
+    mov r5, r9                      ; height
+.2:
+    ldr r0, [r11], #4
+    str r0, [r12], #Screen_Stride   ; next row.
+    subs r5, r5, #1
+    bne .2
+
+    ; Next screen column.
+    add r12, r4, #4
+    add r7, r7, #1
+    cmp r7, #Screen_Stride/4
+    bge .5                          ; done if hit rhs of screen.
+
+    ; Next sprite column.
+    add r6, r6, #1
+    b .1
+
+.3:
+    add r8, r8, #ScrollText_SpaceColumns
+
+    ; Plot a standard space!
+    mov r0, #0
+.4:
+    mov r4, r12
+
+    ; Plot a column slowly for now.
+    mov r5, r9                      ; height
+.42:
+    str r0, [r12], #Screen_Stride   ; next row.
+    subs r5, r5, #1
+    bne .42
+
+    ; Next screen column.
+    add r12, r4, #4
+    add r7, r7, #1
+    cmp r7, #Screen_Stride/4
+    bge .5                          ; done if hit rhs of screen.
+
+    add r6, r6, #1
+    cmp r6, r8
+    blt .4
+
+    ; Next sprite!
+    ldrb r0, [r10, #1]!
+    cmp r0, #0xff
+    beq .5
+    bl text_pool_get_sprite
+    ; Returns:
+    ;  R8=width in words.
+    ;  R9=height in rows.
+    ;  R11=ptr to pixel data.
+    mov r6, #0
+    b .1
+
+.5:
+    ldr pc, [sp], #4
+
+; ============================================================================
+
+; R10=ptr to string.
+; Terminate with space or 0.
+; Returns: R0=hash value
+; Trashes: R1-R2
+get_jenkins_hash_for_string:
+    mov r0, #0  ; hash
+    mov r1, #0  ; i
+.1:
+    ldrb r2, [r10, r1]
+    cmp r2, #0
+    beq .2
+    cmp r2, #ASCII_Space
+    beq .2
+
+    add r0, r0, r2          ; hash += key[i++]
+    add r0, r0, r0, lsl #10 ; hash += hash << 10
+    eor r0, r0, r0, lsr #6  ; hash ^= hash >>6
+
+    adds r1, r1, #1
+    bne .1                  ; max 256 chars in the string.
+
+.2:
+    ; Complete the hash.
+    add r0, r0, r0, lsl #3  ; hash += hash << 3
+    eor r0, r0, r0, lsr #11 ; hash ^= hash >> 11
+    add r0, r0, r0, lsl #15 ; hash += hash << 15
+    mov pc, lr
+
+; ============================================================================

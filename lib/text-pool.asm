@@ -3,8 +3,8 @@
 ; Keeps a pool of text strings painted to 'sprites', i.e. pixel data.
 ; ============================================================================
 
-.equ Text_Pool_Max,         16
-.equ Text_Pool_PoolSize,    Screen_Stride*64*Text_Pool_Max
+.equ Text_Pool_Max,         256
+.equ Text_Pool_PoolSize,    Text_Pool_Max*24*25 ;Screen_Stride*64*Text_Pool_Max
 
 ; ============================================================================
 ; Text pool vars.
@@ -36,14 +36,45 @@ text_pool_total:
     .long 0
 
 
-; R1=ptr to font def
-; R11=text def vars
+; Get bounding box for a string using the font def.
+; Feels like we're leaking some abstraction here.
+; R1=ptr to RISCOS font name
+; R11=ptr to text def vars
+; Returns:
+;  r11= x1 (os units)
+;  r5 = y1 (os units)
+;  r1 = x2 (os units)
+;  r2 = y2 (os units)
+;  r8 = width (os units)
+;  r4 = height (os units)
+text_pool_get_bounding_box:
+    ; Get font handle.
+    ldmia r11!, {r2-r3}                     ; get point sizes
+    mov r4, #0
+    mov r5, #0
+    swi Font_FindFont
+    str r0, text_pool_font_handle
+
+    ldr r2, [r11], #4                       ; get colour
+    mov r1, r11                             ; text ptr
+    b outline_font_get_bounding_box
+
+
+; Store data in rows.
+; R1=ptr to RISCOS font name
+; R3=store as rows (0) or columns (<>0)
+; R11=ptr to text def vars
 ; R12=screen addr
-; Return:
+; Returns:
 ;  R0=text no.
 ;  R11=end of text def
+; Trashes: r0-r10
 text_pool_make_sprite:
     str lr, [sp, #-4]!
+
+    mov r10, r3                             ; stash flag.
+    mov r9, r4
+    mov r8, r5
 
     ; Get font handle.
     ldmia r11!, {r2-r3}                     ; get point sizes
@@ -53,18 +84,19 @@ text_pool_make_sprite:
     str r0, text_pool_font_handle
 
     ; Set colours for this logo.
-    mov r0, #0                              ; font handle.
-    ldr r0, text_pool_font_handle
+    ldr r0, text_pool_font_handle           ; font handle.
     mov r1, #0                              ; background logical colour
     ldr r2, [r11], #4                       ; get colour
     mov r3, #0                              ; how many colours
     swi Font_SetColours
 
     ; Paint text to a MODE 9 buffer.
-    mov r0, #0
     ldr r0, text_pool_font_handle
     mov r1, r11
     ldr r2, text_pool_p
+    mov r3, r10                             ; retrieve flag.
+    mov r4, r9                              ; argh! refactor me.
+    mov r5, r8
     bl outline_font_paint_to_buffer
 
     mov r11, r7
@@ -92,16 +124,6 @@ text_pool_make_sprite:
     adr r1, text_pool_pixel_ptrs
     ldr r2, text_pool_p
     str r2, [r1, r0, lsl #2]
-
-    ; BODGE-O-MATIC (because Push was displaying centre aligned text not at x=0)
-.if 0
-    mov r1, #0
-    mov r2, #Screen_Stride
-.5:
-    str r1, [r10], #4
-    subs r2, r2, #1
-    bne .5
-.endif
 
     .if _DEBUG
     cmp r10, r7
@@ -149,10 +171,13 @@ text_pool_make_sprite:
 text_pool_init:
     str lr, [sp, #-4]!
 
-    ldr r11, text_pool_defs_p               ; TODO: Pass this in?
+    ldr r11, text_pool_defs_p               ; TODO: Pass this in or separate?
     b .2
 
 .1:
+    mov r3, #0                              ; store as rows by default.
+    mov r4, #0                              ; not fixed
+    mov r5, #0                              ; not fixed
     bl text_pool_make_sprite
 
 .2:

@@ -7,36 +7,24 @@
 ;  Trinity. [Bold|Medium].[Oblique]
 ; ============================================================================
 
-.equ _OUTLINE_FONT_CENTRE_TO_SCREEN, 1
+.equ _OUTLINE_FONT_CENTRE_TO_SCREEN, 0
 ; TODO:
 ;  Option to justify left, right and centre to buffer.
 ;  Option to specify buffer width (e.g. screen width) or automatically calculate it.
 ;  Option to specify vertical position in buffer.
 ;  Option for different screen configurations (MODE 9,12,13 etc.)
 
-; Paint a string to the screen using RISCOS outline fonts.
-; Then copies the bounding box of the screen data to a buffer.
-; Uses the currently selected font colours.
-;
-; Params:
+; Calculate bounding box for string.
 ;  R0=font handle (or 0).
 ;  R1=ptr to string.
-;  R2=ptr to sprite buffer.
-;  R12=screen base ptr.
 ; Returns:
-;  R8=width in words.
-;  R9=height in rows.
-;  R10=end of sprite buffer.
-; Trashes: R0-R7,R11
-outline_font_paint_to_buffer:
-    str r12, [sp, #-4]!
-
-    ; Stash params.
-    mov r6, r0
-    mov r7, r1
-    mov r10, r2
-
-    ; Calculate bounding box for string.
+;  r11= x1 (os units)
+;  r5 = y1 (os units)
+;  r1 = x2 (os units)
+;  r2 = y2 (os units)
+;  r8 = width (os units)
+;  r4 = height (os units)
+outline_font_get_bounding_box:
     mov r2, #0x40020            ; bits 18 & 5 set.
     mov r3, #0x1000000
     mov r4, #0x1000000
@@ -58,9 +46,53 @@ outline_font_paint_to_buffer:
     add r8, r8, #4                          ; inclusive so round up
     sub r4, r2, r5                          ; height = y2-y1 (os units)
     add r4, r4, #4                          ; inclusive so round up
+    mov pc, lr
+
+
+; Paint a string to the screen using RISCOS outline fonts.
+; Then copies the bounding box of the screen data to a buffer.
+; Uses the currently selected font colours.
+;
+; Params:
+;  R0=font handle (or 0).
+;  R1=ptr to string.
+;  R2=ptr to sprite buffer.
+;  R3=store as rows (0) or columns (<>0)
+;  R4=fixed height (or 0 for bounding box height)
+;  R5=y1 (or 0 for bounding box y1)
+;  R12=screen base ptr.
+; Returns:
+;  R8=width in words.
+;  R9=height in rows.
+;  R10=end of sprite buffer.
+; Trashes: R0-R7,R11
+outline_font_paint_to_buffer:
+    stmfd sp!, {r12, lr}
+    str r3, [sp, #-4]!
+    stmfd sp!, {r4,r5}      ; push
+
+    ; Stash params.
+    mov r6, r0
+    mov r7, r1
+    mov r10, r2
+
+    bl outline_font_get_bounding_box
+    ; Returns:
+    ;  r11= x1 (os units)
+    ;  r5 = y1 (os units)
+    ;  r1 = x2 (os units)
+    ;  r2 = y2 (os units)
+    ;  r8 = width (os units)
+    ;  r4 = height (os units)
+
+    ldmfd sp!, {r0,r3}      ; pop
+    cmp r0, #0
+    movne r4, r0            ; fixed height
+    cmp r3, #0
+    movne r5, r3            ; fixed y1
 
     ; Convert os units into pixels.
-    ; TODO: Keep in os units for as long as possible.
+    ; TODO: Keep in os units for as long as possible?
     .if Screen_Width == 640
     mov r8, r8, lsr #1                      ; pixel width.
     .else
@@ -69,10 +101,6 @@ outline_font_paint_to_buffer:
     mov r9, r4, lsr #2                      ; pixel height.
 
     ; Paint to screen.
-    mov r0, r6                              ; font handle.
-    mov r1, r7                              ; ptr to string.
-    mov r2, #0x10                           ; os units.
-
     ; Ensure string is painted exactly in top left of the screen buffer.
     .if _OUTLINE_FONT_CENTRE_TO_SCREEN
     rsb r3, r11, #640                       ; 640-x1
@@ -85,29 +113,58 @@ outline_font_paint_to_buffer:
     mov r4, #1024
     sub r4, r4, r5                          ; 1024-y1
     sub r4, r4, r9, lsl #2                  ; 1024-y1-os height
+    ;sub r4, r4, r2
+
+    mov r0, r6                              ; font handle.
+    mov r1, r7                              ; ptr to string.
+    mov r2, #0x10                           ; os units.
     swi Font_Paint
 
     ; Assumes 4bpp here!
     add r8, r8, #7                          ; round up to full word.
     mov r8, r8, lsr #3                      ; word width.
 
-    ; Copy screen data to buffer.
-    mov r2, r9
-.1:
-    mov r1, r8
-    mov r3, r12
-.2:
-    ldr r0, [r12], #4
-    str r0, [r10], #4
-    subs r1, r1, #1
+    ; Copy screen data.
+    ldr r3, [sp], #4
+    cmp r3, #0
     bne .2
+
+    ; Copy screen data to buffer as rows.
+.1:
+    mov r2, r9                              ; height
+.11:
+    mov r1, r8                              ; width
+    mov r3, r12                             ; src
+.12:
+    ldr r0, [r12], #4
+    str r0, [r10], #4                       ; dst
+    subs r1, r1, #1                         ; next col.
+    bne .12
     
     add r12, r3, #Screen_Stride
-    subs r2, r2, #1
-    bne .1
+    subs r2, r2, #1                         ; next row.
+    bne .11
 
-    ldr r12, [sp], #4
-    mov pc, lr
+    ldmfd sp!, {r12, pc}
+
+.2:
+    ; Copy screen data to buffer as columns.
+    mov r1, r8                              ; width
+.21:
+    mov r2, r9                              ; height
+    mov r3, r12                             ; src
+.22:
+    ldr r0, [r12], #Screen_Stride
+    str r0, [r10], #4                       ; dst
+    subs r2, r2, #1                         ; next row.
+    bne .22
+    
+    add r12, r3, #4                         ; next col.
+    subs r1, r1, #1
+    bne .21
+
+    ldmfd sp!, {r12, pc}
+
 
 outline_font_coord_block:
     .long 0, 0, 0, 0, -1, 0, 0, 0, 0
@@ -127,7 +184,7 @@ outline_font_def_homerton_regular:
 .p2align 2
 
 outline_font_def_homerton_italic:
-    .byte "Homerton.Oblique"
+    .byte "Homerton.Medium.Oblique"
     .byte 0
 .p2align 2
 
@@ -147,7 +204,7 @@ outline_font_def_corpus_regular:
 .p2align 2
 
 outline_font_def_corpus_italic:
-    .byte "Corpus.Oblique"
+    .byte "Corpus.Medium.Oblique"
     .byte 0
 .p2align 2
 
@@ -162,16 +219,16 @@ outline_font_def_trinity_bold:
 .p2align 2
 
 outline_font_def_trinity_regular:
-    .byte "Trinity,Medium"
+    .byte "Trinity.Medium"
     .byte 0
 .p2align 2
 
 outline_font_def_trinity_italic:
-    .byte "Trinity.Oblique"
+    .byte "Trinity.Medium.Italic"
     .byte 0
 .p2align 2
 
 outline_font_def_trinity_bold_italic:
-    .byte "Trinity.Bold.Oblique"
+    .byte "Trinity.Bold.Italic"
     .byte 0
 .p2align 2

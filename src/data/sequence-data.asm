@@ -34,17 +34,18 @@
     write_addr palette_array_p, seq_palette_red_additive
 
 	; Setup layers of FX.
-    call_3 fx_set_layer_fns, 0, 0,                          0
-    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
+    call_3 fx_set_layer_fns, 0, 0,                          screen_cls
+    call_3 fx_set_layer_fns, 1, scroll_text_tick,           scroll_text_draw
     call_3 fx_set_layer_fns, 2, scope_tick_with_history,    scope_draw_with_history
     call_3 fx_set_layer_fns, 3, 0,                          0
 
     ; Simple logo.
-    fork seq_header
+    ; fork seq_header
 
     ; Drive y pos from a sine fn.
     ;math_make_var bits_text_ypos, 0.0, 64.0, math_sin, 0.0, 1.0/200.0
-    write_fp bits_text_ypos, 96.0
+    ;write_fp bits_text_ypos, 96.0
+    write_fp scroll_text_y_pos, 16.0
 
 seq_loop:
     ; Start!
