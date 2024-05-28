@@ -2,11 +2,25 @@
 ; MODE 9 screen routines
 ; ============================================================================
 
+; TODO: Best way to configure this outside lib code.
+.equ Cls_FirstLine,     47
+.equ Cls_LastLine,      255
+.equ Cls_Bytes,         (Cls_LastLine+1-Cls_FirstLine)*Screen_Stride
+
+screen_cls_from_line:
+    mov r0, #Cls_FirstLine
+    add r12, r12, r0, lsl #8
+    add r12, r12, r0, lsl #6
+    .if Screen_Mode != 12
+    .err "Expected Screen_Mode to be 12!"
+    .endif
+
 ; R12 = screen address
 ; trashes r0-r9
 screen_cls:
     mov r0, #0
 
+; TODO: Make unrolled cls fn from code at init.
 ; R0 = word to fill screen.
 screen_cls_with_word:
 	mov r1, r0
@@ -20,13 +34,13 @@ screen_cls_with_word:
 	mov r9, r0
 	mov r10, r0
 	mov r11, r0
-    .rept Screen_Bytes / 48
+    .rept Cls_Bytes / 48
 	stmia r12!, {r0-r11}
     .endr
-    .if Screen_Bytes-48*(Screen_Bytes/48)==32
+    .if Cls_Bytes-48*(Cls_Bytes/48)==32
 	stmia r12!, {r0-r7}
     .endif
-    .if Screen_Bytes-48*(Screen_Bytes/48)==16
+    .if Cls_Bytes-48*(Cls_Bytes/48)==16
 	stmia r12!, {r0-r3}
     .endif
 	mov pc, lr

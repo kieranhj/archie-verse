@@ -11,7 +11,7 @@
 ; TODO:
 ;  Option to justify left, right and centre to buffer.
 ;  Option to specify buffer width (e.g. screen width) or automatically calculate it.
-;  Option to specify vertical position in buffer.
+;  Option to specify vertical position in buffer. - DONE
 ;  Option for different screen configurations (MODE 9,12,13 etc.)
 
 ; Calculate bounding box for string.

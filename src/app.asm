@@ -86,6 +86,12 @@ app_init_video:
 	cmp r1, #VideoConfig_ScreenBanks
 	ble .1
 
+    ; Display prev bank.
+    subs r1, r1, #1
+    movlt r1, #VideoConfig_ScreenBanks
+    mov r0, #OSByte_WriteDisplayBank
+    swi OS_Byte
+
     ; No flashing colours (FFS).
     mov r0, #9
     mov r1, #0
@@ -188,7 +194,7 @@ app_init_audio:
 app_late_init:
     str lr, [sp, #-4]!
     bl text_pool_init
-    bl scroll_text_init
+    bl scroll_text_init ; slow
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?
 
@@ -367,6 +373,7 @@ app_vsync_code:
 
 .include "src/fx/scope.asm"
 .include "src/fx/bits.asm"
+.include "src/fx/outline-scroller.asm"
 
 ; ============================================================================
 ; Support library code modules used by the FX sequence.

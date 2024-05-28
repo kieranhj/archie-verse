@@ -84,7 +84,6 @@ main:
     bl sequence_init
 
 	; LATE INITALISATION HERE!
-    bl mark_write_bank_as_pending_display
 	bl get_next_bank_for_writing    ; NB. Replace with bl get_screen_addr to see font plotting.
 
     ; Can now write to the screen for final init.
@@ -98,6 +97,9 @@ main:
 
 	; Play music!
 	QTMSWI QTM_Start
+
+    ; Show whatever app_init set up as the first frame.
+    bl mark_write_bank_as_pending_display
 
     ; Reset vsync count.
     ldr r0, vsync_count
@@ -474,10 +476,12 @@ get_next_bank_for_writing:
 	movgt r1, #1
 
 	; Block here if trying to write to displayed bank.
+.if VideoConfig_ScreenBanks > 1
 	.1:
 	ldr r0, displayed_bank
 	cmp r1, r0
 	beq .1
+.endif
 
 	str r1, write_bank
 

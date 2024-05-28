@@ -32,14 +32,24 @@ Try?
 - Add header text - DONE
 - Fade in header messages at the top (separate colour)
 - Add iterator to header?
-- Simple scroller at the bottom?
+    - Looks meh. :\
+- Simple scroller at the bottom? - DONE
     - Use RISCOS font? Corpus is fixed width (but might look meh?)
-    - Still need to figure out how to draw at the same Y pos for all glyphs.
+    - Still need to figure out how to draw at the same Y pos for all glyphs. - DONE
     - (Write a word with ascenders and descenders then grab the max height)
-    - Still need to work out which Y to plot at though!
+    - Still need to work out which Y to plot at though! - DONE
     ==> This is not going to work even with fixed width font due to kerning.
-    ==> Either use a traditional font or plot one word at a time from the scrolltext...
-    ==> Make a rough calculation of how much RAM this would be...
+    ==> Either use a traditional font or plot one word at a time from the scrolltext... - DONE
+    ==> Make a rough calculation of how much RAM this would be... - A LOT :)
+- Move scroll text to own code module and separate from text_pool API
+    - 
+- Sort out outline_font vs text_pool APIs
+    - Separate paint to screen from copy from screen to sprite.
+- Have sequence start by fading in 'BITSHIFTERS' 'ALCATRAZ' 'present' etc.
+    - Then start scroll text in the same slot.
+- Possible to slow the scroller down?
+    - Scroll rows one byte at a time in sw and just plot right hand columns?
+    - What about double/triple buffers?
 
 TODO:
 - Add ArchieKlang sample gen at some point!
