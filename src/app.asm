@@ -385,3 +385,11 @@ app_vsync_code:
 .include "lib/mode9-screen.asm"
 .include "lib/outline-font.asm"
 .include "lib/text-pool.asm"
+
+; ============================================================================
+; ArchieKlang generated code.
+; ============================================================================
+
+.if AppConfig_UseArchieKlang
+.include "lib/archieklang.asm"
+.endif

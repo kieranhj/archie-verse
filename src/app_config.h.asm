@@ -9,16 +9,17 @@
 .equ AppConfig_InstallIrqHandler,       0       ; otherwise uses Event_VSync.
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 .equ AppConfig_UseQtmEmbedded,          1
+.equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 1)
 
 ; ============================================================================
 ; Sequence config.
 ; ============================================================================
 
-.equ SeqConfig_EnableLoop,              0
-.equ SeqConfig_MaxPatterns,             80
+.equ SeqConfig_EnableLoop,              1
+.equ SeqConfig_MaxPatterns,             7
 
-.equ SeqConfig_ProTracker_Tempo,        120         ; Default = 125.
-.equ SeqConfig_ProTracker_TicksPerRow,  4
+.equ SeqConfig_ProTracker_Tempo,        114         ; Default = 125.
+.equ SeqConfig_ProTracker_TicksPerRow,  12
 
 .equ SeqConfig_PatternLength_Rows,      64
 .equ SeqConfig_PatternLength_Secs,      (2.5*SeqConfig_ProTracker_TicksPerRow*SeqConfig_PatternLength_Rows)/SeqConfig_ProTracker_Tempo

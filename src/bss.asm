@@ -3,10 +3,21 @@
 ; ============================================================================
 
 .bss
-.p2align 6
 
 ; ============================================================================
 
+.if AppConfig_UseArchieKlang
+Generated_Samples_no_adr:
+.skip AK_SMP_LEN
+.p2align 2
+
+AK_Temp_Buffer_no_adr:
+.skip AK_TempBufferSize
+.endif
+
+; ============================================================================
+
+.p2align 2
 stack_no_adr:
     .skip AppConfig_StackSize
 stack_base_no_adr:

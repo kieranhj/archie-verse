@@ -172,33 +172,46 @@ QtmEmbedded_Base:
 .endif
 
 ; ============================================================================
-; Music MOD.
+; Sequence data (RODATA Segment - ironically).
 ; ============================================================================
 
+.p2align 2
+seq_main_program:
+.include "src/data/sequence-data.asm"
+; TODO: Reinstate dynamic load.
+
+; ============================================================================
+; Music MOD (MUST BE LAST in DATA SEGMENT).
+; ============================================================================
+
+.if AppConfig_UseArchieKlang
+External_Samples_no_adr:
+.incbin "data/akp/Rhino1.mod.raw"
+.p2align 2
+
+music_mod_no_adr:
+.incbin "build/music.mod.trk"
+
+.else
+
 .if !AppConfig_LoadModFromFile
+
 .p2align 2
 music_mod_no_adr:
 .if _LOG_SAMPLES
 .incbin "data/music/particles_15.002"
 .else
+
 ;.incbin "data/music/changing-waves.mod"
 ;.incbin "data/music/maze-funky-delicious.mod"
 ;.incbin "data/music/mikroreise.mod"    ; requires all the RAM!!
 ;.incbin "data/music/Revision_house_06.mod"
 .incbin "data/music/archieklang_smp.mod"
+
+.endif
 .endif
 .endif
 
 ; ============================================================================
-; Sequence data (RODATA Segment - ironically).
-; ============================================================================
-
-.p2align 2
-.rodata
-seq_main_program:
-.include "src/data/sequence-data.asm"
-.if _DEBUG
-.p2align 12     ; 4K
-.endif
-
+; BSS IMMEDIATELY FOLLOWS.
 ; ============================================================================

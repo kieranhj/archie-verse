@@ -3,8 +3,9 @@
 ; ============================================================================
 
 scroll_text_text_no_adr:
-    .byte "The quick brown fox jumps over the lazy dog. "
-    .byte "This is a call to all my past resignations. "
-    .byte "This is a call!"
+    .byte "BITSHIFTERS and ALCATRAZ and TORMENT proudly announce ArchieKlang! "
+    .byte "A port of AmigaKlang to the Acorn Archimedes. "
+    .byte "Code by kieran, samples & synth by Virgill, music by Virgill & Rhino. "
+    .byte "Enjoy the high-def scroller!"
     .byte 0 ; end.
 .p2align 2

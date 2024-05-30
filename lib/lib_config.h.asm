@@ -10,7 +10,7 @@
 .equ LibConfig_IncludeLine,             0
 .equ LibConfig_IncludeTriangle,         0
 .equ LibConfig_IncludePolygon,          0
-.equ LibConfig_IncludeDivide,           1
+.equ LibConfig_IncludeDivide,           0
 .equ LibConfig_IncludeVector,           0
 .equ LibConfig_IncludeMatrix,           0
 .equ LibConfig_IncludeCircles,          0

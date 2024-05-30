@@ -66,6 +66,11 @@ main:
 	SWI OS_Byte
     .endif
 
+    ; Generate sample data first?
+    .if AppConfig_UseArchieKlang
+    bl archieklang_init
+    .endif
+
 	; Library initialisation.
 	bl lib_init
 	; Returns R12=top of RAM used.

@@ -3,7 +3,7 @@
 ; ============================================================================
 
 ; TODO: Best way to configure this outside lib code.
-.equ Cls_FirstLine,     47
+.equ Cls_FirstLine,     8+47
 .equ Cls_LastLine,      255
 .equ Cls_Bytes,         (Cls_LastLine+1-Cls_FirstLine)*Screen_Stride
 

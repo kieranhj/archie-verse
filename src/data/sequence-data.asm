@@ -45,7 +45,7 @@
     ; Drive y pos from a sine fn.
     ;math_make_var bits_text_ypos, 0.0, 64.0, math_sin, 0.0, 1.0/200.0
     ;write_fp bits_text_ypos, 96.0
-    write_fp scroll_text_y_pos, 0.0 ; TODO: Match cls!
+    write_fp scroll_text_y_pos, 8.0 ; NB. Must match mode9-screen.asm defines. :\
 
 seq_loop:
     ; Start!

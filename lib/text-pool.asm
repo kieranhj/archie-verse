@@ -4,7 +4,7 @@
 ; ============================================================================
 
 .equ Text_Pool_Max,         256
-.equ Text_Pool_PoolSize,    Text_Pool_Max*24*25 ;Screen_Stride*64*Text_Pool_Max
+.equ Text_Pool_PoolSize,    Text_Pool_Max*24*47 ;Screen_Stride*64*Text_Pool_Max
 
 ; ============================================================================
 ; Text pool vars.

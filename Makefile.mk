@@ -22,6 +22,8 @@ DOS2UNIX?=dos2unix
 endif
 # TODO: Add Lua code and table gen to dependencies.
 
+SPLITMOD=./bin/SplitMod.exe
+AKP2ARC=./bin/akp2arc.py
 PNG2ARC=./bin/png2arc.py
 PNG2ARC_FONT=./bin/png2arc_font.py
 PNG2ARC_SPRITE=./bin/png2arc_sprite.py
@@ -66,7 +68,7 @@ shrink: build ./build/!run.txt ./build/loader.bin
 build:
 	$(MKDIR_P) "./build"
 
-./build/assets.txt: build ./build/block-sprites.bin
+./build/assets.txt: build ./build/music.mod.trk
 	echo done > $@
 
 ./build/archie-verse.shri: build ./build/archie-verse.bin
@@ -91,7 +93,7 @@ build:
 	$(VASM) -L build/dot_b.txt -m250 -Fbin -opt-adr -o $@ $<
 
 .PHONY:./build/archie-verse.o
-./build/archie-verse.o: build archie-verse.asm ./build/assets.txt
+./build/archie-verse.o: build archie-verse.asm ./src/gen/arcmusic.asm ./build/assets.txt
 	$(VASM) -L build/compile.txt -m250 -Fvobj -opt-adr -o build/archie-verse.o archie-verse.asm
 
 ##########################################################################
@@ -139,8 +141,14 @@ clean:
 ##########################################################################
 ##########################################################################
 
+./src/gen/arcmusic.asm: ./data/akp/Rhino1.mod.txt
+	$(PYTHON3) $(AKP2ARC) $< -o $@
+
+./build/music.mod.trk: ./build/music.mod
+	$(SPLITMOD) $(subst /,\\,$+)
+
 # NOTE: NO longer used. See src/data.asm instead.
-./build/music.mod: ./data/music/particles_12.mod
+./build/music.mod: ./data/music/Rhino1.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ##########################################################################
