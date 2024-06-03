@@ -47,6 +47,8 @@
     ;write_fp bits_text_ypos, 96.0
     write_fp scroll_text_y_pos, 8.0 ; NB. Must match mode9-screen.asm defines. :\
 
+    math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/400.0
+
 seq_loop:
     ; Start!
 

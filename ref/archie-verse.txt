@@ -41,20 +41,47 @@ Try?
     ==> This is not going to work even with fixed width font due to kerning.
     ==> Either use a traditional font or plot one word at a time from the scrolltext... - DONE
     ==> Make a rough calculation of how much RAM this would be... - A LOT :)
-- Move scroll text to own code module and separate from text_pool API
-    - 
+- Move scroll text to own code module and separate from text_pool API - DONE
 - Sort out outline_font vs text_pool APIs
     - Separate paint to screen from copy from screen to sprite.
 - Have sequence start by fading in 'BITSHIFTERS' 'ALCATRAZ' 'present' etc.
     - Then start scroll text in the same slot.
-- Possible to slow the scroller down?
+- Possible to slow the scroller down? - DONE
     - Scroll rows one byte at a time in sw and just plot right hand columns?
-    - What about double/triple buffers?
-
-TODO:
-- Add ArchieKlang sample gen at some point!
+    - What about double/triple buffers? - JUST DOUBLE
+- Add ArchieKlang sample gen at some point! - DONE
 - Plot samples as they're generated? Use same effect?
     - Plot and move after each one? Hmmm!
+
+TO FINISH
+~~~
+- Reintroduce fading headers separate from scroller.
+- Add dynamic speed control to the scroller, otherwise it's a bit monotonous.
+- Add some nice colour palette fades across the track.
+- Get the final tune?!?!?! (Probably last minute...)
+- Final scrolltext - get a few words from Virgill & Rhino.
+- What to do about audio filter mod? => Steve?!
+- Check first frame glitches ==> loader to zero BSS?
+- Fix wave peak lekaing into fixed scroller area...
+
+BONUS
+~~~
+- Generate any repeated code at runtime, e.g. cls, scroller shifts.
+- Multiply scale of each line by a dynamic value. - STARTED
+    - sin(camera a) so can 'look down' on the scope waves / contours.
+        => dynamically changing the scale looks nice and emphasizes the y buffer effect.
+        => doesn't have the effect of tilting the view 'towards' the camera.
+           Need to run through the perspective equation.
+           Can't really do a divide per Y value. Well....
+    - sin(ypos - centre) so looks like it rotates around a cylinder.
+    - Could do different scale per line.
+- Remove divide call from arcmusic - it's always 32767/const
+- Use a proper modulo fn. for scope scroll, not a loop. - DONE
+- Try having the live waveform NOT moving with the others? - DONE
+- Does it look better without the flat lines on the left/right? => small border looks best.
+- Dynamically cut down version for ARM2 machines? Party version can be 12MHz.
+    - Fewer samples => doesn't have much effect on overall perf => linedraw bound.
+    - Fewer lines => biggest impact.
 
 Line segment drawing.
 dx is fixed == 4 (or whatever)
@@ -69,3 +96,12 @@ x+=1:y+=1 => strb r4, [r11], #-ScreenStride+1
 x+=1:y-=1 => strb r4, [r11], #ScreenStride+1
 x+=0:y+=1 => strb r4, [r11], #-ScreenStride
 x+=0:y-=1 => strb r4, [r11], #ScreenStride
+
+To make the waves lean towards the viewer.
+Assume points are on an X,Y plane at fixed depth Z.
+X goes from [-128,128] and Y goes from [-64,64] etc.
+Projection would be (x-cx)/(z-cz) and (y-cy)/(z-cz)
+If the camera is pointing straight down -Y then everything on the X,Y plane
+is projected onto X,Z so larger Y values will be closer to the camera.
+Say cz=128 so z [-64,64] => (z-cz) [-192,-64]
+Say cy=128 so (y-cy) => -128/[-192,-64] => [0.6667,2]

@@ -3,16 +3,17 @@
 ; ============================================================================
 
 .equ Scope_StepBuffer,      1       ; otherwise truncate the buffer.
-.equ LineSegments_Fixed_dx, 3       ; fixed.
+.equ LineSegments_Fixed_dx, 4       ; fixed.
 
-.equ Scope_DrawBaseLine,    1
+.equ Scope_FixActiveYPos,   1       ; fix the 'active' scope y pos.
+.equ Scope_DrawBaseLine,    (Scope_BaseLine_Len > 0 && 1)
 
 ; Legacy features.
 ;.equ Scope_DrawLines,      1       ; otherwise points.
 ;.equ Scope_Channel,        -1      ; or -1 for all four averaged
 
 .equ Scope_XStep,           MATHS_CONST_1*320/Scope_TotalSamples
-;.equ Scope_YScale,          MATHS_CONST_1*0.5  ; now fixed by shift.
+.equ Scope_YScale,          MATHS_CONST_1*0.5  ; now fixed by shift.
 .equ Scope_PixelColour,     15
 .equ Scope_TotalSamples,    64      ; Max samples = 208
 
@@ -48,6 +49,12 @@ scope_draw_line_seg_code_ptrs:
 
 scope_draw_line_seg_y_buffer:
     .long line_segments_y_buffer_no_adr
+
+scope_yscale:
+    .long Scope_YScale      ; already *MATHS_CONST_1
+
+scope_samplestep:
+    .long Scope_SampleStep  ; already *MATHS_CONST_1
 
 ; ============================================================================
 
@@ -233,14 +240,23 @@ scope_draw:
 scope_tick_with_history:
     ldr r7, scope_histories_p
 
-;    ands r12, r0, #15
+.if 0
+;    ands r12, r0, #15              ; could do and #7 now!
     ; TODO: DO a MOD calc not a loop that's going to get slower over time!
 .3:
     subs r0, r0, #Scope_YStep
     bpl .3
     adds r12, r0, #Scope_YStep
     str r12, scope_history_offset
+.else
+    ldr r12, scope_history_offset
+    add r12, r12, #1                ; r1 assumes frames==vsyncs at the moment.
+    cmp r12, #Scope_YStep
+    subge r12, r12, #Scope_YStep    ; assumes vsync delta < y step.
+    str r12, scope_history_offset
+    cmp r12, #0
     bne .2
+.endif
 
     ; Ring buffer.
     add r7, r7, #Scope_TotalSamples
@@ -253,6 +269,8 @@ scope_tick_with_history:
     QTMSWI QTM_DMABuffer
     ; R0 = address of last used DMA sound buffer (208 bytes per channel)
     ; Interleaved 1 byte per channel in 8-bit log format.
+
+    ldr r5, scope_samplestep
 
     mov r8, r0
     ldr r9, scope_log_to_lin_p
@@ -299,7 +317,7 @@ scope_tick_with_history:
 
     ; Next sample.
     .if Scope_StepBuffer
-    add r10, r10, #Scope_SampleStep
+    add r10, r10, r5
     cmp r10, #Scope_MaxSamples*MATHS_CONST_1
     .else
     add r10, r10, #1
@@ -310,7 +328,7 @@ scope_tick_with_history:
     mov pc, lr
 
 scope_history_offset:
-    .long 0
+    .long -1
 
 ; R12=screen addr.
 scope_draw_with_history:
@@ -330,13 +348,23 @@ scope_draw_with_history:
 
     ; Plot all the history buffers.
     ldr r9, scope_histories_p
-
     mov r4, #15
+
+    .if Scope_FixActiveYPos
+    mov r8, #Scope_YPos
+    bl scope_draw_one_history
+    ldr r8, scope_history_offset
+    rsb r8, r8, #Scope_YPos+Scope_YStep
+    b .3
+    .else
     ldr r8, scope_history_offset
     rsb r8, r8, #Scope_YPos
+    .endif
+
 .1:
     bl scope_draw_one_history
 
+    .3:
     sub r9, r9, #Scope_TotalSamples
     ldr r1, scope_histories_base
     cmp r9, r1
@@ -366,11 +394,13 @@ scope_draw_one_history:
     ; Zero baseline.
     add r11, r12, r8, lsl #8
     add r11, r11, r8, lsl #6  ; calc screen start address.
-
+    
     .rept (Scope_BaseLine_Len)/4
     str r4, [r11], #4
     .endr
 .endif
+
+    ldr r0, scope_yscale
 
     ldr r3, scope_draw_line_seg_y_buffer
     ldr r7, scope_draw_line_seg_code_ptrs
@@ -387,7 +417,11 @@ scope_draw_one_history:
     ;mov r2, #Scope_YScale
     ;mul r1, r2, r1
     ;mov r1, r1, asr #16
-    mov r1, r1, asr #1          ; div 2 [-64,63]
+    mul r1, r0, r1
+    mov r1, r1, asr #16
+    ; Or fix in code:    
+    ;mov r1, r1, asr #1          ; div 2 [-64,63]
+
     add r1, r1, r8              ; ypos.
 
     .if 0                       ; Test with full Bresenham line draw.
@@ -452,6 +486,7 @@ scope_draw_one_history:
     tst r11, #3
     strneb r4, [r11], #1
 
+    ; TOOD: This doesn't work 100% with all combos but whatevs.
     .rept (Scope_BaseLine_Len-4)/4
     str r4, [r11], #4
     .endr
