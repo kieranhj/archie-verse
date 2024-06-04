@@ -193,8 +193,8 @@ app_init_audio:
 ; R12=screen addr.
 app_late_init:
     str lr, [sp, #-4]!
-    bl text_pool_init
     bl scroll_text_init ; slow
+    bl text_pool_init
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?
 

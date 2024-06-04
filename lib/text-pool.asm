@@ -4,7 +4,7 @@
 ; ============================================================================
 
 .equ Text_Pool_Max,         256
-.equ Text_Pool_PoolSize,    Text_Pool_Max*24*47 ;Screen_Stride*64*Text_Pool_Max
+.equ Text_Pool_PoolSize,    512*1024    ; !!
 
 ; ============================================================================
 ; Text pool vars.
@@ -179,6 +179,12 @@ text_pool_init:
     mov r4, #0                              ; not fixed
     mov r5, #0                              ; not fixed
     bl text_pool_make_sprite
+    ; Returns R0=sprite num.
+
+    ; Store sprite num.
+    ldr r1, [r11], #4                       ; addr?
+    cmp r1, #0
+    strne r0, [r1]
 
 .2:
     ldr r1, [r11], #4                       ; ptr to font def
@@ -190,21 +196,15 @@ text_pool_init:
 ; ============================================================================
 
 .if _DEBUG
-err_bitbufoverflow: ;The error block
-.long 18
-.byte "Bits buffer overflow!"
-.align 4
-.long 0
-
 err_bitoutoftexts: ;The error block
 .long 18
-.byte "Out of Bits text slots!"
+.byte "Text pool out of slots!"
 .align 4
 .long 0
 
 err_bitpooloverflow: ;The error block
 .long 18
-.byte "Bits text pool overflow!"
+.byte "Text pool buffer overflow!"
 .align 4
 .long 0
 .endif

@@ -3,7 +3,8 @@
 ; ============================================================================
 
 ; TODO: Best way to configure this outside lib code.
-.equ Cls_FirstLine,     8+47
+;       Possibly jump into the unrolled code dynamically?
+.equ Cls_FirstLine,     4+47
 .equ Cls_LastLine,      255
 .equ Cls_Bytes,         (Cls_LastLine+1-Cls_FirstLine)*Screen_Stride
 
@@ -76,7 +77,6 @@ static_set_palette:
     cmp r2, #0
     moveq pc, lr
     b palette_set_block
-.endif
 
 static_screen_p:
     .long 0
@@ -99,3 +99,4 @@ screen_copy:
     subs r10, r10, #1
     bne .1
     mov pc, lr
+.endif

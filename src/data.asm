@@ -116,25 +116,6 @@ block_sprites_no_adr:
 .endif
 
 ; ============================================================================
-; Text.
-; ============================================================================
-
-; Font def, points size, point size height, text string, null terminated.
-text_pool_defs_no_adr:
-.long -1
-    TextDef homerton_bold_italic, 64, 64*1.5, 0xf, "BITSHIFTERS"   ; 0
-    TextDef homerton_bold, 64, 64*1.5, 0xf, "ALCATRAZ"      ; 1
-    TextDef trinity_bold,  90, 90*1.2, 0xf, "TORMENT"       ; 2
-    TextDef homerton_bold, 80, 80*1.2, 0xf, "present"       ; 3
-    TextDef homerton_bold, 80, 80*1.2, 0xf, "ArchieKlang"   ; 4
-    TextDef homerton_bold_italic, 36, 36*1.2, 0xf, "code"          ; 5
-    TextDef homerton_bold, 36, 36*1.2, 0xf, "kieran"        ; 6
-    TextDef homerton_bold_italic, 36, 36*1.2, 0xf, "music"         ; 7
-    TextDef homerton_bold, 36, 36*1.2, 0xf, "Rhino"         ; 8
-    TextDef homerton_bold_italic, 36, 36*1.2, 0xf, "samples & synth" ; 9
-    TextDef homerton_bold, 36, 36*1.2, 0xf, "Virgill"       ; 10
-
-; ============================================================================
 
 .if 0
 bits_draw_file_no_adr:

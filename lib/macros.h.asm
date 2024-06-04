@@ -47,8 +47,9 @@
     .skip \num_sprites*8*4      ; sprite ptrs.
 .endm
 
-.macro TextDef font, point, height, colour, string
+.macro TextDef font, point, height, colour, string, addr
     .long outline_font_def_\font, \point*16, \height*16, \colour
     .byte "\string", 0
     .p2align 2
+    .long \addr
 .endm

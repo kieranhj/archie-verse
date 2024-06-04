@@ -35,17 +35,18 @@
 
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
-    call_3 fx_set_layer_fns, 1, scroller_tick,              scroller_draw
+    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
     call_3 fx_set_layer_fns, 2, scope_tick_with_history,    scope_draw_with_history
     call_3 fx_set_layer_fns, 3, 0,                          0
 
     ; Simple logo.
-    ; fork seq_header
+    fork seq_header
 
     ; Drive y pos from a sine fn.
     ;math_make_var bits_text_ypos, 0.0, 64.0, math_sin, 0.0, 1.0/200.0
     ;write_fp bits_text_ypos, 96.0
-    write_fp scroll_text_y_pos, 8.0 ; NB. Must match mode9-screen.asm defines. :\
+    write_fp scroll_text_y_pos, 4.0 ; NB. Must match mode9-screen.asm defines. :\
+    write_addr scroller_speed, 4
 
     math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/400.0
 
@@ -68,28 +69,32 @@ seq_loop:
 
 seq_header:
     write_addr bits_text_curr, 0            ; bitshifters
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 1            ; alcatraz
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 2            ; torment
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 3            ; present
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 4            ; ArchieKlang
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 5            ; code
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 6            ; kieran
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 7            ; music
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 8            ; Rhino
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 9            ; samples & synth
-    wait_secs 5.0
+    wait_secs 2.5
     write_addr bits_text_curr, 10           ; Virgill
-    wait_secs 5.0
-    fork seq_header
+    wait_secs 2.5
+
+    ; Switch to scroller!
+    call_3 fx_set_layer_fns, 1, scroller_tick,              scroller_draw
+    end_script
+    ;fork seq_header
 
 ; ============================================================================
 ; Support functions.
@@ -105,12 +110,12 @@ seq_unlink_palette_lerp:
 ; Rather than have a task management system it just uses the existing script
 ; system and therefore supports any arbitrary sequence of fn calls.
 ;
-;  Use 'yield <label>' to continue the script on the next from a given label.
+;  Use 'yield <label>' to continue the script on the next frame from a given label.
 ;  Use 'end_script_if_zero <var>' to terminate a script conditionally.
 ;
 ; (Yes I know this is starting to head into 'real language' territory.)
 ;
-; ==> NB. This is now better done by using palette_lerp macros above.
+; ==> NB. This example is now better done by using palette_lerp macros above.
 ; ============================================================================
 
 .if 0
@@ -130,6 +135,25 @@ seq_test_fade_up_loop:
     end_script_if_zero palette_interp
     yield seq_test_fade_up_loop
 .endif
+
+; ============================================================================
+; Text.
+; ============================================================================
+
+; Font def, points size, point size height, text string, null terminated.
+text_pool_defs_no_adr:
+    TextDef homerton_bold_italic,   64, 64*1.5, 0xf, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
+    TextDef homerton_bold,          64, 64*1.5, 0xf, "ALCATRAZ",        text_nums_no_adr+4  ; 1
+    TextDef trinity_bold,           72, 90*1.2, 0xf, "TORMENT",         text_nums_no_adr+8  ; 2
+    TextDef homerton_bold,          72, 80*1.2, 0xf, "present",         text_nums_no_adr+12 ; 3
+    TextDef homerton_bold,          80, 80*1.2, 0xf, "ArchieKlang",     text_nums_no_adr+16 ; 4
+    TextDef homerton_bold,          48, 48*1.2, 0xf, "code",            text_nums_no_adr+20 ; 5
+    TextDef homerton_bold,          48, 48*1.2, 0xf, "kieran",          text_nums_no_adr+24 ; 6
+    TextDef homerton_bold,          48, 48*1.2, 0xf, "samples & synth", text_nums_no_adr+28 ; 7
+    TextDef homerton_bold,          48, 48*1.2, 0xf, "Virgill",         text_nums_no_adr+32 ; 8
+    TextDef homerton_bold,          48, 48*1.2, 0xf, "music",           text_nums_no_adr+36 ; 9
+    TextDef homerton_bold,          48, 48*1.2, 0xf, "Rhino & Virgill", text_nums_no_adr+40 ; 10
+.long -1
 
 ; ============================================================================
 ; Sequence specific data.
@@ -203,5 +227,8 @@ seq_palette_blend:
 
 seq_palette_id:
     .long 0
+
+text_nums_no_adr:
+    .skip 4*11
 
 ; ============================================================================

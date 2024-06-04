@@ -67,6 +67,7 @@
 .endif
 
 .equ Screen_Stride,             Screen_Width/Screen_PixelsPerByte
+.equ Screen_WidthWords,         Screen_Stride/4
 .equ Screen_Bytes,              Screen_Stride*Screen_Height
 .equ Mode_Bytes,                Screen_Stride*VideoConfig_ModeHeight
 

@@ -31,7 +31,7 @@ scroll_text_y_pos:
     FLOAT_TO_FP 200.0
 
 scroll_text_text_def:
-    TextDef homerton_bold_italic, 64, 64*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA"    ; macro needs >1 char?!
+    TextDef homerton_bold_italic, 64, 64*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA", 0    ; macro needs >1 char?!
 
 ; ============================================================================
 
@@ -116,7 +116,7 @@ scroll_text_init:
     ;  R0=text no.
     ldmfd sp!, {r6,r8-r10}
 
-    ; TODO: index==sprite num for now
+    ; NB. Assumes index==sprite num !!!
     mov r7, r0
 .4:
     ; Hash found.
@@ -375,6 +375,9 @@ scroller_tick:
 	ands r0, r1, #7		; 8 pixels per word
     ldrne pc, [sp], #4
 
+    ; NB. I think this breaks when the speed changes as the two buffers might
+    ;     not be reading from the same glyph slice.
+
     ; Next slice of the glyph.
     ldr r10, scroller_glyph_buffer_1_p
     ldr r12, scroller_glyph_buffer_2_p
@@ -424,6 +427,12 @@ scroller_tick:
 scroller_draw:
 	str lr, [sp, #-4]!
 
+    ldr r0, scroll_text_y_pos
+    mov r0, r0, asr #16
+
+    ldr r10, scroller_speed
+    mov r10, r10, lsl #1    ; *2 for double buffer
+
     ldr r11, scroller_buffer_ptr
     bl scroller_scroll_buffer
 
@@ -435,18 +444,17 @@ scroller_draw:
 
 	ldr pc, [sp], #4
 
+; R0=scroller y pos.
+; R10=scroller speed in pixels.
 ; R11=column buffer
 ; R12=screen addr
 scroller_scroll_buffer:
 	str lr, [sp, #-4]!
 
-    ldr r0, scroll_text_y_pos
-    mov r0, r0, asr #16
 	add r9, r12, r0, lsl #8
 	add r9, r9, r0, lsl #6
 
-    ldr r12, scroller_speed ; speed in pixels
-    mov r12, r12, lsl #3    ; pixel shift (lsr #4*n) * 2 for double buffer
+    mov r12, r10, lsl #2    ; pixel shift (lsr #4*n)
 
 	.rept Scroller_Glyph_Height
 	ldr r10, [r11]	        ; r10=scroller_glyph_column_buffer[r11]

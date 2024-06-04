@@ -25,7 +25,7 @@
 ;  r8 = width (os units)
 ;  r4 = height (os units)
 outline_font_get_bounding_box:
-    mov r2, #0x40020            ; bits 18 & 5 set.
+    mov r2, #0x40220            ; bits 18 & 5 set.
     mov r3, #0x1000000
     mov r4, #0x1000000
     adr r5, outline_font_coord_block
