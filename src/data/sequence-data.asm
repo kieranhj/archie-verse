@@ -23,6 +23,16 @@
     math_make_rgb \rgb_addr, \from_rgb, \to_rgb, seq_rgb_blend
 .endm
 
+.macro palette_copy palette_src, palette_dst
+    call_3 bits_copy_words, \palette_src, \palette_dst, 16
+.endm
+
+.macro palette_lerp_from_existing palette_B, secs
+    palette_copy seq_palette_lerped, seq_palette_copy
+    palette_lerp_over_secs seq_palette_copy, \palette_B, \secs
+.endm
+
+
 ; ============================================================================
 ; The actual sequence for the demo.
 ; ============================================================================
@@ -31,7 +41,7 @@
     call_0 scope_init
 
     ; Screen setup.
-    write_addr palette_array_p, seq_palette_red_additive
+    write_addr palette_array_p, seq_palette_single_white
 
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
@@ -39,27 +49,33 @@
     call_3 fx_set_layer_fns, 2, scope_tick_with_history,    scope_draw_with_history
     call_3 fx_set_layer_fns, 3, 0,                          0
 
-    ; Simple logo.
-    fork seq_header
-
-    ; Drive y pos from a sine fn.
-    ;math_make_var bits_text_ypos, 0.0, 64.0, math_sin, 0.0, 1.0/200.0
-    ;write_fp bits_text_ypos, 96.0
+    ; FX params.
     write_fp scroll_text_y_pos, 4.0 ; NB. Must match mode9-screen.asm defines. :\
     write_addr scroller_speed, 4
+    write_fp scope_yscale 0.5
 
+    ; Simple logo.
+    gosub seq_header
+
+    ; Start adjusting the scale.
     math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/400.0
 
 seq_loop:
     ; Start!
+    palette_lerp_from_existing seq_palette_red_additive, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 0.5
 
-    wait_secs 10.0
-    ; Fade to B&W.
-    palette_lerp_over_secs seq_palette_red_additive, seq_palette_all_white, 5.0
+    palette_lerp_from_existing seq_palette_blue_cyan_ramp, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 0.5
 
-    wait_secs 10.0
-    ; Fade to fire palette.
-    palette_lerp_over_secs seq_palette_all_white, seq_palette_red_additive, 5.0
+    palette_lerp_from_existing seq_palette_red_magenta_ramp, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 0.5
+
+    palette_lerp_from_existing seq_palette_green_white_ramp, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 0.5
+
+    palette_lerp_from_existing seq_palette_all_white, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 0.5
 
     ; Loop.
     fork seq_loop
@@ -69,32 +85,34 @@ seq_loop:
 
 seq_header:
     write_addr bits_text_curr, 0            ; bitshifters
-    wait_secs 2.5
+    wait_patterns 0.5
     write_addr bits_text_curr, 1            ; alcatraz
-    wait_secs 2.5
+    wait_patterns 0.25
     write_addr bits_text_curr, 2            ; torment
-    wait_secs 2.5
+    wait_patterns 0.25
     write_addr bits_text_curr, 3            ; present
-    wait_secs 2.5
+    wait_patterns 0.25
     write_addr bits_text_curr, 4            ; ArchieKlang
-    wait_secs 2.5
+    wait_patterns 0.25
+
+    ; Or fade up histories one at a time? How...
+    palette_lerp_over_secs seq_palette_single_white, seq_palette_grey, SeqConfig_PatternLength_Secs*0.9
+
     write_addr bits_text_curr, 5            ; code
-    wait_secs 2.5
-    write_addr bits_text_curr, 6            ; kieran
-    wait_secs 2.5
-    write_addr bits_text_curr, 7            ; music
-    wait_secs 2.5
-    write_addr bits_text_curr, 8            ; Rhino
-    wait_secs 2.5
-    write_addr bits_text_curr, 9            ; samples & synth
-    wait_secs 2.5
-    write_addr bits_text_curr, 10           ; Virgill
-    wait_secs 2.5
+    wait_patterns 0.25
+    write_addr bits_text_curr, 7            ; synth
+    wait_patterns 0.25
+    write_addr bits_text_curr, 10           ; Rhino & Virgill
+    wait_patterns 0.25
+
+    ; Remove text.
+    write_addr bits_text_curr, -1           ; blank
+    wait_patterns 0.25
 
     ; Switch to scroller!
+    call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
     call_3 fx_set_layer_fns, 1, scroller_tick,              scroller_draw
     end_script
-    ;fork seq_header
 
 ; ============================================================================
 ; Support functions.
@@ -142,17 +160,17 @@ seq_test_fade_up_loop:
 
 ; Font def, points size, point size height, text string, null terminated.
 text_pool_defs_no_adr:
-    TextDef homerton_bold_italic,   64, 64*1.5, 0xf, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
-    TextDef homerton_bold,          64, 64*1.5, 0xf, "ALCATRAZ",        text_nums_no_adr+4  ; 1
-    TextDef trinity_bold,           72, 90*1.2, 0xf, "TORMENT",         text_nums_no_adr+8  ; 2
-    TextDef homerton_bold,          72, 80*1.2, 0xf, "present",         text_nums_no_adr+12 ; 3
+    TextDef homerton_bold_italic,   72, 72*1.2, 0xf, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
+    TextDef homerton_bold,          72, 72*1.2, 0xf, "ALCATRAZ",        text_nums_no_adr+4  ; 1
+    TextDef trinity_bold,           80, 80*1.2, 0xf, "TORMENT",         text_nums_no_adr+8  ; 2
+    TextDef homerton_bold,          64, 64*1.2, 0xf, "present",         text_nums_no_adr+12 ; 3
     TextDef homerton_bold,          80, 80*1.2, 0xf, "ArchieKlang",     text_nums_no_adr+16 ; 4
-    TextDef homerton_bold,          48, 48*1.2, 0xf, "code",            text_nums_no_adr+20 ; 5
-    TextDef homerton_bold,          48, 48*1.2, 0xf, "kieran",          text_nums_no_adr+24 ; 6
-    TextDef homerton_bold,          48, 48*1.2, 0xf, "samples & synth", text_nums_no_adr+28 ; 7
-    TextDef homerton_bold,          48, 48*1.2, 0xf, "Virgill",         text_nums_no_adr+32 ; 8
-    TextDef homerton_bold,          48, 48*1.2, 0xf, "music",           text_nums_no_adr+36 ; 9
-    TextDef homerton_bold,          48, 48*1.2, 0xf, "Rhino & Virgill", text_nums_no_adr+40 ; 10
+    TextDef homerton_bold,          40, 48*1.2, 0xf, "code by kieran",  text_nums_no_adr+20 ; 5
+;    TextDef homerton_bold,          40, 48*1.2, 0xf, "kieran",          text_nums_no_adr+24 ; 6
+    TextDef homerton_bold,          40, 48*1.2, 0xf, "samples & synth by Virgill", text_nums_no_adr+28 ; 7
+;    TextDef homerton_bold,          40, 48*1.2, 0xf, "Virgill",         text_nums_no_adr+32 ; 8
+;    TextDef homerton_bold,          40, 48*1.2, 0xf, "music",           text_nums_no_adr+36 ; 9
+    TextDef homerton_bold,          40, 48*1.2, 0xf, "music by Rhino & Virgill", text_nums_no_adr+40 ; 10
 .long -1
 
 ; ============================================================================
@@ -201,6 +219,102 @@ seq_palette_red_additive:
     .long 0x00c0e0e0                    ; 14 = 1110 = oranges
     .long 0x00f0f0f0                    ; 15 = 1111 = white
 
+seq_palette_grey:
+    .long 0x00000000                    ; 00 = 0000 = black
+    .long 0x00101010                    ; 01 = 0001 =
+    .long 0x00202020                    ; 02 = 0010 =
+    .long 0x00303030                    ; 03 = 0011 =
+    .long 0x00404040                    ; 04 = 0100 =
+    .long 0x00505050                    ; 05 = 0101 =
+    .long 0x00606060                    ; 06 = 0110 =
+    .long 0x00707070                    ; 07 = 0111 = reds
+    .long 0x00808080                    ; 08 = 1000 =
+    .long 0x00909090                    ; 09 = 1001 =
+    .long 0x00a0a0a0                    ; 10 = 1010 =
+    .long 0x00b0b0b0                    ; 11 = 1011 =
+    .long 0x00c0c0c0                    ; 12 = 1100 =
+    .long 0x00d0d0d0                    ; 13 = 1101 =
+    .long 0x00e0e0e0                    ; 14 = 1110 = oranges
+    .long 0x00f0f0f0                    ; 15 = 1111 = white
+
+seq_palette_single_white:
+    .rept 15
+    .long 0x00000000
+    .endr
+    .long 0x00ffffff
+
+seq_palette_red_yellow:
+    .long 0x00000000                    ; 00 = 0000 = black
+    .long 0x00001080                    ; 01 = 0001 =
+    .long 0x00002080                    ; 02 = 0010 =
+    .long 0x00003080                    ; 03 = 0011 =
+    .long 0x00004080                    ; 04 = 0100 =
+    .long 0x00005080                    ; 05 = 0101 =
+    .long 0x00006080                    ; 06 = 0110 =
+    .long 0x00007080                    ; 07 = 0111 = reds
+    .long 0x000080a0                    ; 08 = 1000 =
+    .long 0x000090b0                    ; 09 = 1001 =
+    .long 0x0000a0c0                    ; 10 = 1010 =
+    .long 0x0000b0d0                    ; 11 = 1011 =
+    .long 0x0000c0e0                    ; 12 = 1100 =
+    .long 0x0000d0f0                    ; 13 = 1101 =
+    .long 0x0000e0f0                    ; 14 = 1110 = oranges
+    .long 0x00f0f0f0                    ; 15 = 1111 = white
+
+seq_palette_green_white_ramp:
+    .long 0x00000000                    ; 00 = 0000 = black
+    .long 0x00008000                    ; 01 = 0001 =
+    .long 0x00108010                    ; 02 = 0010 =
+    .long 0x00208020                    ; 03 = 0011 =
+    .long 0x00308030                    ; 04 = 0100 =
+    .long 0x00408040                    ; 05 = 0101 =
+    .long 0x00509050                    ; 06 = 0110 =
+    .long 0x0060a060                    ; 07 = 0111 = reds
+    .long 0x0070b070                    ; 08 = 1000 =
+    .long 0x0080c080                    ; 09 = 1001 =
+    .long 0x0090d090                    ; 10 = 1010 =
+    .long 0x00a0e0a0                    ; 11 = 1011 =
+    .long 0x00b0e0b0                    ; 12 = 1100 =
+    .long 0x00c0e0c0                    ; 13 = 1101 =
+    .long 0x00d0e0d0                    ; 14 = 1110 = oranges
+    .long 0x00f0f0f0                    ; 15 = 1111 = white
+
+seq_palette_red_magenta_ramp:
+    .long 0x00000000                    ; 00 = 0000 = black
+    .long 0x00000080                    ; 01 = 0001 =
+    .long 0x00100080                    ; 02 = 0010 =
+    .long 0x00200080                    ; 03 = 0011 =
+    .long 0x00300080                    ; 04 = 0100 =
+    .long 0x00400080                    ; 05 = 0101 =
+    .long 0x00500080                    ; 06 = 0110 =
+    .long 0x00600080                    ; 07 = 0111 = reds
+    .long 0x00700080                    ; 08 = 1000 =
+    .long 0x00800080                    ; 09 = 1001 =
+    .long 0x00900090                    ; 10 = 1010 =
+    .long 0x008040a0                    ; 11 = 1011 =
+    .long 0x007050b0                    ; 12 = 1100 =
+    .long 0x006060c0                    ; 13 = 1101 =
+    .long 0x005070d0                    ; 14 = 1110 = oranges
+    .long 0x00f0f0f0                    ; 15 = 1111 = white
+
+seq_palette_blue_cyan_ramp:
+    .long 0x00000000                    ; 00 = 0000 = black
+    .long 0x00a03000                    ; 01 = 0001 =
+    .long 0x00a04000                    ; 02 = 0010 =
+    .long 0x00a05000                    ; 03 = 0011 =
+    .long 0x00a06000                    ; 04 = 0100 =
+    .long 0x00b07000                    ; 05 = 0101 =
+    .long 0x00b08000                    ; 06 = 0110 =
+    .long 0x00c09000                    ; 07 = 0111 = reds
+    .long 0x00c0a000                    ; 08 = 1000 =
+    .long 0x00d0b020                    ; 09 = 1001 =
+    .long 0x00d0c040                    ; 10 = 1010 =
+    .long 0x00e0d060                    ; 11 = 1011 =
+    .long 0x00e0e080                    ; 12 = 1100 =
+    .long 0x00f0f0a0                    ; 13 = 1101 =
+    .long 0x00f0f0c0                    ; 14 = 1110 = oranges
+    .long 0x00f0f0f0                    ; 15 = 1111 = white
+
 seq_palette_all_black:
     .rept 16
     .long 0x00000000
@@ -214,6 +328,9 @@ seq_palette_all_white:
 seq_palette_lerped:
     .skip 15*4
     .long 0x00ffffff
+
+seq_palette_copy:
+    .skip 16*6
 
 ; ============================================================================
 ; Sequence specific bss.

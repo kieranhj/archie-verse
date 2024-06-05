@@ -6,6 +6,8 @@
 .equ ScrollText_MaxLength,      1024
 .equ ScrollText_SpaceColumns,   4
 
+.equ Scroller_Glyph_Height,     44  ; point size 60 (47 ~~ ps 64)
+
 scroll_text_text_p:
     .long scroll_text_text_no_adr
 
@@ -31,7 +33,7 @@ scroll_text_y_pos:
     FLOAT_TO_FP 200.0
 
 scroll_text_text_def:
-    TextDef homerton_bold_italic, 64, 64*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA", 0    ; macro needs >1 char?!
+    TextDef homerton_bold_italic, 60, 60*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA", 0    ; macro needs >1 char?!
 
 ; ============================================================================
 
@@ -300,8 +302,6 @@ get_jenkins_hash_for_string:
 ; New scroller routine shifts screen pixels (double buffered).
 ; ============================================================================
 
-.equ Scroller_Glyph_Height, 47
-
 scroller_glyph_data_ptr:
     .long 0
 
@@ -393,9 +393,9 @@ scroller_tick:
     .rept Scroller_Glyph_Height / 10
     scroller_copy_words 9        ; actually 10
     .endr
-    scroller_copy_words 6;       ; actually 7
-    .if Scroller_Glyph_Height != 47
-    .err "Expected Scroller_Glyph_Height to be 47!"
+    scroller_copy_words 3;       ; actually 4
+    .if Scroller_Glyph_Height != 44
+    .err "Expected Scroller_Glyph_Height to be 44!"
     .endif
 
     str r11, scroller_glyph_data_ptr
@@ -416,9 +416,9 @@ scroller_tick:
     .rept Scroller_Glyph_Height / 10
     scroller_store_words 9        ; actually 10
     .endr
-    scroller_store_words 6;       ; actually 7
-    .if Scroller_Glyph_Height != 47
-    .err "Expected Scroller_Glyph_Height to be 47!"
+    scroller_store_words 3;       ; actually 4
+    .if Scroller_Glyph_Height != 44
+    .err "Expected Scroller_Glyph_Height to be 44!"
     .endif
 
     ldr pc, [sp], #4

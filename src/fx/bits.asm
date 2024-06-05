@@ -735,6 +735,11 @@ bits_draw_text:
     str lr, [sp, #-4]!
 
     ldr r0, bits_text_curr
+    cmp r0, #0
+    movlt r8, #0
+    movlt r9, #1
+    blt .5
+
     ldr r1, bits_text_nums_p
     ldr r0, [r1, r0, lsl #2]
     bl text_pool_get_sprite
@@ -746,9 +751,7 @@ bits_draw_text:
     ;ldr r10, bits_text_ypos
     ;mov r10, r10, asr #16
 
-    ; TODO: Actually better on fixed Y pos within sprite...
-    ;       Easier to make them 
-
+.5:
     mov r10, #Bits_HeaderHeight/2
     subs r10, r10, r9, lsr #1          ; y top
     movlt r10, #0
@@ -1035,3 +1038,17 @@ bits_text:
 .p2align 2
 .endif
 .endif
+
+; ============================================================================
+
+; R0=src
+; R1=dst
+; R2=num words.
+bits_copy_words:
+    ldr r3, [r0], #4
+    str r3, [r1], #4
+    subs r2, r2, #1
+    bne bits_copy_words
+    mov pc, lr
+
+; ============================================================================

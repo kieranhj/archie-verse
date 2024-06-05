@@ -62,14 +62,15 @@ Try?
 
 TO FINISH
 ~~~
-- Reintroduce fading headers separate from scroller.
+- Add fade to static header text.
 - Add dynamic speed control to the scroller, otherwise it's a bit monotonous.
-- Add some nice colour palette fades across the track.
-- Get the final tune?!?!?! (Probably last minute...)
-- Final scrolltext - get a few words from Virgill & Rhino.
+- Add some nice colour palette fades across the track. - IN PROGRESS
+- Get the final tune?!?!?! (Probably last minute...) => Rhino!
+- Final scrolltext => get a few words from Virgill & Rhino.
 - What to do about audio filter mod? => Steve?!
 - Check first frame glitches ==> loader to zero BSS?
-- Fix wave peak leaking into fixed scroller area... - HACK IT!
+- Fix wave peak leaking into fixed scroller area... - HACK IT! :)
+- Fix side base line drawn in colour 14 at offset 0 => flickers
 
 BONUS
 ~~~
@@ -89,6 +90,7 @@ BONUS
 - Dynamically cut down version for ARM2 machines? Party version can be 12MHz.
     - Fewer samples => doesn't have much effect on overall perf => linedraw bound.
     - Fewer lines => biggest impact.
+- Dynamically set sample speed for ARM2/ARM250+ machines for highest quality.
 
 Line segment drawing.
 dx is fixed == 4 (or whatever)
@@ -103,12 +105,3 @@ x+=1:y+=1 => strb r4, [r11], #-ScreenStride+1
 x+=1:y-=1 => strb r4, [r11], #ScreenStride+1
 x+=0:y+=1 => strb r4, [r11], #-ScreenStride
 x+=0:y-=1 => strb r4, [r11], #ScreenStride
-
-To make the waves lean towards the viewer.
-Assume points are on an X,Y plane at fixed depth Z.
-X goes from [-128,128] and Y goes from [-64,64] etc.
-Projection would be (x-cx)/(z-cz) and (y-cy)/(z-cz)
-If the camera is pointing straight down -Y then everything on the X,Y plane
-is projected onto X,Z so larger Y values will be closer to the camera.
-Say cz=128 so z [-64,64] => (z-cz) [-192,-64]
-Say cy=128 so (y-cy) => -128/[-192,-64] => [0.6667,2]
