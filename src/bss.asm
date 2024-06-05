@@ -130,7 +130,7 @@ prod_logo_vert_array_no_adr:
 .endif
 
 text_pool_base_no_adr:
-    .skip Text_Pool_PoolSize
+    .skip TextPool_PoolSize
 text_pool_top_no_adr:
 
 ; ============================================================================

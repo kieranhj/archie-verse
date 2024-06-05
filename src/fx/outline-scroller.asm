@@ -37,8 +37,15 @@ scroll_text_text_def:
 
 ; ============================================================================
 
+sroll_text_init_screen_addr:
+    .long 0
+
+; R10=init screen addr.
+; R12=screen addr.
 scroll_text_init:
     str lr, [sp, #-4]!
+
+    str r10, sroll_text_init_screen_addr
 
     adr r11, scroll_text_text_def
     ldr r1, [r11], #4               ; font def
@@ -113,6 +120,7 @@ scroll_text_init:
     mov r3, #1                      ; store as columns.
     ldr r4, scroll_text_fixed_height
     ldr r5, scroll_text_fixed_y
+    ldr r10, sroll_text_init_screen_addr
     bl text_pool_make_sprite
     ; Returns:
     ;  R0=text no.

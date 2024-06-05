@@ -54,6 +54,8 @@ vdu_screen_disable_cursor:
 .p2align 2
 
 app_init_video:
+    str lr, [sp, #-4]!
+
 	; Set screen MODE & disable cursor
 	adr r0, vdu_screen_disable_cursor
 	mov r1, #14
@@ -88,9 +90,15 @@ app_init_video:
 
     ; Display prev bank.
     subs r1, r1, #1
-    movlt r1, #VideoConfig_ScreenBanks
+    movle r1, #VideoConfig_ScreenBanks
     mov r0, #OSByte_WriteDisplayBank
     swi OS_Byte
+    str r1, displayed_bank
+
+    ; Get address of the displayed bank.
+    bl get_screen_addr
+    ldr r12, screen_addr
+    str r12, init_screen_addr
 
     ; No flashing colours (FFS).
     mov r0, #9
@@ -98,10 +106,10 @@ app_init_video:
     swi OS_Byte
 
 .if AppConfig_UseQtmEmbedded
+    mov lr, pc
     ldr pc, QtmEmbedded_Init
-.else
-    mov pc, lr
 .endif
+    ldr pc, [sp], #4
 
 ; TODO: Junk this for non_DEBUG?
 error_noscreenmem:
@@ -193,7 +201,9 @@ app_init_audio:
 ; R12=screen addr.
 app_late_init:
     str lr, [sp, #-4]!
+    ldr r10, init_screen_addr
     bl scroll_text_init ; slow
+    ldr r10, init_screen_addr
     bl text_pool_init
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?

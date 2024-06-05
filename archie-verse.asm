@@ -307,7 +307,7 @@ debug_toggle_main_loop_pause:
     ; Toggle music.
     cmp r0, #0
 .if AppConfig_UseQtmEmbedded
-stmfd sp!, {r11,lr}
+    stmfd sp!, {r11,lr}
     moveq r11, #QTM_Pause-QTM_SwiBase			    ; pause
     movne r11, #QTM_Start-QTM_SwiBase             ; play
     mov lr, pc
@@ -545,6 +545,9 @@ error_handler:
 
 screen_addr:
 	.long 0			    ; ptr to the current VIDC screen bank being written to.
+
+init_screen_addr:
+    .long 0             ; ptr to the screen displayed during [long] init.
 
 displayed_bank:
 	.long 0				; VIDC sreen bank being displayed

@@ -3,8 +3,9 @@
 ; Keeps a pool of text strings painted to 'sprites', i.e. pixel data.
 ; ============================================================================
 
-.equ Text_Pool_Max,         256
-.equ Text_Pool_PoolSize,    512*1024    ; !!
+.equ TextPool_Max,              256
+.equ TextPool_PoolSize,         512*1024    ; !!
+.equ TextPool_ShowProgress,     1
 
 ; ============================================================================
 ; Text pool vars.
@@ -15,13 +16,13 @@ text_pool_font_handle:
 
 ; TODO: Could have stored these as a block...
 text_pool_widths:
-    .skip Text_Pool_Max*4
+    .skip TextPool_Max*4
 
 text_pool_heights:
-    .skip Text_Pool_Max*4
+    .skip TextPool_Max*4
 
 text_pool_pixel_ptrs:
-    .skip Text_Pool_Max*4
+    .skip TextPool_Max*4
 
 text_pool_p:
     .long text_pool_base_no_adr
@@ -63,6 +64,7 @@ text_pool_get_bounding_box:
 ; Store data in rows.
 ; R1=ptr to RISCOS font name
 ; R3=store as rows (0) or columns (<>0)
+; R10=ptr to init screen for progress
 ; R11=ptr to text def vars
 ; R12=screen addr
 ; Returns:
@@ -71,6 +73,7 @@ text_pool_get_bounding_box:
 ; Trashes: r0-r10
 text_pool_make_sprite:
     str lr, [sp, #-4]!
+    str r10, [sp, #-4]!
 
     mov r10, r3                             ; stash flag.
     mov r9, r4
@@ -102,7 +105,7 @@ text_pool_make_sprite:
     mov r11, r7
     ldr r0, text_pool_total
     .if _DEBUG
-    cmp r0, #Text_Pool_Max
+    cmp r0, #TextPool_Max
     adrge r0, err_bitoutoftexts
     swige OS_GenerateError
     .endif
@@ -161,6 +164,17 @@ text_pool_make_sprite:
     .endr
     subs r9, r9, #1
     bpl .4
+
+    ldr r10, [sp], #4                       ; init_screen_addr
+
+    .if TextPool_ShowProgress
+    mov r4, #Scope_YPos
+    add r9, r10, r4, lsl #8
+    add r9, r9, r4, lsl #6
+    add r9, r9, r8, lsl #2
+    mov r5, #-1
+    str r5, [r9]
+    .endif
 
     ; Return text no.
     mov r0, r8

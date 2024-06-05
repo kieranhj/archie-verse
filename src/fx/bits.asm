@@ -1044,11 +1044,21 @@ bits_text:
 ; R0=src
 ; R1=dst
 ; R2=num words.
-bits_copy_words:
+bits_mem_copy_words:
     ldr r3, [r0], #4
     str r3, [r1], #4
     subs r2, r2, #1
-    bne bits_copy_words
+    bne bits_mem_copy_words
+    mov pc, lr
+
+; R0=dst
+; R1=num words.
+bits_mem_clr_words:
+    mov r2, #0
+.1:
+    str r2, [r0], #4
+    subs r1, r1, #1
+    bne .1
     mov pc, lr
 
 ; ============================================================================

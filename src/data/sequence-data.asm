@@ -24,7 +24,7 @@
 .endm
 
 .macro palette_copy palette_src, palette_dst
-    call_3 bits_copy_words, \palette_src, \palette_dst, 16
+    call_3 bits_mem_copy_words, \palette_src, \palette_dst, 16
 .endm
 
 .macro palette_lerp_from_existing palette_B, secs
