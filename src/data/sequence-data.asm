@@ -60,6 +60,9 @@
     ; Start adjusting the scale.
     math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/400.0
 
+    ; Can also go negative!
+    ; math_make_var scope_yscale, 0.0, 0.5, math_sin, 0.0, 1.0/400.0
+
 seq_loop:
     ; Start!
     palette_lerp_from_existing seq_palette_red_additive, SeqConfig_PatternLength_Secs*0.25

@@ -12,7 +12,8 @@ Framework TODOs as of 15/5/24:
 - Move png2arc to Python 3.
 - MOD file analyser to configure code / script.
 - Move scripting to use seconds throughout?
-- Create text-pool module from code in fx/bits.asm.
+- Create text-pool module from code in fx/bits.asm. - DONE
+  (but could still maybe do with some refactoring)
 - Automatic clearing of BSS by loader?
 
 
@@ -68,9 +69,10 @@ TO FINISH
 - Get the final tune?!?!?! (Probably last minute...) => Rhino!
 - Final scrolltext => get a few words from Virgill & Rhino.
 - What to do about audio filter mod? => Steve?!
-- Check first frame glitches ==> loader to zero BSS?
-- Fix wave peak leaking into fixed scroller area... - HACK IT! :)
-- Fix side base line drawn in colour 14 at offset 0 => flickers
+- BUG: Check first frame glitches ==> loader to zero BSS?
+- BUG: Wave peak leaks into fixed scroller area and gets dragged... - HACK IT! :)
+- BUG: Base line drawn in colour 14 at offset 0 => flickers with certain palettes
+- BUG: First frame sometimes displayed before palette is 
 
 BONUS
 ~~~
@@ -87,10 +89,16 @@ BONUS
 - Use a proper modulo fn. for scope scroll, not a loop. - DONE
 - Try having the live waveform NOT moving with the others? - DONE
 - Does it look better without the flat lines on the left/right? => small border looks best.
-- Dynamically cut down version for ARM2 machines? Party version can be 12MHz.
+- Dynamically cut down version for ARM2 machines? Party version can be 12MHz. - DONE AS COMPILE OPTION FOR NOW
     - Fewer samples => doesn't have much effect on overall perf => linedraw bound.
     - Fewer lines => biggest impact.
+    - Need to change scopes to 8/14 :(
+    - Probably also shrink text size
+    - Actually switching to 32 samples for the waveform but keeping the dx=4
+      makes the waveform part smaller and looks cool enough!
+      Can reduce scopes to 11/11 or higher!
 - Dynamically set sample speed for ARM2/ARM250+ machines for highest quality.
+    - DONE AS COMPILE OPTION FOR NOW
 
 Line segment drawing.
 dx is fixed == 4 (or whatever)
@@ -105,3 +113,13 @@ x+=1:y+=1 => strb r4, [r11], #-ScreenStride+1
 x+=1:y-=1 => strb r4, [r11], #ScreenStride+1
 x+=0:y+=1 => strb r4, [r11], #-ScreenStride
 x+=0:y-=1 => strb r4, [r11], #ScreenStride
+
+STUFFS FOR NEXT TIME
+~~~
+- Remove OS_Byte VDU calls - just manage screen buffer data internally.
+  No point in keeping these if poking VIDC directly for palette as not compatible.
+  Keep a list of screen buffer addresses and set MEMC on vsync etc.
+- Dynamically generate CLS code include clear line code.
+- How have I got this far without memcpy and memclr?!
+  Write optimised versions of these for lib.
+

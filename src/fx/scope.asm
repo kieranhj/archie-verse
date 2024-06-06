@@ -7,6 +7,7 @@
 
 .equ Scope_FixActiveYPos,   1       ; fix the 'active' scope y pos.
 .equ Scope_DrawBaseLine,    (Scope_BaseLine_Len > 0 && 1)
+.equ Scope_HalfBaseLine,    (_SLOW_CPU && 1)
 
 ; Legacy features.
 ;.equ Scope_DrawLines,      1       ; otherwise points.
@@ -15,16 +16,28 @@
 .equ Scope_XStep,           MATHS_CONST_1*320/Scope_TotalSamples
 .equ Scope_YScale,          MATHS_CONST_1*0.5  ; now fixed by shift.
 .equ Scope_PixelColour,     15
+
+.if _SLOW_CPU
+.equ Scope_TotalSamples,    32      ; Max samples = 208
+.else
 .equ Scope_TotalSamples,    64      ; Max samples = 208
+.endif
 
 .equ Scope_MaxSamples,      208
 .equ Scope_SampleStep,      MATHS_CONST_1*Scope_MaxSamples/Scope_TotalSamples
 
-.equ Scope_NumHistories,    15      ; TODO: Dynamically reduce for ARM2?
+.if _SLOW_CPU
+.equ Scope_NumHistories,    13
+.equ Scope_YStep,           9
+.else
+.equ Scope_NumHistories,    14
+.equ Scope_YStep,           9
+.endif
+
 .equ Scope_YPos,            208     ; Position of active scope.
+
 ;.equ Scope_YTop,            88      ; Or fix YStep?
 ;.equ Scope_YStep,           (Scope_YPos-Scope_YTop)/Scope_NumHistories
-.equ Scope_YStep,           8
 
 .equ Scope_BaseLine_Len,    (Screen_Stride-(Scope_TotalSamples*LineSegments_Fixed_dx))/2
 
@@ -396,9 +409,16 @@ scope_draw_one_history:
     add r11, r12, r8, lsl #8
     add r11, r11, r8, lsl #6  ; calc screen start address.
     
+    .if Scope_HalfBaseLine
+    add r11, r11, #4*(Scope_BaseLine_Len/8)
+    .rept (Scope_BaseLine_Len)/8
+    str r4, [r11], #4
+    .endr
+    .else
     .rept (Scope_BaseLine_Len)/4
     str r4, [r11], #4
     .endr
+    .endif
 .endif
 
     ldr r0, scope_yscale
@@ -488,9 +508,16 @@ scope_draw_one_history:
     strneb r4, [r11], #1
 
     ; TOOD: This doesn't work 100% with all combos but whatevs.
+    .if Scope_HalfBaseLine
+    .rept (Scope_BaseLine_Len-4)/8
+    str r4, [r11], #4
+    .endr
+    add r11, r11, #4*(Scope_BaseLine_Len/8)
+    .else
     .rept (Scope_BaseLine_Len-4)/4
     str r4, [r11], #4
     .endr
+    .endif
 .endif
 
     and r4, r4, #0xf

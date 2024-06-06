@@ -4,7 +4,7 @@
 
 ; TODO: Best way to configure this outside lib code.
 ;       Possibly jump into the unrolled code dynamically?
-.equ Cls_FirstLine,     4+44
+.equ Cls_FirstLine,     4+Scroller_Glyph_Height
 .equ Cls_LastLine,      255
 .equ Cls_Bytes,         (Cls_LastLine+1-Cls_FirstLine)*Screen_Stride
 

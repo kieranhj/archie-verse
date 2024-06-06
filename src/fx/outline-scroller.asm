@@ -4,9 +4,14 @@
 
 .equ ScrollText_MaxSprites,     256
 .equ ScrollText_MaxLength,      1024
-.equ ScrollText_SpaceColumns,   4
 
+.if _SLOW_CPU
+.equ Scroller_Glyph_Height,     35  ; point size * 0.8
+.equ ScrollText_SpaceColumns,   3
+.else
 .equ Scroller_Glyph_Height,     44  ; point size 60 (47 ~~ ps 64)
+.equ ScrollText_SpaceColumns,   4
+.endif
 
 scroll_text_text_p:
     .long scroll_text_text_no_adr
@@ -401,10 +406,17 @@ scroller_tick:
     .rept Scroller_Glyph_Height / 10
     scroller_copy_words 9        ; actually 10
     .endr
-    scroller_copy_words 3;       ; actually 4
+.if _SLOW_CPU
+    scroller_copy_words 4        ; actually 5
+    .if Scroller_Glyph_Height != 35
+    .err "Expected Scroller_Glyph_Height to be 35!"
+    .endif
+.else
+    scroller_copy_words 3        ; actually 4
     .if Scroller_Glyph_Height != 44
     .err "Expected Scroller_Glyph_Height to be 44!"
     .endif
+.endif
 
     str r11, scroller_glyph_data_ptr
     ldr pc, [sp], #4
@@ -424,10 +436,17 @@ scroller_tick:
     .rept Scroller_Glyph_Height / 10
     scroller_store_words 9        ; actually 10
     .endr
+.if _SLOW_CPU
+    scroller_store_words 4        ; actually 5
+    .if Scroller_Glyph_Height != 35
+    .err "Expected Scroller_Glyph_Height to be 35!"
+    .endif
+.else
     scroller_store_words 3;       ; actually 4
     .if Scroller_Glyph_Height != 44
     .err "Expected Scroller_Glyph_Height to be 44!"
     .endif
+.endif
 
     ldr pc, [sp], #4
 
