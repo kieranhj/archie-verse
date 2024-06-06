@@ -8,7 +8,7 @@
 
 .equ _DEBUG,                    0
 .equ _SMALL_EXE,                1       ; TODO: Configure from Makefile?
-.equ _SLOW_CPU,                 1       ; ARM2 @ 8MHz. TODO: Set dynamically.
+.equ _SLOW_CPU,                 0       ; ARM2 @ 8MHz. TODO: Set dynamically.
 
 .equ _LOG_SAMPLES,              (_SMALL_EXE && 1)
 

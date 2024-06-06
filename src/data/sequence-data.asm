@@ -88,29 +88,29 @@ seq_loop:
 
 seq_header:
     write_addr bits_text_curr, 0            ; bitshifters
-    wait_patterns 0.5
+    wait_patterns 1.0
     write_addr bits_text_curr, 1            ; alcatraz
-    wait_patterns 0.25
+    wait_patterns 0.5
     write_addr bits_text_curr, 2            ; torment
-    wait_patterns 0.25
+    wait_patterns 0.5
     write_addr bits_text_curr, 3            ; present
-    wait_patterns 0.25
+    wait_patterns 0.5
     write_addr bits_text_curr, 4            ; ArchieKlang
-    wait_patterns 0.25
+    wait_patterns 0.5
 
     ; Or fade up histories one at a time? How...
     palette_lerp_over_secs seq_palette_single_white, seq_palette_grey, SeqConfig_PatternLength_Secs*0.9
 
     write_addr bits_text_curr, 5            ; code
-    wait_patterns 0.25
+    wait_patterns 0.5
     write_addr bits_text_curr, 7            ; synth
-    wait_patterns 0.25
+    wait_patterns 0.5
     write_addr bits_text_curr, 10           ; Rhino & Virgill
-    wait_patterns 0.25
+    wait_patterns 0.5
 
     ; Remove text.
     write_addr bits_text_curr, -1           ; blank
-    wait_patterns 0.25
+    wait_patterns 0.5
 
     ; Switch to scroller!
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line

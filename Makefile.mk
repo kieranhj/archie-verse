@@ -141,14 +141,13 @@ clean:
 ##########################################################################
 ##########################################################################
 
-./src/gen/arcmusic.asm: ./data/akp/Rhino1.mod.txt
+./src/gen/arcmusic.asm: ./data/akp/Rhino2.mod.txt
 	$(PYTHON3) $(AKP2ARC) $< -o $@
 
 ./build/music.mod.trk: ./build/music.mod
 	$(SPLITMOD) $(subst /,\\,$+)
 
-# NOTE: NO longer used. See src/data.asm instead.
-./build/music.mod: ./data/music/Rhino1.mod
+./build/music.mod: ./data/music/Rhino2.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ##########################################################################

@@ -167,7 +167,7 @@ seq_main_program:
 
 .if AppConfig_UseArchieKlang
 External_Samples_no_adr:
-.incbin "data/akp/Rhino1.mod.raw"
+.incbin "data/akp/Rhino2.mod.raw"
 .p2align 2
 
 music_mod_no_adr:
@@ -187,7 +187,7 @@ music_mod_no_adr:
 ;.incbin "data/music/maze-funky-delicious.mod"
 ;.incbin "data/music/mikroreise.mod"    ; requires all the RAM!!
 ;.incbin "data/music/Revision_house_06.mod"
-.incbin "data/music/archieklang_smp.mod"
+.incbin "data/music/archieklang_smp_rhino2.mod"
 
 .endif
 .endif

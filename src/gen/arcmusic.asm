@@ -2,7 +2,7 @@
 ; Generated with Aklang2Acorn.py v1.0, by kieran/Bitshifters 2024.
 ; Based on Alcatraz Amigaklang rendering core. (c) Jochen 'Virgill' Feldkötter 2020-2024.
 ; And Aklang2Asm by Dan/Lemon. 2021-2022.
-; Input Aklang script = 'data/akp/Rhino1.mod.txt'
+; Input Aklang script = 'data/akp/Rhino2.mod.txt'
 ;
 ; Define macro 'AK_PROGRESS' for whatever per-instrument progress callback you require (if any).
 ; Define macro 'AK_FINE_PROGRESS' for whatever per-byte progress callback you require (if any).
@@ -35,7 +35,7 @@
 .equ AK_ENVDVALUE,			(AK_EnvDValue-AK_Vars)
 .equ AK_ADSRVALUES,			(AK_ADSRValues-AK_Vars)
 
-.equ AK_SMP_LEN,			212036
+.equ AK_SMP_LEN,			289856
 .equ AK_EXT_SMP_LEN,		20384
 
 ; ============================================================================
@@ -298,6 +298,23 @@ Inst3Loop:
 	cmn r0, r11		; #-32768
 	mvnlt r0, r11	; #-32768
 
+	; v1 = distortion(v1, 32);
+	mov r14, #32
+	mul r14, r0, r14
+	mov r14, r14, asr #5
+	; r14 = clamp(r14)
+	cmp r14, r11		; #32767
+	movgt r14, r11	; #32767
+	cmn r14, r11		; #-32768
+	mvnlt r14, r11	; #-32768
+	mov r14, r14, asr #1
+	movs r4, r14
+	rsbmi r4, r4, #0	; abs(val)
+	sub r4, r11, r4
+	mul r4, r14, r4
+	mov r4, r4, asr #16
+	mov r0, r4, asl #3
+
 	sub r9, r9, #2048*4*1	; reset temp buffer base.
 	mov r4, r0, asr #8
 	strb r4, [r8], #1
@@ -381,11 +398,11 @@ Inst4Loop:
 	str r6, [r10, #AK_OPINSTANCE+4*(1+AK_BPF)]
 	mov r1, r5
 
-	; v2 = reverb(v2, 127, 16);
+	; v2 = reverb(v2, 112, 32);
 	ldr r6, [r10, #AK_OPINSTANCE+4*4]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -404,14 +421,14 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*4]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	mov r5, r12
 	ldr r6, [r10, #AK_OPINSTANCE+4*5]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -430,14 +447,14 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*5]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	add r5, r5, r12
 	ldr r6, [r10, #AK_OPINSTANCE+4*6]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -456,14 +473,14 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*6]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	add r5, r5, r12
 	ldr r6, [r10, #AK_OPINSTANCE+4*7]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -482,14 +499,14 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*7]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	add r5, r5, r12
 	ldr r6, [r10, #AK_OPINSTANCE+4*8]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -508,14 +525,14 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*8]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	add r5, r5, r12
 	ldr r6, [r10, #AK_OPINSTANCE+4*9]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -534,14 +551,14 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*9]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	add r5, r5, r12
 	ldr r6, [r10, #AK_OPINSTANCE+4*10]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -560,14 +577,14 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*10]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	add r5, r5, r12
 	ldr r6, [r10, #AK_OPINSTANCE+4*11]
 	ldr r4, [r9, r6, lsl #2]
-	; r4 = vol(r4, 127)
-	mov r14, #127
+	; r4 = vol(r4, 112)
+	mov r14, #112
 	mul r4, r14, r4
 	mov r4, r4, asr #7
 	mov r4, r4, asl #16
@@ -586,8 +603,8 @@ Inst4Loop:
 	cmp r6, r14
 	movge r6, #0
 	str r6, [r10, #AK_OPINSTANCE+4*11]
-	; r12 = vol(r12, 16)
-	mov r12, r12, asr #3	; val<<4>>7
+	; r12 = vol(r12, 32)
+	mov r12, r12, asr #2	; val<<5>>7
 	add r9, r9, #2048*4	; next temp buffer.
 	add r1, r5, r12
 	; v2 = clamp(v2)
@@ -1352,6 +1369,44 @@ Inst10Loop:
 	blt Inst10Loop
 
 ;----------------------------------------------------------------------------
+; Instrument 10 - Loop Generator (Offset: 3584 Length: 512)
+;----------------------------------------------------------------------------
+
+	mov r7, #510	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*9]
+	add r6, r6, #3586	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_10:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_10
+
+;----------------------------------------------------------------------------
 ; Instrument 11 - 'Rhino-Kickbass2'
 ;----------------------------------------------------------------------------
 
@@ -1478,6 +1533,44 @@ Inst11Loop:
 	ldr r4, [r10, #AK_SMPLEN+4*10]
 	cmp r7, r4
 	blt Inst11Loop
+
+;----------------------------------------------------------------------------
+; Instrument 11 - Loop Generator (Offset: 3584 Length: 512)
+;----------------------------------------------------------------------------
+
+	mov r7, #510	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*10]
+	add r6, r6, #3586	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_11:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_11
 
 ;----------------------------------------------------------------------------
 ; Instrument 12 - 'Rhino-Percussion-Synth'
@@ -1875,11 +1968,11 @@ Inst13Loop:
 	cmn r0, r11		; #-32768
 	mvnlt r0, r11	; #-32768
 
-	; v1 = sv_flt_n(5, v1, 48, 127, 0);
+	; v1 = sv_flt_n(5, v1, 42, 127, 0);
 	add r14, r10, #AK_OPINSTANCE+4*(9+AK_LPF)
 	ldmia r14, {r4-r6}
 	mov r14, r6, asr #7
-	mov r12, #48
+	mov r12, #42
 	mla r4, r14, r12, r4
 	; r4 = clamp(r4)
 	cmp r4, r11		; #32767
@@ -1899,7 +1992,7 @@ Inst13Loop:
 	mvnlt r5, r11	; #-32768
 	str r5, [r10, #AK_OPINSTANCE+4*(9+AK_HPF)]
 	mov r14, r5, asr #7
-	mov r12, #48
+	mov r12, #42
 	mla r6, r12, r14, r6
 	; r6 = clamp(r6)
 	cmp r6, r11		; #32767
@@ -2069,8 +2162,8 @@ Inst14Loop:
 	; NOOP -- val<<7>>7
 	add r9, r9, #2048*4	; next temp buffer.
 
-	; v2 = envd(2, 11, 0, 128);
-	mov r4, #2048
+	; v2 = envd(2, 12, 0, 128);
+	mov r4, #1724
 	mul r6, r7, r4
 	subs r6, r11, r6, asr #8
 	movle r6, #0
@@ -2123,6 +2216,44 @@ Inst14Loop:
 	ldr r4, [r10, #AK_SMPLEN+4*13]
 	cmp r7, r4
 	blt Inst14Loop
+
+;----------------------------------------------------------------------------
+; Instrument 14 - Loop Generator (Offset: 3840 Length: 256)
+;----------------------------------------------------------------------------
+
+	mov r7, #254	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*13]
+	add r6, r6, #3842	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_14:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_14
 
 ;----------------------------------------------------------------------------
 ; Instrument 15 - 'Rhino-Chord1'
@@ -2579,7 +2710,7 @@ LoopGen_17:
 	AK_PROGRESS
 
 Inst18Loop:
-	; v1 = chordgen(0, 12, 3, 8, 10, 57);
+	; v1 = chordgen(0, 12, 7, 8, 10, 57);
 	ldr r4, [r10, #AK_SMPADDR+4*12]
 	ldr r12, [r10, #AK_SMPLEN+4*12]
 	ldrb r6, [r4, r7]
@@ -2591,7 +2722,7 @@ Inst18Loop:
 	cmp r12, r5, lsr #16
 	ldrgtb r14, [r4, r5, lsr #16]
 	movle r14, #0
-	add r5, r5, #77824
+	add r5, r5, #98048
 	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
 	mov r14, r14, asl #24
 	add r6, r6, r14, asr #17
@@ -2717,7 +2848,7 @@ LoopGen_18:
 	bne LoopGen_18
 
 ;----------------------------------------------------------------------------
-; Instrument 19 - 'Instrument_19'
+; Instrument 19 - 'Rhino-Chord5'
 ;----------------------------------------------------------------------------
 
 	mov r4, #0	; buffers to clear
@@ -2727,6 +2858,95 @@ LoopGen_18:
 	AK_PROGRESS
 
 Inst19Loop:
+	; v1 = chordgen(0, 12, 3, 7, 8, 57);
+	ldr r4, [r10, #AK_SMPADDR+4*12]
+	ldr r12, [r10, #AK_SMPLEN+4*12]
+	ldrb r6, [r4, r7]
+	mov r6, r6, asl #24
+	mov r6, r6, asr #17
+	add r4, r4, #57
+	sub r12, r12, #57
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	cmp r12, r5, lsr #16
+	ldrgtb r14, [r4, r5, lsr #16]
+	movle r14, #0
+	add r5, r5, #77824
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD2)]
+	cmp r12, r5, lsr #16
+	ldrgtb r14, [r4, r5, lsr #16]
+	movle r14, #0
+	add r5, r5, #98048
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD2)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD3)]
+	cmp r12, r5, lsr #15
+	ldrgtb r14, [r4, r5, lsr #15]
+	movle r14, #0
+	add r5, r5, #51968
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD3)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	mov r0, r6
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v1 = onepole_flt(1, v1, 1, 1);
+	ldr r4, [r10, #AK_OPINSTANCE+4*3]	; pole
+	mov r6, r4, asr #7
+	mov r14, r0, asr #7
+	mov r12, #1
+	mul r5, r12, r14
+	mul r6, r12, r6
+	sub r4, r4, r6
+	add r4, r4, r5
+	; r4 = clamp(r4)
+	cmp r4, r11		; #32767
+	movgt r4, r11	; #32767
+	cmn r4, r11		; #-32768
+	mvnlt r4, r11	; #-32768
+	str r4, [r10, #AK_OPINSTANCE+4*3]	; pole
+	sub r0, r0, r4
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v2 = osc_sine(2, 256, 64);
+	ldr r6, [r10, #AK_OPINSTANCE+4*4]
+	add r6, r6, #256
+	str r6, [r10, #AK_OPINSTANCE+4*4]
+	sub r6, r6, #16384
+	mov r6, r6, asl #16
+	mov r6, r6, asr #16	; Sign extend word to long.
+	movs r4, r6
+	rsblt r4, r4, #0
+	sub r4, r11, r4	; #32767
+	mul r4, r6, r4
+	mov r4, r4, asr #16
+	mov r4, r4, asl #3
+	; v2 = vol(v5, 64)
+	mov r1, r4, asr #1	; val<<6>>7
+
+	; v1 = add(v1, v2);
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	mov r1, r1, asl #16
+	mov r1, r1, asr #16	; Sign extend word to long.
+	add r0, r0, r1
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
 	mov r4, r0, asr #8
 	strb r4, [r8], #1
 
@@ -2738,7 +2958,45 @@ Inst19Loop:
 	blt Inst19Loop
 
 ;----------------------------------------------------------------------------
-; Instrument 20 - 'Instrument_20'
+; Instrument 19 - Loop Generator (Offset: 12288 Length: 12288)
+;----------------------------------------------------------------------------
+
+	mov r7, #12286	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*18]
+	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_19:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_19
+
+;----------------------------------------------------------------------------
+; Instrument 20 - 'Rhino-Chord6'
 ;----------------------------------------------------------------------------
 
 	mov r4, #0	; buffers to clear
@@ -2748,6 +3006,95 @@ Inst19Loop:
 	AK_PROGRESS
 
 Inst20Loop:
+	; v1 = chordgen(0, 12, 3, 9, 6, 57);
+	ldr r4, [r10, #AK_SMPADDR+4*12]
+	ldr r12, [r10, #AK_SMPLEN+4*12]
+	ldrb r6, [r4, r7]
+	mov r6, r6, asl #24
+	mov r6, r6, asr #17
+	add r4, r4, #57
+	sub r12, r12, #57
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	cmp r12, r5, lsr #16
+	ldrgtb r14, [r4, r5, lsr #16]
+	movle r14, #0
+	add r5, r5, #77824
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD3)]
+	cmp r12, r5, lsr #16
+	ldrgtb r14, [r4, r5, lsr #16]
+	movle r14, #0
+	add r5, r5, #92672
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD3)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD2)]
+	cmp r12, r5, lsr #15
+	ldrgtb r14, [r4, r5, lsr #15]
+	movle r14, #0
+	add r5, r5, #55040
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD2)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	mov r0, r6
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v1 = onepole_flt(1, v1, 1, 1);
+	ldr r4, [r10, #AK_OPINSTANCE+4*3]	; pole
+	mov r6, r4, asr #7
+	mov r14, r0, asr #7
+	mov r12, #1
+	mul r5, r12, r14
+	mul r6, r12, r6
+	sub r4, r4, r6
+	add r4, r4, r5
+	; r4 = clamp(r4)
+	cmp r4, r11		; #32767
+	movgt r4, r11	; #32767
+	cmn r4, r11		; #-32768
+	mvnlt r4, r11	; #-32768
+	str r4, [r10, #AK_OPINSTANCE+4*3]	; pole
+	sub r0, r0, r4
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v2 = osc_sine(2, 256, 64);
+	ldr r6, [r10, #AK_OPINSTANCE+4*4]
+	add r6, r6, #256
+	str r6, [r10, #AK_OPINSTANCE+4*4]
+	sub r6, r6, #16384
+	mov r6, r6, asl #16
+	mov r6, r6, asr #16	; Sign extend word to long.
+	movs r4, r6
+	rsblt r4, r4, #0
+	sub r4, r11, r4	; #32767
+	mul r4, r6, r4
+	mov r4, r4, asr #16
+	mov r4, r4, asl #3
+	; v2 = vol(v5, 64)
+	mov r1, r4, asr #1	; val<<6>>7
+
+	; v1 = add(v1, v2);
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	mov r1, r1, asl #16
+	mov r1, r1, asr #16	; Sign extend word to long.
+	add r0, r0, r1
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
 	mov r4, r0, asr #8
 	strb r4, [r8], #1
 
@@ -2759,7 +3106,45 @@ Inst20Loop:
 	blt Inst20Loop
 
 ;----------------------------------------------------------------------------
-; Instrument 21 - 'Rhino-Pling-Reverb'
+; Instrument 20 - Loop Generator (Offset: 12288 Length: 12288)
+;----------------------------------------------------------------------------
+
+	mov r7, #12286	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*19]
+	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_20:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_20
+
+;----------------------------------------------------------------------------
+; Instrument 21 - 'Rhino-Pluck-Reverb'
 ;----------------------------------------------------------------------------
 
 	mov r4, #0	; buffers to clear
@@ -3069,12 +3454,975 @@ Inst21Loop:
 	cmp r7, r4
 	blt Inst21Loop
 
+;----------------------------------------------------------------------------
+; Instrument 22 - 'Rhino-Lead'
+;----------------------------------------------------------------------------
+
+	mov r4, #8	; buffers to clear
+	bl AK_ResetVars
+	mov r7, #0	; Sample byte count
+
+	AK_PROGRESS
+
+Inst22Loop:
+	; v1 = osc_saw(0, 4096, 128);
+	ldr r4, [r10, #AK_OPINSTANCE+4*0]
+	add r4, r4, #4096
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	str r4, [r10, #AK_OPINSTANCE+4*0]	
+	; v1 = vol(v5, 128)
+	mov r0, r4	; NOOP -- val<<7>>7
+
+	; v2 = osc_sine(1, 2044, 128);
+	ldr r6, [r10, #AK_OPINSTANCE+4*1]
+	add r6, r6, #2044
+	str r6, [r10, #AK_OPINSTANCE+4*1]
+	sub r6, r6, #16384
+	mov r6, r6, asl #16
+	mov r6, r6, asr #16	; Sign extend word to long.
+	movs r4, r6
+	rsblt r4, r4, #0
+	sub r4, r11, r4	; #32767
+	mul r4, r6, r4
+	mov r4, r4, asr #16
+	mov r4, r4, asl #3
+	; v2 = vol(v5, 128)
+	mov r1, r4	; NOOP -- val<<7>>7
+
+	; v1 = add(v1, v2);
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	mov r1, r1, asl #16
+	mov r1, r1, asr #16	; Sign extend word to long.
+	add r0, r0, r1
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v2 = osc_sine(3, 1024, 12);
+	ldr r6, [r10, #AK_OPINSTANCE+4*2]
+	add r6, r6, #1024
+	str r6, [r10, #AK_OPINSTANCE+4*2]
+	sub r6, r6, #16384
+	mov r6, r6, asl #16
+	mov r6, r6, asr #16	; Sign extend word to long.
+	movs r4, r6
+	rsblt r4, r4, #0
+	sub r4, r11, r4	; #32767
+	mul r4, r6, r4
+	mov r4, r4, asr #16
+	mov r4, r4, asl #3
+	; v2 = vol(v5, 12)
+	mov r14, #12
+	mul r1, r14, r4
+	mov r1, r1, asr #7
+	mov r1, r1, asl #16
+	mov r1, r1, asr #16	; Sign extend word to long.
+
+	; v1 = add(v1, v2);
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	mov r1, r1, asl #16
+	mov r1, r1, asr #16	; Sign extend word to long.
+	add r0, r0, r1
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v1 = cmb_flt_n(5, v1, 43, 125, 128);
+	ldr r6, [r10, #AK_OPINSTANCE+4*3]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 125)
+	mov r14, #125
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r0, r0, r4
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+	str r0, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #43
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*3]
+	; v1 = vol(v1, 128)
+	; NOOP -- val<<7>>7
+	add r9, r9, #2048*4	; next temp buffer.
+
+	; v1 = onepole_flt(6, v1, 1, 1);
+	ldr r4, [r10, #AK_OPINSTANCE+4*4]	; pole
+	mov r6, r4, asr #7
+	mov r14, r0, asr #7
+	mov r12, #1
+	mul r5, r12, r14
+	mul r6, r12, r6
+	sub r4, r4, r6
+	add r4, r4, r5
+	; r4 = clamp(r4)
+	cmp r4, r11		; #32767
+	movgt r4, r11	; #32767
+	cmn r4, r11		; #-32768
+	mvnlt r4, r11	; #-32768
+	str r4, [r10, #AK_OPINSTANCE+4*4]	; pole
+	sub r0, r0, r4
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v1 = onepole_flt(7, v1, 96, 0);
+	ldr r4, [r10, #AK_OPINSTANCE+4*5]	; pole
+	mov r6, r4, asr #7
+	mov r14, r0, asr #7
+	mov r12, #96
+	mul r5, r12, r14
+	mul r6, r12, r6
+	sub r4, r4, r6
+	add r4, r4, r5
+	; r4 = clamp(r4)
+	cmp r4, r11		; #32767
+	movgt r4, r11	; #32767
+	cmn r4, r11		; #-32768
+	mvnlt r4, r11	; #-32768
+	str r4, [r10, #AK_OPINSTANCE+4*5]	; pole
+	mov r0, r4
+
+	sub r9, r9, #2048*4*1	; reset temp buffer base.
+	mov r4, r0, asr #8
+	strb r4, [r8], #1
+
+	AK_FINE_PROGRESS
+
+	add r7, r7, #1
+	ldr r4, [r10, #AK_SMPLEN+4*21]
+	cmp r7, r4
+	blt Inst22Loop
+
+;----------------------------------------------------------------------------
+; Instrument 22 - Loop Generator (Offset: 6144 Length: 6144)
+;----------------------------------------------------------------------------
+
+	mov r7, #6142	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*21]
+	add r6, r6, #6146	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_22:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_22
+
+;----------------------------------------------------------------------------
+; Instrument 23 - 'Rhino-plucked1'
+;----------------------------------------------------------------------------
+
+	mov r4, #1	; buffers to clear
+	bl AK_ResetVars
+	mov r7, #0	; Sample byte count
+
+	AK_PROGRESS
+
+Inst23Loop:
+	; v1 = chordgen(0, 21, 7, 0, 0, 0);
+	ldr r4, [r10, #AK_SMPADDR+4*21]
+	ldr r12, [r10, #AK_SMPLEN+4*21]
+	ldrb r6, [r4, r7]
+	mov r6, r6, asl #24
+	mov r6, r6, asr #17
+	add r4, r4, #0
+	sub r12, r12, #0
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	cmp r12, r5, lsr #16
+	ldrgtb r14, [r4, r5, lsr #16]
+	movle r14, #0
+	add r5, r5, #98048
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	mov r0, r6
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v2 = envd(1, 7, 0, 128);
+	mov r4, #4681
+	mul r6, r7, r4
+	subs r6, r11, r6, asr #8
+	movle r6, #0
+	mov r1, r6
+	; v2 = vol(v2, 128)
+	; NOOP -- val<<7>>7
+
+	; v1 = mul(v1, v2);
+	mul r0, r1, r0
+	mov r0, r0, asr #15
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+
+	; v2 = mul(v2, 90);
+	mov r14, #90
+	mul r1, r14, r1
+	mov r1, r1, asr #15
+	mov r1, r1, asl #16
+	mov r1, r1, asr #16	; Sign extend word to long.
+
+	; v1 = sv_flt_n(4, v1, v2, 77, 0);
+	add r14, r10, #AK_OPINSTANCE+4*(3+AK_LPF)
+	ldmia r14, {r4-r6}
+	mov r14, r6, asr #7
+	mla r4, r1, r14, r4
+	; r4 = clamp(r4)
+	cmp r4, r11		; #32767
+	movgt r4, r11	; #32767
+	cmn r4, r11		; #-32768
+	mvnlt r4, r11	; #-32768
+	str r4, [r10, #AK_OPINSTANCE+4*(3+AK_LPF)]
+	mov r12, #77
+	mul r14, r12, r14
+	mov r12, r0
+	sub r12, r12, r4
+	sub r5, r12, r14
+	; r5 = clamp(r5)
+	cmp r5, r11		; #32767
+	movgt r5, r11	; #32767
+	cmn r5, r11		; #-32768
+	mvnlt r5, r11	; #-32768
+	str r5, [r10, #AK_OPINSTANCE+4*(3+AK_HPF)]
+	mov r14, r5, asr #7
+	mla r6, r1, r14, r6
+	; r6 = clamp(r6)
+	cmp r6, r11		; #32767
+	movgt r6, r11	; #32767
+	cmn r6, r11		; #-32768
+	mvnlt r6, r11	; #-32768
+	str r6, [r10, #AK_OPINSTANCE+4*(3+AK_BPF)]
+	mov r0, r4
+
+	; v1 = reverb(v1, 122, 24);
+	ldr r6, [r10, #AK_OPINSTANCE+4*6]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #557
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*6]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	mov r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*7]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #593
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*7]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*8]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #641
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*8]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*9]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #677
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*9]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*10]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #709
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*10]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*11]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #743
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*11]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*12]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #787
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*12]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*13]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #809
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*13]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r0, r5, r12
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	sub r9, r9, #2048*4*8	; reset temp buffer base.
+	mov r4, r0, asr #8
+	strb r4, [r8], #1
+
+	AK_FINE_PROGRESS
+
+	add r7, r7, #1
+	ldr r4, [r10, #AK_SMPLEN+4*22]
+	cmp r7, r4
+	blt Inst23Loop
+
+;----------------------------------------------------------------------------
+; Instrument 23 - Loop Generator (Offset: 4096 Length: 4096)
+;----------------------------------------------------------------------------
+
+	mov r7, #4094	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*22]
+	add r6, r6, #4098	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_23:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_23
+
+;----------------------------------------------------------------------------
+; Instrument 24 - 'Rhino-Plucked2'
+;----------------------------------------------------------------------------
+
+	mov r4, #8	; buffers to clear
+	bl AK_ResetVars
+	mov r7, #0	; Sample byte count
+
+	AK_PROGRESS
+
+Inst24Loop:
+	; v1 = chordgen(0, 21, 5, 0, 0, 0);
+	ldr r4, [r10, #AK_SMPADDR+4*21]
+	ldr r12, [r10, #AK_SMPLEN+4*21]
+	ldrb r6, [r4, r7]
+	mov r6, r6, asl #24
+	mov r6, r6, asr #17
+	add r4, r4, #0
+	sub r12, r12, #0
+	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	cmp r12, r5, lsr #16
+	ldrgtb r14, [r4, r5, lsr #16]
+	movle r14, #0
+	add r5, r5, #87552
+	str r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
+	mov r14, r14, asl #24
+	add r6, r6, r14, asr #17
+	mov r0, r6
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	; v2 = envd(1, 7, 0, 128);
+	mov r4, #4681
+	mul r6, r7, r4
+	subs r6, r11, r6, asr #8
+	movle r6, #0
+	mov r1, r6
+	; v2 = vol(v2, 128)
+	; NOOP -- val<<7>>7
+
+	; v1 = mul(v1, v2);
+	mul r0, r1, r0
+	mov r0, r0, asr #15
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+
+	; v2 = mul(v2, 90);
+	mov r14, #90
+	mul r1, r14, r1
+	mov r1, r1, asr #15
+	mov r1, r1, asl #16
+	mov r1, r1, asr #16	; Sign extend word to long.
+
+	; v1 = sv_flt_n(4, v1, v2, 77, 0);
+	add r14, r10, #AK_OPINSTANCE+4*(3+AK_LPF)
+	ldmia r14, {r4-r6}
+	mov r14, r6, asr #7
+	mla r4, r1, r14, r4
+	; r4 = clamp(r4)
+	cmp r4, r11		; #32767
+	movgt r4, r11	; #32767
+	cmn r4, r11		; #-32768
+	mvnlt r4, r11	; #-32768
+	str r4, [r10, #AK_OPINSTANCE+4*(3+AK_LPF)]
+	mov r12, #77
+	mul r14, r12, r14
+	mov r12, r0
+	sub r12, r12, r4
+	sub r5, r12, r14
+	; r5 = clamp(r5)
+	cmp r5, r11		; #32767
+	movgt r5, r11	; #32767
+	cmn r5, r11		; #-32768
+	mvnlt r5, r11	; #-32768
+	str r5, [r10, #AK_OPINSTANCE+4*(3+AK_HPF)]
+	mov r14, r5, asr #7
+	mla r6, r1, r14, r6
+	; r6 = clamp(r6)
+	cmp r6, r11		; #32767
+	movgt r6, r11	; #32767
+	cmn r6, r11		; #-32768
+	mvnlt r6, r11	; #-32768
+	str r6, [r10, #AK_OPINSTANCE+4*(3+AK_BPF)]
+	mov r0, r4
+
+	; v1 = reverb(v1, 122, 24);
+	ldr r6, [r10, #AK_OPINSTANCE+4*6]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #557
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*6]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	mov r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*7]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #593
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*7]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*8]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #641
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*8]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*9]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #677
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*9]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*10]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #709
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*10]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*11]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #743
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*11]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*12]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #787
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*12]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r5, r5, r12
+	ldr r6, [r10, #AK_OPINSTANCE+4*13]
+	ldr r4, [r9, r6, lsl #2]
+	; r4 = vol(r4, 122)
+	mov r14, #122
+	mul r4, r14, r4
+	mov r4, r4, asr #7
+	mov r4, r4, asl #16
+	mov r4, r4, asr #16	; Sign extend word to long.
+	mov r0, r0, asl #16
+	mov r0, r0, asr #16	; Sign extend word to long.
+	add r12, r0, r4
+	; r12 = clamp(r12)
+	cmp r12, r11		; #32767
+	movgt r12, r11	; #32767
+	cmn r12, r11		; #-32768
+	mvnlt r12, r11	; #-32768
+	str r12, [r9, r6, lsl #2]
+	add r6, r6, #1
+	mov r14, #809
+	cmp r6, r14
+	movge r6, #0
+	str r6, [r10, #AK_OPINSTANCE+4*13]
+	; r12 = vol(r12, 24)
+	mov r14, #24
+	mul r12, r14, r12
+	mov r12, r12, asr #7
+	mov r12, r12, asl #16
+	mov r12, r12, asr #16	; Sign extend word to long.
+	add r9, r9, #2048*4	; next temp buffer.
+	add r0, r5, r12
+	; v1 = clamp(v1)
+	cmp r0, r11		; #32767
+	movgt r0, r11	; #32767
+	cmn r0, r11		; #-32768
+	mvnlt r0, r11	; #-32768
+
+	sub r9, r9, #2048*4*8	; reset temp buffer base.
+	mov r4, r0, asr #8
+	strb r4, [r8], #1
+
+	AK_FINE_PROGRESS
+
+	add r7, r7, #1
+	ldr r4, [r10, #AK_SMPLEN+4*23]
+	cmp r7, r4
+	blt Inst24Loop
+
+;----------------------------------------------------------------------------
+; Instrument 24 - Loop Generator (Offset: 4096 Length: 4096)
+;----------------------------------------------------------------------------
+
+	mov r7, #4094	; BUG FIX: -2 from length to avoid reading beyond end of buffer
+	ldr r6, [r10, #AK_SMPADDR+4*23]
+	add r6, r6, #4098	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
+
+	sub r4, r6, r7	; src2
+	mov r0, r11, lsl #8	; 32767<<8
+	mov r1, r7
+	bl divide
+	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r14, #0	; rampup
+	mov r12, r11, lsl #8	; rampdown
+LoopGen_24:
+	mov r3, r14, lsr #8
+	mov r2, r12, lsr #8
+	ldrb r1, [r6]
+	mov r1, r1, asl #24
+	mov r1, r1, asr #24
+	ldrb r0, [r4], #1
+	mov r0, r0, asl #24
+	mov r0, r0, asr #24
+	mul r0, r3, r0
+	mov r0, r0, asr #7
+	mul r1, r2, r1
+	add r0, r0, r1, asr #7
+	mov r0, r0, asr #8
+	strb r0, [r6], #1
+	add r14, r14, r5
+	sub r12, r12, r5
+
+	AK_FINE_PROGRESS
+
+	subs r7, r7, #1
+	bne LoopGen_24
+
 ; ============================================================================
 
 .if AK_CLEAR_FIRST_2_BYTES
 	; Clear first 2 bytes of each sample
 	adr r4, AK_SmpAddr
-	mov r7, #21	; Num instruments.
+	mov r7, #24	; Num instruments.
 	mov r0, #0
 .0:
 	ldr r6, [r4], #4
@@ -3130,12 +4478,12 @@ AK_SmpLen:
 	.long 0x00006000	; Instrument 16 Length
 	.long 0x00006000	; Instrument 17 Length
 	.long 0x00006000	; Instrument 18 Length
-	.long 0x00000002	; Instrument 19 Length
-	.long 0x00000002	; Instrument 20 Length
+	.long 0x00006000	; Instrument 19 Length
+	.long 0x00006000	; Instrument 20 Length
 	.long 0x00004000	; Instrument 21 Length
-	.long 0x00000000	; Instrument 22 Length
-	.long 0x00000000	; Instrument 23 Length
-	.long 0x00000000	; Instrument 24 Length
+	.long 0x00003000	; Instrument 22 Length
+	.long 0x00002000	; Instrument 23 Length
+	.long 0x00002000	; Instrument 24 Length
 	.long 0x00000000	; Instrument 25 Length
 	.long 0x00000000	; Instrument 26 Length
 	.long 0x00000000	; Instrument 27 Length
