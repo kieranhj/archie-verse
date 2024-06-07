@@ -7,15 +7,10 @@ scroll_text_text_no_adr:
 .if !_DEBUG
     .byte "to celebrate the port of AmigaKlang to the Acorn Archimedes! "
     .byte "TinyQTM player by Phoenix ^ Quantum. "
-    .byte "Kieran greetz: XYZ "
-    .byte "Virgill greetz: XYZ "
-    .byte "Rhino greetz: XYZ "
-    .byte "We hope you enjoyed this high-def outline font scroller and appreciated the kerning!! :) "
+    .byte "Kieran greetz: Ate-Bit, AttentionWhore, CRTC, Inverse Phase, Logicoma, Loonies, ne7, Progen, Proxima, Pulpo Corrosivo, RiFT, Slipstream, SMFX, The Twitch Elite. "
+    .byte "Virgill greetz: Haujobb, M.o.N, Rebels, S16, TEK, Rabenauge, Andromeda, Desire. "
+    .byte "Rhino greetz: Spiny, Saga Musix, Pandur, Reflex, RC55, Hoffman, YM Rockerz. "
+    .byte "And everyone at the party! :) "
 .endif
-
-;    .byte "BITSHIFTERS and ALCATRAZ and TORMENT proudly announce ArchieKlang! "
-;    .byte "A port of AmigaKlang to the Acorn Archimedes. "
-;    .byte "Code by kieran, samples & synth by Virgill, music by Virgill & Rhino. "
-;    .byte "Enjoy the high-def scroller!"
     .byte 0 ; end.
 .p2align 2

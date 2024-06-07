@@ -15,6 +15,14 @@ Framework TODOs as of 15/5/24:
 - Create text-pool module from code in fx/bits.asm. - DONE
   (but could still maybe do with some refactoring)
 - Automatic clearing of BSS by loader?
+And as of 6/6/24:
+- Remove OS_Byte VDU calls - just manage screen buffer data internally.
+  No point in keeping these if poking VIDC directly for palette as not compatible.
+  Keep a list of screen buffer addresses and set MEMC on vsync etc.
+- Dynamically generate CLS code include clear line code.
+- How have I got this far without memcpy and memclr?!
+  Write optimised versions of these for lib.
+
 
 
 ArchieKlang Announcetro
@@ -66,13 +74,14 @@ TO FINISH
 - Add fade to static header text.
 - Add dynamic speed control to the scroller, otherwise it's a bit monotonous.
 - Add some nice colour palette fades across the track. - IN PROGRESS
-- Get the final tune?!?!?! (Probably last minute...) => Rhino!
+- Get the final tune?!?!?! (Probably last minute... ;) => Rhino!
 - Final scrolltext => get a few words from Virgill & Rhino.
 - What to do about audio filter mod? => Steve?!
-- BUG: Check first frame glitches ==> loader to zero BSS?
+- BUG: Check first frame glitches ==> loader to zero BSS? No, already zero'd. Hmm.
 - BUG: Wave peak leaks into fixed scroller area and gets dragged... - HACK IT! :)
 - BUG: Base line drawn in colour 14 at offset 0 => flickers with certain palettes
-- BUG: First frame sometimes displayed before palette is 
+- BUG: First frame sometimes displayed before palette is set - race condition?
+- Add control code for additional spaces in scroller?
 
 BONUS
 ~~~
@@ -113,13 +122,3 @@ x+=1:y+=1 => strb r4, [r11], #-ScreenStride+1
 x+=1:y-=1 => strb r4, [r11], #ScreenStride+1
 x+=0:y+=1 => strb r4, [r11], #-ScreenStride
 x+=0:y-=1 => strb r4, [r11], #ScreenStride
-
-STUFFS FOR NEXT TIME
-~~~
-- Remove OS_Byte VDU calls - just manage screen buffer data internally.
-  No point in keeping these if poking VIDC directly for palette as not compatible.
-  Keep a list of screen buffer addresses and set MEMC on vsync etc.
-- Dynamically generate CLS code include clear line code.
-- How have I got this far without memcpy and memclr?!
-  Write optimised versions of these for lib.
-
