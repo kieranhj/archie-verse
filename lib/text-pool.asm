@@ -4,7 +4,7 @@
 ; ============================================================================
 
 .equ TextPool_Max,              256
-.equ TextPool_PoolSize,         512*1024    ; !!
+.equ TextPool_PoolSize,         544*1024    ; !!
 .equ TextPool_ShowProgress,     1
 
 ; ============================================================================
@@ -173,7 +173,8 @@ text_pool_make_sprite:
     add r9, r9, r4, lsl #6
     add r9, r9, r8, lsl #2
     mov r5, #-1
-    str r5, [r9]
+    cmp r8, #Screen_WidthWords
+    strlt r5, [r9]
     .endif
 
     ; Return text no.

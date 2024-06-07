@@ -643,8 +643,9 @@ class AkpParser:
 
         asm_file.write(f'\tldr r4, [r10, #AK_SMPADDR+4*{sample_nr}]\n')
         asm_file.write(f'\tldr r12, [r10, #AK_SMPLEN+4*{sample_nr}]\n')
-        
-        asm_file.write(f'\tldrb r6, [r4, r7]\n')
+        asm_file.write(f'\tcmp r7, r12\n')
+        asm_file.write(f'\tldrltb r6, [r4, r7]\n')
+        asm_file.write(f'\tmovge r6, #0\n')
         asm_file.write(f'\tmov r6, r6, asl #24\n')
         asm_file.write(f'\tmov r6, r6, asr #{24-7}\n')
 
@@ -652,8 +653,9 @@ class AkpParser:
             asm_file.write(f'\tadd r4, r4, r{shift_V[0]-1}\n')
             asm_file.write(f'\tsub r12, r12, r{shift_V[0]-1}\n')
         else:
-            asm_file.write(f'\tadd r4, r4, #{shift_C[0]}\n')
-            asm_file.write(f'\tsub r12, r12, #{shift_C[0]}\n')
+            if shift_C[0]!=0:
+                asm_file.write(f'\tadd r4, r4, #{shift_C[0]}\n')
+                asm_file.write(f'\tsub r12, r12, #{shift_C[0]}\n')
 
         self.chord_note(asm_file, note1, note2, note3, 1, 271, 8)
         self.chord_note(asm_file, note1, note2, note3, 2, 287, 8)
@@ -1007,10 +1009,12 @@ class AkpParser:
                 asm_file.write(f"\tadd r6, r6, #{inst_def['rep_off']+2}\t; src1 (additional +2 offset in AmigaKlangGUI because Amiga)\n\n")
 
                 asm_file.write(f'\tsub r4, r6, r7\t; src2\n')
-                asm_file.write(f'\tmov r0, r11, lsl #8\t; 32767<<8\n')
-                asm_file.write(f'\tmov r1, r7\n')
-                asm_file.write(f'\tbl divide\n')
-                asm_file.write(f'\tmov r5, r0\t; delta = divs.w(32767<<8,repeat_length)\n')
+                # asm_file.write(f'\tmov r0, r11, lsl #8\t; 32767<<8\n')
+                # asm_file.write(f'\tmov r1, r7\n')
+                # asm_file.write(f'\tbl divide\n')
+                # asm_file.write(f'\tmov r5, r0\t; delta = divs.w(32767<<8,repeat_length)\n')
+                delta=int((32767<<8)/(inst_def['rep_len']-2))
+                asm_file.write(f"\tmov r5, #{delta}\t; (32767<<8)/{inst_def['rep_len']-2}\n")
                 asm_file.write(f'\tmov r14, #0\t; rampup\n')
                 asm_file.write(f'\tmov r12, r11, lsl #8\t; rampdown\n')
                 asm_file.write(f"LoopGen_{self._inst_nr}:\n")

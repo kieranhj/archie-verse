@@ -645,10 +645,7 @@ Inst4Loop:
 	add r6, r6, #3230	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #3492	; (32767<<8)/2402
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_4:
@@ -1140,10 +1137,7 @@ Inst8Loop:
 	add r6, r6, #3802	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #2492	; (32767<<8)/3366
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_8:
@@ -1377,10 +1371,7 @@ Inst10Loop:
 	add r6, r6, #3586	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #16447	; (32767<<8)/510
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_10:
@@ -1543,10 +1534,7 @@ Inst11Loop:
 	add r6, r6, #3586	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #16447	; (32767<<8)/510
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_11:
@@ -2085,10 +2073,7 @@ Inst13Loop:
 	add r6, r6, #24578	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #341	; (32767<<8)/24574
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_13:
@@ -2226,10 +2211,7 @@ Inst14Loop:
 	add r6, r6, #3842	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #33025	; (32767<<8)/254
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_14:
@@ -2269,11 +2251,11 @@ Inst15Loop:
 	; v1 = chordgen(0, 12, 3, 7, 10, 0);
 	ldr r4, [r10, #AK_SMPADDR+4*12]
 	ldr r12, [r10, #AK_SMPLEN+4*12]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
-	add r4, r4, #0
-	sub r12, r12, #0
 	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
 	cmp r12, r5, lsr #16
 	ldrgtb r14, [r4, r5, lsr #16]
@@ -2374,10 +2356,7 @@ Inst15Loop:
 	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #682	; (32767<<8)/12286
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_15:
@@ -2417,11 +2396,11 @@ Inst16Loop:
 	; v1 = chordgen(0, 12, 3, 8, 10, 0);
 	ldr r4, [r10, #AK_SMPADDR+4*12]
 	ldr r12, [r10, #AK_SMPLEN+4*12]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
-	add r4, r4, #0
-	sub r12, r12, #0
 	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
 	cmp r12, r5, lsr #16
 	ldrgtb r14, [r4, r5, lsr #16]
@@ -2522,10 +2501,7 @@ Inst16Loop:
 	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #682	; (32767<<8)/12286
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_16:
@@ -2565,11 +2541,11 @@ Inst17Loop:
 	; v1 = chordgen(0, 12, 2, 7, 9, 0);
 	ldr r4, [r10, #AK_SMPADDR+4*12]
 	ldr r12, [r10, #AK_SMPLEN+4*12]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
-	add r4, r4, #0
-	sub r12, r12, #0
 	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
 	cmp r12, r5, lsr #16
 	ldrgtb r14, [r4, r5, lsr #16]
@@ -2670,10 +2646,7 @@ Inst17Loop:
 	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #682	; (32767<<8)/12286
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_17:
@@ -2713,7 +2686,9 @@ Inst18Loop:
 	; v1 = chordgen(0, 12, 7, 8, 10, 57);
 	ldr r4, [r10, #AK_SMPADDR+4*12]
 	ldr r12, [r10, #AK_SMPLEN+4*12]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
 	add r4, r4, #57
@@ -2818,10 +2793,7 @@ Inst18Loop:
 	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #682	; (32767<<8)/12286
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_18:
@@ -2861,7 +2833,9 @@ Inst19Loop:
 	; v1 = chordgen(0, 12, 3, 7, 8, 57);
 	ldr r4, [r10, #AK_SMPADDR+4*12]
 	ldr r12, [r10, #AK_SMPLEN+4*12]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
 	add r4, r4, #57
@@ -2966,10 +2940,7 @@ Inst19Loop:
 	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #682	; (32767<<8)/12286
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_19:
@@ -3009,7 +2980,9 @@ Inst20Loop:
 	; v1 = chordgen(0, 12, 3, 9, 6, 57);
 	ldr r4, [r10, #AK_SMPADDR+4*12]
 	ldr r12, [r10, #AK_SMPLEN+4*12]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
 	add r4, r4, #57
@@ -3114,10 +3087,7 @@ Inst20Loop:
 	add r6, r6, #12290	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #682	; (32767<<8)/12286
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_20:
@@ -3620,10 +3590,7 @@ Inst22Loop:
 	add r6, r6, #6146	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #1365	; (32767<<8)/6142
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_22:
@@ -3663,11 +3630,11 @@ Inst23Loop:
 	; v1 = chordgen(0, 21, 7, 0, 0, 0);
 	ldr r4, [r10, #AK_SMPADDR+4*21]
 	ldr r12, [r10, #AK_SMPLEN+4*21]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
-	add r4, r4, #0
-	sub r12, r12, #0
 	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
 	cmp r12, r5, lsr #16
 	ldrgtb r14, [r4, r5, lsr #16]
@@ -4004,10 +3971,7 @@ Inst23Loop:
 	add r6, r6, #4098	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #2048	; (32767<<8)/4094
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_23:
@@ -4047,11 +4011,11 @@ Inst24Loop:
 	; v1 = chordgen(0, 21, 5, 0, 0, 0);
 	ldr r4, [r10, #AK_SMPADDR+4*21]
 	ldr r12, [r10, #AK_SMPLEN+4*21]
-	ldrb r6, [r4, r7]
+	cmp r7, r12
+	ldrltb r6, [r4, r7]
+	movge r6, #0
 	mov r6, r6, asl #24
 	mov r6, r6, asr #17
-	add r4, r4, #0
-	sub r12, r12, #0
 	ldr r5, [r10, #AK_OPINSTANCE+4*(0+AK_CHORD1)]
 	cmp r12, r5, lsr #16
 	ldrgtb r14, [r4, r5, lsr #16]
@@ -4388,10 +4352,7 @@ Inst24Loop:
 	add r6, r6, #4098	; src1 (additional +2 offset in AmigaKlangGUI because Amiga)
 
 	sub r4, r6, r7	; src2
-	mov r0, r11, lsl #8	; 32767<<8
-	mov r1, r7
-	bl divide
-	mov r5, r0	; delta = divs.w(32767<<8,repeat_length)
+	mov r5, #2048	; (32767<<8)/4094
 	mov r14, #0	; rampup
 	mov r12, r11, lsl #8	; rampdown
 LoopGen_24:
