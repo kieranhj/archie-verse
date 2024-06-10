@@ -319,7 +319,9 @@ math_evaluate_palette_lerp:
     ldr r3, [r3]                ; blend = RAM[c] [1.16]
     ; TODO: Clamp to [0,1] here?
 
-    mov r0, #1                  ; not including colour 0 (background)
+    ; NOTE: For ArchieKlang intro we ignore colours 0 and 1.
+    ; TODO: Make the palette lerping configurable (lerp mask?)
+    mov r0, #2                  ; not including colour 0 (background)
 .1:
     ldmia r10, {r1-r2}          ; palette_A, palette_B
 

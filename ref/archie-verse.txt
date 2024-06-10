@@ -71,17 +71,18 @@ Try?
 
 TO FINISH
 ~~~
-- Add fade to static header text.
+- Add fade to static header text. - DONE
 - Add dynamic speed control to the scroller, otherwise it's a bit monotonous.
 - Add some nice colour palette fades across the track. - IN PROGRESS
 - Get the final tune?!?!?! (Probably last minute... ;) => Rhino!
-- Final scrolltext => get a few words from Virgill & Rhino.
+- Final scrolltext => get a few words from Virgill & Rhino. - DONE
 - What to do about audio filter mod? => Steve?!
 - BUG: Check first frame glitches ==> loader to zero BSS? No, already zero'd. Hmm.
 - BUG: Wave peak leaks into fixed scroller area and gets dragged... - HACK IT! :)
-- BUG: Base line drawn in colour 14 at offset 0 => flickers with certain palettes
+- BUG: Base line drawn in colour 14 at offset 0 => flickers with certain palettes - DONE
 - BUG: First frame sometimes displayed before palette is set - race condition?
 - Add control code for additional spaces in scroller?
+- Fade out at the end rather than loop for compo?
 
 BONUS
 ~~~
@@ -94,7 +95,7 @@ BONUS
            Can't really do a divide per Y value. Well....
     - sin(ypos - centre) so looks like it rotates around a cylinder.
     - Could do different scale per line.
-- Remove divide call from arcmusic - it's always 32767/const
+- Remove divide call from arcmusic - it's always 32767/const - DONE
 - Use a proper modulo fn. for scope scroll, not a loop. - DONE
 - Try having the live waveform NOT moving with the others? - DONE
 - Does it look better without the flat lines on the left/right? => small border looks best.

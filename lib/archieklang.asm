@@ -6,7 +6,7 @@
 
 .macro AK_PROGRESS
     .if LibConfig_ShowInitProgress
-    swi OS_WriteI+'.'
+    swi OS_WriteI+'_'
     .endif
 .endm
 
@@ -58,7 +58,7 @@ archieklang_init:
     ldrb r0, [r8]
     ldrb r0, [r10, r0, lsl #24-19]  ; 32-bit lin->log
     strb r0, [r8], #1
-    .if LibConfig_ShowInitProgress
+    .if LibConfig_ShowInitProgress && 0
     movs r1, r8, lsl #20            ; every 8k
     swieq OS_WriteI+'.'
     .endif

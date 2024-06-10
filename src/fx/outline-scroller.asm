@@ -38,7 +38,7 @@ scroll_text_y_pos:
     FLOAT_TO_FP 200.0
 
 scroll_text_text_def:
-    TextDef homerton_bold_italic, 60, 60*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA", 0    ; macro needs >1 char?!
+    TextDef homerton_italic, 60, 60*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA", 0    ; macro needs >1 char?!
 
 ; ============================================================================
 

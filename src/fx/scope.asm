@@ -368,7 +368,7 @@ scope_draw_with_history:
     mov r8, #Scope_YPos
     bl scope_draw_one_history
     ldr r8, scope_history_offset
-    rsb r8, r8, #Scope_YPos+Scope_YStep
+    rsb r8, r8, #Scope_YPos+Scope_YStep-1
     b .3
     .else
     ldr r8, scope_history_offset

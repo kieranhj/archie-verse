@@ -41,7 +41,8 @@
     call_0 scope_init
 
     ; Screen setup.
-    write_addr palette_array_p, seq_palette_single_white
+    palette_copy seq_palette_single_white, seq_palette_lerped
+    write_addr palette_array_p, seq_palette_lerped
 
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
@@ -57,28 +58,26 @@
     ; Simple logo.
     gosub seq_header
 
-    ; Start adjusting the scale.
-    math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/400.0
-
     ; Can also go negative!
     ; math_make_var scope_yscale, 0.0, 0.5, math_sin, 0.0, 1.0/400.0
+    fork seq_scope
 
 seq_loop:
     ; Start!
     palette_lerp_from_existing seq_palette_red_additive, SeqConfig_PatternLength_Secs*0.25
-    wait_patterns 0.5
+    wait_patterns 1.0
 
     palette_lerp_from_existing seq_palette_blue_cyan_ramp, SeqConfig_PatternLength_Secs*0.25
-    wait_patterns 0.5
+    wait_patterns 1.0
 
     palette_lerp_from_existing seq_palette_red_magenta_ramp, SeqConfig_PatternLength_Secs*0.25
-    wait_patterns 0.5
+    wait_patterns 1.0
 
     palette_lerp_from_existing seq_palette_green_white_ramp, SeqConfig_PatternLength_Secs*0.25
-    wait_patterns 0.5
+    wait_patterns 1.0
 
     palette_lerp_from_existing seq_palette_all_white, SeqConfig_PatternLength_Secs*0.25
-    wait_patterns 0.5
+    wait_patterns 1.0
 
     ; Loop.
     fork seq_loop
@@ -86,35 +85,75 @@ seq_loop:
     ; END HERE
     end_script
 
+seq_scope:
+    ; Make scope breathe...
+    wait_patterns 2.0
+    math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/(SeqConfig_PatternLength_Frames)
+
+    ; Make scope invert.
+    wait_patterns 6.0
+    math_make_var scope_yscale, 0.0, 0.5, math_cos, 0.0, 1.0/(SeqConfig_PatternLength_Frames)
+
+    end_script
+
 seq_header:
+    write_addr bits_text_curr, -1           ; blank
+    wait_patterns 0.2
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 5.0
     write_addr bits_text_curr, 0            ; bitshifters
-    wait_patterns 1.0
+    on_pattern 0.7, seq_fade_header
+    wait_patterns 0.8
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 1            ; alcatraz
+    on_pattern 0.4, seq_fade_header
     wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 2            ; torment
+    on_pattern 0.4, seq_fade_header
     wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 3            ; present
+    on_pattern 0.4, seq_fade_header
     wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 3.0
     write_addr bits_text_curr, 4            ; ArchieKlang
+    on_pattern 0.4, seq_fade_header
     wait_patterns 0.5
 
     ; Or fade up histories one at a time? How...
-    palette_lerp_over_secs seq_palette_single_white, seq_palette_grey, SeqConfig_PatternLength_Secs*0.9
+    palette_lerp_over_secs seq_palette_single_white, seq_palette_grey, SeqConfig_PatternLength_Secs*1.5
 
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 5            ; code
+    on_pattern 0.4, seq_fade_header
     wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 7            ; synth
+    on_pattern 0.4, seq_fade_header
     wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 10           ; Rhino & Virgill
     wait_patterns 0.5
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00ffffff, 0x00000000, 4.0
 
     ; Remove text.
+    wait_patterns 0.4
     write_addr bits_text_curr, -1           ; blank
-    wait_patterns 0.5
+    wait_patterns 0.1
 
     ; Switch to scroller!
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
     call_3 fx_set_layer_fns, 1, scroller_tick,              scroller_draw
+    end_script
+
+seq_fade_header:
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00ffffff, 0x00000000, 0.5
     end_script
 
 ; ============================================================================
@@ -163,17 +202,17 @@ seq_test_fade_up_loop:
 
 ; Font def, points size, point size height, text string, null terminated.
 text_pool_defs_no_adr:
-    TextDef homerton_bold_italic,   72, 72*1.2, 0xf, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
-    TextDef homerton_bold,          72, 72*1.2, 0xf, "ALCATRAZ",        text_nums_no_adr+4  ; 1
-    TextDef trinity_bold,           80, 80*1.2, 0xf, "TORMENT",         text_nums_no_adr+8  ; 2
-    TextDef homerton_bold,          64, 64*1.2, 0xf, "present",         text_nums_no_adr+12 ; 3
-    TextDef homerton_bold,          80, 80*1.2, 0xf, "ArchieKlang",     text_nums_no_adr+16 ; 4
-    TextDef homerton_bold,          40, 48*1.2, 0xf, "code by kieran",  text_nums_no_adr+20 ; 5
-;    TextDef homerton_bold,          40, 48*1.2, 0xf, "kieran",          text_nums_no_adr+24 ; 6
-    TextDef homerton_bold,          40, 48*1.2, 0xf, "samples & synth by Virgill", text_nums_no_adr+28 ; 7
-;    TextDef homerton_bold,          40, 48*1.2, 0xf, "Virgill",         text_nums_no_adr+32 ; 8
-;    TextDef homerton_bold,          40, 48*1.2, 0xf, "music",           text_nums_no_adr+36 ; 9
-    TextDef homerton_bold,          40, 48*1.2, 0xf, "music by Rhino & Virgill", text_nums_no_adr+40 ; 10
+    TextDef homerton_bold_italic,   76, 76*1.2, 0x1, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
+    TextDef corpus_bold,            90, 90*1.2, 0x1, "ALCATRAZ",        text_nums_no_adr+4  ; 1
+    TextDef trinity_bold,           80, 80*1.2, 0x1, "TORMENT",         text_nums_no_adr+8  ; 2
+    TextDef homerton_bold,          64, 64*1.1, 0x1, "present",         text_nums_no_adr+12 ; 3
+    TextDef homerton_bold,          76, 76*1.2, 0x1, "ArchieKlang",     text_nums_no_adr+16 ; 4
+    TextDef homerton_bold,          40, 48*1.1, 0x1, "code by kieran",  text_nums_no_adr+20 ; 5
+;    TextDef homerton_bold,          40, 48*1.2, 0x1, "kieran",          text_nums_no_adr+24 ; 6
+    TextDef homerton_bold,          40, 48*1.1, 0x1, "samples & synth by Virgill", text_nums_no_adr+28 ; 7
+;    TextDef homerton_bold,          40, 48*1.2, 0x1, "Virgill",         text_nums_no_adr+32 ; 8
+;    TextDef homerton_bold,          40, 48*1.2, 0x1, "music",           text_nums_no_adr+36 ; 9
+    TextDef homerton_bold,          40, 48*1.1, 0x1, "music by Rhino & Virgill", text_nums_no_adr+40 ; 10
 .long -1
 
 ; ============================================================================
