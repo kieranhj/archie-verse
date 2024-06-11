@@ -52,7 +52,7 @@
 
     ; FX params.
     write_fp scroll_text_y_pos, 4.0 ; NB. Must match mode9-screen.asm defines. :\
-    write_addr scroller_speed, 4
+    write_addr scroller_speed, 2
     write_fp scope_yscale 0.5
 
     ; Simple logo.

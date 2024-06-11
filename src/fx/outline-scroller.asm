@@ -10,7 +10,7 @@
 .equ ScrollText_SpaceColumns,   3
 .else
 .equ Scroller_Glyph_Height,     44  ; point size 60 (47 ~~ ps 64)
-.equ ScrollText_SpaceColumns,   4
+.equ ScrollText_SpaceColumns,   3
 .endif
 
 scroll_text_text_p:
@@ -75,7 +75,7 @@ scroll_text_init:
     ldr r10, scroll_text_text_p
 .1:
     ldrb r0, [r10]
-    cmp r0, #0xf0
+    cmp r0, #0x80
     ; Control code found - store verbatim.
     strgeb r0, [r6], #1
     addge r10, r10, #1
@@ -111,7 +111,8 @@ scroll_text_init:
     beq .32
     cmp r0, #ASCII_Space
     beq .32
-    cmp r0, #0xf0
+    cmp r0, #0x80
+    subge r10, r10, #1              ; ick.
     bge .32
     strb r0, [r2], #1
     b .31
@@ -305,7 +306,7 @@ get_jenkins_hash_for_string:
     beq .2
     cmp r2, #ASCII_Space
     beq .2
-    cmp r2, #0xf0
+    cmp r2, #0x80
     bge .2
 
     add r0, r0, r2          ; hash += key[i++]
@@ -350,8 +351,16 @@ scroller_buffer_ptr:
 scroller_tick:
     str lr, [sp, #-4]!
 
+    ; NB. This logic is ick but only needs to survive another 4 days...
+
     ldr r10, scroll_text_ptr
     ldrb r0, [r10]
+
+    ; Check for space control code.
+    cmp r0, #0x80
+    subgt r8, r0, #0x80     ; space width
+    bgt .6                  ; don't look up sprite (space)
+
     bl text_pool_get_sprite
     ; Returns:
     ;  R8=width in words.
@@ -363,6 +372,7 @@ scroller_tick:
 
     add r8, r8, #ScrollText_SpaceColumns
 
+    .6:
     ldr r1, scroll_text_offset
     cmp r1, #0
     blt .3                  ; first frame init
@@ -393,6 +403,11 @@ scroller_tick:
     .5:
     str r10, scroll_text_ptr
 
+    ; Ick that this logic is duplicated here.
+    cmp r0, #0x80
+    subgt r8, r0, #0x80 ; space width
+    bgt .3              ; don't look up sprite (space)
+
     ; Returns:
     ;  R8=width in words.
     ;  R9=height in rows.
@@ -406,16 +421,22 @@ scroller_tick:
 .1:
     str r1, scroll_text_offset
 
+    ; To stop scroll from continuing in draw without tick...
     ldr r2, scroller_speed
     str r2, scroller_shift
 
-	ands r0, r1, #7		; 8 pixels per word
+    ; Do we need a new slice of glyph data?
+	ands r2, r1, #7		; 8 pixels per word
     ldrne pc, [sp], #4
 
     ; Next slice of the glyph.
     ldr r10, scroller_buffer_ptr
 
-    ; Do space.
+    ; Character is space control code.
+    cmp r0, #0x80
+    bgt .2
+
+    ; Do regaular end of word space.
     sub r8, r8, #ScrollText_SpaceColumns
     cmp r1, r8, lsl #3
     bge .2
