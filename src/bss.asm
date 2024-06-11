@@ -183,9 +183,6 @@ scroll_text_as_sprites_no_adr:
 scroller_glyph_column_buffer_1_no_adr:
 	.skip Scroller_Glyph_Height * 4
 
-scroller_glyph_column_buffer_2_no_adr:
-	.skip Scroller_Glyph_Height * 4
-
 ; ============================================================================
 ; Library BSS (must come last)
 ; ============================================================================

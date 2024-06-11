@@ -72,7 +72,7 @@ Try?
 TO FINISH
 ~~~
 - Add fade to static header text. - DONE
-- Add dynamic speed control to the scroller, otherwise it's a bit monotonous.
+- Add dynamic speed control to the scroller, otherwise it's a bit monotonous. - DONE
 - Add some nice colour palette fades across the track. - IN PROGRESS
 - Get the final tune?!?!?! (Probably last minute... ;) => Rhino!
 - Final scrolltext => get a few words from Virgill & Rhino. - DONE
@@ -83,6 +83,8 @@ TO FINISH
 - BUG: First frame sometimes displayed before palette is set - race condition?
 - Add control code for additional spaces in scroller?
 - Fade out at the end rather than loop for compo?
+- BUG! Scroller is at 25Hz not 50Hz!! WHAT?! - DONE
+- BONUS: More colour palettes to cycle through?
 
 BONUS
 ~~~
@@ -94,7 +96,7 @@ BONUS
            Need to run through the perspective equation.
            Can't really do a divide per Y value. Well....
     - sin(ypos - centre) so looks like it rotates around a cylinder.
-    - Could do different scale per line.
+    - Could do different scale per line. <== BONUS!
 - Remove divide call from arcmusic - it's always 32767/const - DONE
 - Use a proper modulo fn. for scope scroll, not a loop. - DONE
 - Try having the live waveform NOT moving with the others? - DONE

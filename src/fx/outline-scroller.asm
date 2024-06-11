@@ -74,6 +74,13 @@ scroll_text_init:
     ; Convert scroll text into sprites using a dictionary to avoid repetition.
     ldr r10, scroll_text_text_p
 .1:
+    ldrb r0, [r10]
+    cmp r0, #0xf0
+    ; Control code found - store verbatim.
+    strgeb r0, [r6], #1
+    addge r10, r10, #1
+    bge .1
+
     bl get_jenkins_hash_for_string
     ; R0=hash value.
 
@@ -104,6 +111,8 @@ scroll_text_init:
     beq .32
     cmp r0, #ASCII_Space
     beq .32
+    cmp r0, #0xf0
+    bge .32
     strb r0, [r2], #1
     b .31
 .32:
@@ -142,7 +151,7 @@ scroll_text_init:
     cmp r0, #0
     bne .1
 
-    mov r0, #-1
+    mov r0, #0xff
     strb r0, [r6], #1
 
     ldr pc, [sp], #4
@@ -296,6 +305,8 @@ get_jenkins_hash_for_string:
     beq .2
     cmp r2, #ASCII_Space
     beq .2
+    cmp r2, #0xf0
+    bge .2
 
     add r0, r0, r2          ; hash += key[i++]
     add r0, r0, r0, lsl #10 ; hash += hash << 10
@@ -319,26 +330,21 @@ scroller_glyph_data_ptr:
     .long 0
 
 scroller_speed:
-    .long 2
+    .long 4
+
+scroller_shift:
+    .long 0
 
 scroller_buffer_ptr:
     .long scroller_glyph_column_buffer_1_no_adr
 
-scroller_glyph_buffer_1_p:
-    .long scroller_glyph_column_buffer_1_no_adr
-
-scroller_glyph_buffer_2_p:
-    .long scroller_glyph_column_buffer_2_no_adr
-
 .macro scroller_copy_words count
     ldmia r11!, {r0-r\count}
     stmia r10!, {r0-r\count} ; \count +1 words
-    stmia r12!, {r0-r\count} ; \count +1 words
 .endm
 
 .macro scroller_store_words count
     stmia r10!, {r0-r\count} ; \count +1 words
-    stmia r12!, {r0-r\count} ; \count +1 words
 .endm
 
 scroller_tick:
@@ -367,9 +373,24 @@ scroller_tick:
     blt .1
 
     ; Next sprite.
-    ldrb r0, [r10, #1]!
+    .40:
+    add r10, r10, #1
+    .41:
+    ldrb r0, [r10]
+    cmp r0, #0xf0
+    blt .5
+
+    ; Wrap.
     cmp r0, #0xff
     ldreq r10, scroll_text_as_sprites_p
+    beq .41
+
+    ; Speed.
+    sub r0, r0, #0xf0
+    str r0, scroller_speed
+    b .40
+
+    .5:
     str r10, scroll_text_ptr
 
     ; Returns:
@@ -385,15 +406,14 @@ scroller_tick:
 .1:
     str r1, scroll_text_offset
 
+    ldr r2, scroller_speed
+    str r2, scroller_shift
+
 	ands r0, r1, #7		; 8 pixels per word
     ldrne pc, [sp], #4
 
-    ; NB. I think this breaks when the speed changes as the two buffers might
-    ;     not be reading from the same glyph slice.
-
     ; Next slice of the glyph.
-    ldr r10, scroller_glyph_buffer_1_p
-    ldr r12, scroller_glyph_buffer_2_p
+    ldr r10, scroller_buffer_ptr
 
     ; Do space.
     sub r8, r8, #ScrollText_SpaceColumns
@@ -450,44 +470,40 @@ scroller_tick:
 
     ldr pc, [sp], #4
 
+scroller_prev_scr_addr:
+    .long 0
+
 ; R12=screen addr
 scroller_draw:
 	str lr, [sp, #-4]!
 
+    ; R9=dst line address
     ldr r0, scroll_text_y_pos
     mov r0, r0, asr #16
-
-    ldr r10, scroller_speed
-    mov r10, r10, lsl #1    ; *2 for double buffer
-
-    ldr r11, scroller_buffer_ptr
-    bl scroller_scroll_buffer
-
-    ldr r11, scroller_buffer_ptr
-    ldr r10, scroller_glyph_buffer_1_p
-    cmp r11, r10
-    ldreq r10, scroller_glyph_buffer_2_p
-    str r10, scroller_buffer_ptr
-
-	ldr pc, [sp], #4
-
-; R0=scroller y pos.
-; R10=scroller speed in pixels.
-; R11=column buffer
-; R12=screen addr
-scroller_scroll_buffer:
-	str lr, [sp, #-4]!
-
 	add r9, r12, r0, lsl #8
 	add r9, r9, r0, lsl #6
 
-    mov r12, r10, lsl #2    ; pixel shift (lsr #4*n)
+    ; R10=src line address
+    ldr r10, scroller_prev_scr_addr
+    cmp r10, #0
+    moveq r10, r12
+    str r12, scroller_prev_scr_addr
+	add r10, r10, r0, lsl #8
+	add r10, r10, r0, lsl #6
+
+    ; R11=right hand word ptr
+    ldr r11, scroller_buffer_ptr
+
+    ; R12=pixel shift
+    ldr r12, scroller_shift
+    mov r12, r12, lsl #2    ; pixel shift (lsr #4*n)
 
 	.rept Scroller_Glyph_Height
-	ldr r10, [r11]	        ; r10=scroller_glyph_column_buffer[r11]
 	bl scroller_scroll_line
-	str r10, [r11], #4      ; scroller_glyph_column_buffer[r11]=r10
     .endr
+
+    mov r0, #0
+    str r0, scroller_shift
 
 	ldr pc, [sp], #4
 
@@ -513,22 +529,27 @@ scroller_scroll_buffer:
 	orr r7, r7, r8, lsl r14
 .endm
 
-; R9=line address, R10=right hand word, R12=pixel shift
+; R9=dst line address
+; R10=src line address
+; R11=right hand word ptr
+; R12=pixel shift
 scroller_scroll_line:
 	str lr, [sp, #-4]!
     rsb r14, r12, #32       ; reverse pixel shift (lsl #32-4*n)
 
     .rept (Screen_Width/64)-1
-	ldmia r9, {r0-r8}		; read 9 words = 36 bytes = 72 pixels
+	ldmia r10, {r0-r8}		; read 9 words = 36 bytes = 72 pixels
+    add r10, r10, #4*8      ; move 8 words
     scroller_shift_left_by_pixels
 	stmia r9!, {r0-r7}		; write 8 words = 32 bytes = 64 pixels
     .endr
 
     ; Last block!
-	ldmia r9, {r0-r7}		; read 8 words = 32 bytes = 64 pixels
-    mov r8, r10
+	ldmia r10!, {r0-r7}		; read 8 words = 32 bytes = 64 pixels
+    ldr r8, [r11]
     scroller_shift_left_by_pixels
 	stmia r9!, {r0-r7}		; write 8 words = 32 bytes = 64 pixels
 
-	mov r10, r10, lsr r12	; rotate new data word
+	mov r8, r8, lsr r12	    ; rotate new data word
+	str r8, [r11], #4      ; scroller_glyph_column_buffer[r11]=r10
 	ldr pc, [sp], #4

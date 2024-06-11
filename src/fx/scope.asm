@@ -34,7 +34,7 @@
 .equ Scope_YStep,           9
 .endif
 
-.equ Scope_YPos,            208     ; Position of active scope.
+.equ Scope_YPos,            216     ; Position of active scope.
 
 ;.equ Scope_YTop,            88      ; Or fix YStep?
 ;.equ Scope_YStep,           (Scope_YPos-Scope_YTop)/Scope_NumHistories
