@@ -48,11 +48,7 @@
 .endm
 
 .macro TextDef font, point, height, colour, string, addr
-.if _SLOW_CPU
-    .long outline_font_def_\font, \point*16*0.8, \height*16*0.8, \colour
-.else
     .long outline_font_def_\font, \point*16, \height*16, \colour
-.endif
     .byte "\string", 0
     .p2align 2
     .long \addr

@@ -23,7 +23,8 @@ main:
     swi Wimp_SlotSize
 
     adr r0, message_text
-    swi OS_WriteO
+    mov r1, #message_end-message_text
+    swi OS_WriteN
 
     ldr r8, reloc_to                ; reloc_to
 
@@ -72,7 +73,9 @@ message_text:
     .byte "|   \\|   |   |/   /   \\/   |   T/   |  /___  __//.  ",13,10
     .byte "|___/|___|_______/|___/\\___|___|\\___|___ \\/  \\ ///. ",13,10
     .byte "--------------------------------- dS! -/_____//////.",13,10
+    .byte 23,1,0,0,0,0,0,0,0,0  ; turn off cursor
     .byte 0
+message_end:
 .p2align 2
 
 reloc_to:

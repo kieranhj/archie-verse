@@ -201,19 +201,27 @@ seq_test_fade_up_loop:
 ; ============================================================================
 
 ; Font def, points size, point size height, text string, null terminated.
+.if _SLOW_CPU
 text_pool_defs_no_adr:
+    TextDef homerton_bold_italic,   76*0.7, 76*1.2*0.7, 0x1, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
+    TextDef corpus_bold,            90*0.7, 90*1.2*0.7, 0x1, "ALCATRAZ",        text_nums_no_adr+4  ; 1
+    TextDef trinity_bold,           80*0.7, 80*1.2*0.7, 0x1, "TORMENT",         text_nums_no_adr+8  ; 2
+    TextDef homerton_bold,          64*0.7, 64*1.1*0.7, 0x1, "present",         text_nums_no_adr+12 ; 3
+    TextDef homerton_bold,          76*0.7, 76*1.2*0.7, 0x1, "ArchieKlang",     text_nums_no_adr+16 ; 4
+    TextDef homerton_bold,          40*0.7, 48*1.1*0.7, 0x1, "code by kieran",  text_nums_no_adr+20 ; 5
+    TextDef homerton_bold,          40*0.7, 48*1.1*0.7, 0x1, "samples & synth by Virgill", text_nums_no_adr+28 ; 7
+    TextDef homerton_bold,          40*0.7, 48*1.1*0.7, 0x1, "music by Rhino & Virgill", text_nums_no_adr+40 ; 10
+.long -1
+.else
     TextDef homerton_bold_italic,   76, 76*1.2, 0x1, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
     TextDef corpus_bold,            90, 90*1.2, 0x1, "ALCATRAZ",        text_nums_no_adr+4  ; 1
     TextDef trinity_bold,           80, 80*1.2, 0x1, "TORMENT",         text_nums_no_adr+8  ; 2
     TextDef homerton_bold,          64, 64*1.1, 0x1, "present",         text_nums_no_adr+12 ; 3
     TextDef homerton_bold,          76, 76*1.2, 0x1, "ArchieKlang",     text_nums_no_adr+16 ; 4
     TextDef homerton_bold,          40, 48*1.1, 0x1, "code by kieran",  text_nums_no_adr+20 ; 5
-;    TextDef homerton_bold,          40, 48*1.2, 0x1, "kieran",          text_nums_no_adr+24 ; 6
     TextDef homerton_bold,          40, 48*1.1, 0x1, "samples & synth by Virgill", text_nums_no_adr+28 ; 7
-;    TextDef homerton_bold,          40, 48*1.2, 0x1, "Virgill",         text_nums_no_adr+32 ; 8
-;    TextDef homerton_bold,          40, 48*1.2, 0x1, "music",           text_nums_no_adr+36 ; 9
     TextDef homerton_bold,          40, 48*1.1, 0x1, "music by Rhino & Virgill", text_nums_no_adr+40 ; 10
-.long -1
+.endif
 
 ; ============================================================================
 ; Sequence specific data.

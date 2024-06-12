@@ -7,7 +7,7 @@
 
 .if _SLOW_CPU
 .equ Scroller_Glyph_Height,     35  ; point size * 0.8
-.equ ScrollText_SpaceColumns,   3
+.equ ScrollText_SpaceColumns,   2
 .else
 .equ Scroller_Glyph_Height,     44  ; point size 60 (47 ~~ ps 64)
 .equ ScrollText_SpaceColumns,   3
@@ -38,7 +38,11 @@ scroll_text_y_pos:
     FLOAT_TO_FP 200.0
 
 scroll_text_text_def:
+.if _SLOW_CPU
+    TextDef homerton_italic, 60*0.8, 60*1.2*0.8, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA", 0    ; macro needs >1 char?!
+.else
     TextDef homerton_italic, 60, 60*1.2, 0xf, "AbcCygtI!?AAAAAAAAAAAAAAAAAAAAAA", 0    ; macro needs >1 char?!
+.endif
 
 ; ============================================================================
 

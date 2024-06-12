@@ -1,7 +1,5 @@
 compile.txt
 loader.txt
 build/
-\!Verse/
 *.pyc
-\!Reise/
-\!Push/
+\!*/
