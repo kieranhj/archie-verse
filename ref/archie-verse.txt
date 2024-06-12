@@ -83,10 +83,10 @@ TO FINISH
 - BUG: Base line drawn in colour 14 at offset 0 => flickers with certain palettes - DONE
 - BUG: First frame sometimes displayed before palette is set - race condition?
 - Add control code for additional spaces in scroller? - DONE
-- Fade out at the end rather than loop for compo?
+- Fade out at the end rather than loop for compo? => wait final tune.
 - BUG! Scroller is at 25Hz not 50Hz!! WHAT?! - DONE
 - BUG: Turn off flashing cursor in loader. - DONE
-- Rename !folder to !ArchieKlang.
+- Rename !folder to !ArchieKlang and add icon. - DONE
 - Write a !Help file to explain where to find AmigaKlang etc.
 - Tidy up the new build of AmigaKlangGUI and send to Virgill.
 

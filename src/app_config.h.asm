@@ -40,8 +40,8 @@
 .endif
 .equ AudioConfig_SampleSpeed_CPUThreshold, 0x140       ; ARM3~=20, ARM250~=70, ARM2~=108
 
-.equ AudioConfig_StereoPos_Ch1,         -64         ; half left
-.equ AudioConfig_StereoPos_Ch2,         +64         ; half right
+.equ AudioConfig_StereoPos_Ch1,         -32         ; half left
+.equ AudioConfig_StereoPos_Ch2,         +32         ; half right
 .equ AudioConfig_StereoPos_Ch3,         +32         ; off centre R
 .equ AudioConfig_StereoPos_Ch4,         -32         ; off centre L
 
