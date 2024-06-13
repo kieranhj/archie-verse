@@ -61,6 +61,8 @@ lib_init:
 
 ; ============================================================================
 
+.include "lib/mem.asm"
+
 .if LibConfig_IncludeSine
 .include "lib/sine.asm"
 .endif
