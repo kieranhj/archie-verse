@@ -282,14 +282,11 @@ gen_end_code_end:
 ;	B return_from_span_plot
 ;	.long return_from_span_plot
 
-gen_code_start_p:
-	.long gen_code_start_no_adr
-
+; R12=start of free RAM to place generated code.
 gen_code:
 	STR lr, [sp, #-4]!
 
 	LDR r11, gen_code_pointers_p
-	LDR r12, gen_code_start_p
     MOV r0, #0 ;first pixel offset - 0-7
 	MOV r1, #1 ;length - 1-320
 

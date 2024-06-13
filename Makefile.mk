@@ -63,7 +63,7 @@ compress: shrink
 shrink: build ./build/!run.txt ./build/loader.bin ./build/icon.bin
 	$(RM_RF) $(FOLDER)
 	$(MKDIR_P) $(FOLDER)
-	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,9"
+	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) .\build\loader.bin "$(FOLDER)\!Run,ff8"
 
 build:

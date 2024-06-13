@@ -10,20 +10,16 @@
 ;.equ LineSegments_Max_dy,       127
 
 
-line_segments_code_gen_p:
-    .long line_segments_code_gen_no_adr
-
 line_segments_ptrs_p:
     .long line_segments_ptrs_no_adr
 
-; Generate all the code combinations
+; Generate all the code combinations for drawing fixed length lines.
+; R12=code gen ptr
 line_segments_init:
     str lr, [sp, #-4]!
     ldr r2, line_seg_rts
 
-    ; R12=code gen ptr
     ; R11=jump table
-    ldr r12, line_segments_code_gen_p
     ldr r11, line_segments_ptrs_p
     mov r10, #0                 ; dy (unsigned)
 .1:

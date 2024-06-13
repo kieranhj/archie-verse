@@ -13,7 +13,7 @@ Framework TODOs as of 15/5/24:
 - MOD file analyser to configure code / script.
 - Move scripting to use seconds throughout?
 - Create text-pool module from code in fx/bits.asm. - DONE
-  (but could still maybe do with some refactoring)
+  => (but could still maybe do with some refactoring)
 - Automatic clearing of BSS by loader?
 And as of 6/6/24:
 - Remove OS_Byte VDU calls - just manage screen buffer data internally.
@@ -21,8 +21,9 @@ And as of 6/6/24:
   Keep a list of screen buffer addresses and set MEMC on vsync etc.
 - Dynamically generate CLS code include clear line code.
 - How have I got this far without memcpy and memclr?!
-  Write optimised versions of these for lib.
-
+  => Write optimised versions of these for lib.
+- Standardise code generation at init.
+    - Have R12=start of free RAM and expect to return top in R12 for next fn.
 
 
 ArchieKlang Announcetro

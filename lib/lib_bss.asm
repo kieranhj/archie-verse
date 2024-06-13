@@ -68,20 +68,11 @@ sprite_buffer_no_adr:
 .if LibConfig_IncludeSpanGen
 gen_code_pointers_no_adr:
 	.skip	4*8*LibSpanGen_MaxSpan
-
-gen_code_start_no_adr:
 .endif
-
-; ============================================================================
-; NB. Gen Code must be last!!
 
 ; ============================================================================
 
 .if LibConfig_IncludeLineSegments
-.if LibConfig_IncludeSpanGen
-.error "Line Segment code generation not currently compatible with Span code gen!"
-.endif
-
 .if LineSegments_UseYBuffer
 line_segments_y_buffer_no_adr:
     .skip Screen_Stride
@@ -89,9 +80,10 @@ line_segments_y_buffer_no_adr:
 
 line_segments_ptrs_no_adr:
 	.skip 4*LineSegments_Total_dy
-
-line_segments_code_gen_no_adr:
 .endif
 
 ; ============================================================================
 ; NB. Gen Code must be last!!
+; ============================================================================
+
+lib_code_gen_base_no_adr:
