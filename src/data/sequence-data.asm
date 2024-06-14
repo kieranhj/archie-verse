@@ -46,9 +46,7 @@
 
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
-    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
     call_3 fx_set_layer_fns, 2, scope_tick_with_history,    scope_draw_with_history
-    call_3 fx_set_layer_fns, 3, 0,                          0
 
     ; FX params.
     write_fp scroll_text_y_pos, 4.0 ; NB. Must match mode9-screen.asm defines. :\
@@ -56,47 +54,76 @@
     write_fp scope_yscale 0.5
 
     ; Simple logo.
-    gosub seq_header
+    gosub seq_header            ; 5.0 patterns long
 
     ; Can also go negative!
     ; math_make_var scope_yscale, 0.0, 0.5, math_sin, 0.0, 1.0/400.0
     fork seq_scope
+
+    ;on_pattern (SeqConfig_MaxPatterns-2), seq_fade_at_end
 
 seq_loop:
     ; Start!
     palette_lerp_from_existing seq_palette_red_additive, SeqConfig_PatternLength_Secs*0.25
     wait_patterns 1.0
 
+    end_script_if_zero seq_loop_flag
     palette_lerp_from_existing seq_palette_blue_cyan_ramp, SeqConfig_PatternLength_Secs*0.25
     wait_patterns 1.0
 
+    end_script_if_zero seq_loop_flag
     palette_lerp_from_existing seq_palette_red_magenta_ramp, SeqConfig_PatternLength_Secs*0.25
     wait_patterns 1.0
 
+    end_script_if_zero seq_loop_flag
     palette_lerp_from_existing seq_palette_green_white_ramp, SeqConfig_PatternLength_Secs*0.25
     wait_patterns 1.0
 
+    end_script_if_zero seq_loop_flag
     palette_lerp_from_existing seq_palette_all_white, SeqConfig_PatternLength_Secs*0.25
     wait_patterns 1.0
 
+    end_script_if_zero seq_loop_flag
+
     ; Loop.
     fork seq_loop
+    end_script
 
-    ; END HERE
+seq_loop_flag:
+    .long 1
+
+seq_fade_at_end:
+    write_addr seq_loop_flag, 0
+    wait_patterns 1.0
+    palette_lerp_from_existing seq_palette_all_black, SeqConfig_PatternLength_Secs*0.5
+    wait_patterns 0.5
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00ffffff, 0x00000000, SeqConfig_PatternLength_Secs*0.5   ; colour 1
+    rgb_lerp_over_secs seq_palette_lerped+60, 0x00ffffff, 0x00000000, SeqConfig_PatternLength_Secs*0.5  ; colour 15
     end_script
 
 seq_scope:
     ; Make scope breathe...
-    wait_patterns 2.0
-    math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/(SeqConfig_PatternLength_Frames)
+    ;wait_patterns 2.0
+    ;math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/(SeqConfig_PatternLength_Frames)
 
     ; Make scope invert.
     wait_patterns 6.0
-    math_make_var scope_yscale, 0.0, 0.5, math_cos, 0.0, 1.0/(SeqConfig_PatternLength_Frames)
+    math_make_var scope_yscale, 0.0, 0.5, math_cos, 0.0, 1.0/(SeqConfig_PatternLength_Frames*0.5)
+
+    wait_patterns 4.0
+    math_kill_var scope_yscale
+
+    ; Where everything slows.
+    math_make_var scope_y_step, 9.0, -8.0, math_clamp, 0.0, 1/(SeqConfig_PatternLength_Frames*0.5)
+
+    wait_patterns 1.0
+    math_kill_var scope_y_step
 
     end_script
 
 seq_header:
+    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
+
     write_addr bits_text_curr, -1           ; blank
     wait_patterns 0.2
     rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 5.0
@@ -125,7 +152,8 @@ seq_header:
     wait_patterns 0.5
 
     ; Or fade up histories one at a time? How...
-    palette_lerp_over_secs seq_palette_single_white, seq_palette_grey, SeqConfig_PatternLength_Secs*1.5
+    write_fp scope_y_step, 1.0
+    palette_lerp_over_secs seq_palette_single_white, seq_palette_grey, SeqConfig_PatternLength_Secs*1.0
 
     rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 5            ; code
@@ -137,6 +165,8 @@ seq_header:
     on_pattern 0.4, seq_fade_header
     wait_patterns 0.5
 
+    math_make_var scope_y_step, 1.0, 8.0, math_clamp, 0.0, 1/(SeqConfig_PatternLength_Frames*1.0)
+
     rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
     write_addr bits_text_curr, 10           ; Rhino & Virgill
     wait_patterns 0.5
@@ -146,9 +176,10 @@ seq_header:
     wait_patterns 0.4
     write_addr bits_text_curr, -1           ; blank
     wait_patterns 0.1
+    math_kill_var scope_y_step
+    write_fp scope_y_step, 9.0
 
     ; Switch to scroller!
-    call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
     call_3 fx_set_layer_fns, 1, scroller_tick,              scroller_draw
     end_script
 

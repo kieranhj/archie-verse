@@ -187,7 +187,8 @@ music_mod_no_adr:
 ;.incbin "data/music/maze-funky-delicious.mod"
 ;.incbin "data/music/mikroreise.mod"    ; requires all the RAM!!
 ;.incbin "data/music/Revision_house_06.mod"
-.incbin "data/music/archieklang_smp_rhino2.mod"
+;.incbin "data/music/archieklang_smp_rhino2.mod"
+.incbin "build/music.mod"
 
 .endif
 .endif

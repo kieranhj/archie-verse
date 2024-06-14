@@ -249,30 +249,23 @@ scope_draw:
 .endif
 ; ============================================================================
 
+scope_y_step:
+    FLOAT_TO_FP Scope_YStep
+
 ; R0=frame counter.
 ; R1=vsync delta.
 scope_tick_with_history:
     ldr r7, scope_histories_p
 
-.if 0
-;    ands r12, r0, #15              ; could do and #7 now!
-    ; TODO: DO a MOD calc not a loop that's going to get slower over time!
-.3:
-    subs r0, r0, #Scope_YStep
-    bpl .3
-    adds r12, r0, #Scope_YStep
-    str r12, scope_history_offset
-.else
     ldr r12, scope_history_offset
-    add r12, r12, #1                ; r1 assumes frames==vsyncs at the moment.
-    cmp r12, #Scope_YStep
-    subge r12, r12, #Scope_YStep    ; assumes vsync delta < y step.
+    add r12, r12, #1<<16                ; r1 assumes frames==vsyncs at the moment.
+    ldr r2, scope_y_step
+    cmp r12, r2
+    subge r12, r12, r2                  ; assumes vsync delta < y step.
     str r12, scope_history_offset
-    cmp r12, #0
-    bne .2
-.endif
+    blt .2
 
-    ; Ring buffer.
+    ; Ring buffer for new scope.
     add r7, r7, #Scope_TotalSamples
     ldr r11, scope_histories_top
     cmp r7, r11
@@ -344,6 +337,9 @@ scope_tick_with_history:
 scope_history_offset:
     .long -1
 
+scope_y_pos:
+    .long 0
+
 ; R12=screen addr.
 scope_draw_with_history:
     str lr, [sp, #-4]!
@@ -368,7 +364,9 @@ scope_draw_with_history:
     mov r8, #Scope_YPos
     bl scope_draw_one_history
     ldr r8, scope_history_offset
-    rsb r8, r8, #Scope_YPos+Scope_YStep-1
+    ldr r0, scope_y_step
+    rsb r8, r8, #Scope_YPos<<16
+    add r8, r8, r0
     b .3
     .else
     ldr r8, scope_history_offset
@@ -376,7 +374,10 @@ scope_draw_with_history:
     .endif
 
 .1:
+    str r8, scope_y_pos
+    mov r8, r8, asr #16
     bl scope_draw_one_history
+    ldr r8, scope_y_pos
 
     .3:
     sub r9, r9, #Scope_TotalSamples
@@ -385,7 +386,8 @@ scope_draw_with_history:
     ldrle r9, scope_histories_top
     sub r9, r9, #Scope_TotalSamples
 
-    sub r8, r8, #Scope_YStep
+    ldr r0, scope_y_step
+    sub r8, r8, r0
     sub r4, r4, #1
     cmp r4, #16-Scope_NumHistories
     bge .1

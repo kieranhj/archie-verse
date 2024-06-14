@@ -4,7 +4,7 @@
 
 scroll_text_text_no_adr:
     ; NB. Can't use control code as first char because <lazy>.
-    .byte "The purveyors of minimalist demos ",0xf4,"proudly present a small 32kb announcetro "
+    .byte "The purveyors of minimalist demos ",0xf4,"proudly present a small 28kb announcetro "
 .if !_DEBUG
     .byte "to celebrate the port of AmigaKlang to the Acorn Archimedes!",0x94
     .byte 0xf4, "Virgill's soft synth generates 280+kb of sample data from just a few kb of code! ",0x94

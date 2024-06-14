@@ -368,6 +368,7 @@ math_evaluate_palette_lerp:
     add r0, r0, #1
     cmp r0, #15                 ; not including colour 15 (orb).
     blt .1
+    ; NOTE: For Push intro we ignore colour 15 (orb).
     
     mov pc, lr
 

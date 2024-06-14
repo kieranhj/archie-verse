@@ -148,7 +148,7 @@ clean:
 ./build/music.mod.trk: ./build/music.mod
 	$(SPLITMOD) $(subst /,\\,$+)
 
-./build/music.mod: ./data/music/Rhino2.mod
+./build/music.mod: ./data/music/archieklang_smp_rhino7.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ##########################################################################
