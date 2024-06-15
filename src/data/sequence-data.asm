@@ -54,13 +54,14 @@
     write_fp scope_yscale 0.5
 
     ; Simple logo.
-    gosub seq_header            ; 5.0 patterns long
+    gosub seq_header                ; 5.0 patterns long
 
     ; Can also go negative!
     ; math_make_var scope_yscale, 0.0, 0.5, math_sin, 0.0, 1.0/400.0
     fork seq_scope
 
-    ;on_pattern (SeqConfig_MaxPatterns-2), seq_fade_at_end
+    on_pattern 11, seq_fade_at_end  ; 2 patterns
+    ; Total 18 patterns.
 
 seq_loop:
     ; Start!
@@ -116,8 +117,13 @@ seq_scope:
     ; Where everything slows.
     math_make_var scope_y_step, 9.0, -8.0, math_clamp, 0.0, 1/(SeqConfig_PatternLength_Frames*0.5)
 
-    wait_patterns 1.0
+    wait_patterns 0.5
+
+    math_make_var scope_yscale, 0.5, 0.5, math_clamp, 0.0, 1/(SeqConfig_PatternLength_Frames*0.5)
+
+    wait_patterns 0.5
     math_kill_var scope_y_step
+    math_kill_var scope_yscale
 
     end_script
 

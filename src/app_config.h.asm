@@ -16,7 +16,7 @@
 ; ============================================================================
 
 .equ SeqConfig_EnableLoop,              0
-.equ SeqConfig_MaxPatterns,             21          ; inc. 2.5 patterns at 12 ticks/row.
+.equ SeqConfig_MaxPatterns,             18          ; inc. 2.5 patterns at 12 ticks/row.
 
 .equ SeqConfig_ProTracker_Tempo,        114         ; Default = 125.
 .equ SeqConfig_ProTracker_TicksPerRow,  6
