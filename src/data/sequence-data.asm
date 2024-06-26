@@ -41,8 +41,7 @@
     call_0 scope_init
 
     ; Screen setup.
-    palette_copy seq_palette_single_white, seq_palette_lerped
-    write_addr palette_array_p, seq_palette_lerped
+    write_addr palette_array_p, seq_palette_red_additive
 
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
@@ -52,6 +51,10 @@
     write_fp scroll_text_y_pos, 4.0 ; NB. Must match mode9-screen.asm defines. :\
     write_addr scroller_speed, 2
     write_fp scope_yscale 0.5
+
+    end_script
+
+; ============================================================================
 
     ; Simple logo.
     gosub seq_header                ; 5.0 patterns long

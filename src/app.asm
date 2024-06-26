@@ -285,9 +285,10 @@ irq_handler:
 	TST     R0,#1<<6 | (1<<3)
 	BEQ     nottimer1orVs           ;not T1 or Vs, back to RISCOS
 
-	TEQP    PC,#0b11<<26 | 0b11
+	TEQP    PC,#0b11<<26 | 0b11     ; Disable IRQ | Disable FIQ | Enter SVC mode
 	MOV     R0,R0
 
+    ; Presume need to be in SVC mode to write to VIDC?
 	MOV     R11,#VIDC_Write
 	TST     R0,#1<<3
 	BNE     handle_vsync                   ;...Vs higher priority than T1
@@ -303,7 +304,7 @@ timer1:
 	STRB    R0,[R12,#0x18]           ;stop T1 irq...
 
 exittimer1:
-	TEQP    PC,#0b10<<26 | 0b10
+	TEQP    PC,#0b10<<26 | 0b10     ; Disable IRQ | Enable FIQ | Enter IRQ mode
 	MOV     R0,R0
 	LDMFD   R13!,{R0-R1,R11-R12}
 	SUBS    PC,R14,#4

@@ -28,7 +28,7 @@ PNG2ARC=./bin/png2arc.py
 PNG2ARC_FONT=./bin/png2arc_font.py
 PNG2ARC_SPRITE=./bin/png2arc_sprite.py
 PNG2ARC_DEPS:=./bin/png2arc.py ./bin/arc.py ./bin/png2arc_font.py ./bin/png2arc_sprite.py
-FOLDER=!AKlang
+FOLDER=!Verse
 HOSTFS=../arculator/hostfs
 # TODO: Need a copy command that copes with forward slash directory separator. (Maybe MSYS cp?)
 
@@ -94,8 +94,8 @@ build:
 	$(VASM) -L build/dot_b.txt -m250 -Fbin -opt-adr -o $@ $<
 
 .PHONY:./build/archie-verse.o
-./build/archie-verse.o: build archie-verse.asm ./src/gen/arcmusic.asm ./build/assets.txt
-	$(VASM) -L build/compile.txt -m250 -Fvobj -opt-adr -o build/archie-verse.o archie-verse.asm
+./build/archie-verse.o: build archie-task.asm ./src/gen/arcmusic.asm ./build/assets.txt
+	$(VASM) -L build/compile.txt -m250 -Fvobj -opt-adr -o build/archie-verse.o archie-task.asm
 
 ##########################################################################
 ##########################################################################

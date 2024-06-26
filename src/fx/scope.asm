@@ -273,6 +273,7 @@ scope_tick_with_history:
     str r7, scope_histories_p
 
 .2:
+    adr r0, fake_buffer
     QTMSWI QTM_DMABuffer
     ; R0 = address of last used DMA sound buffer (208 bytes per channel)
     ; Interleaved 1 byte per channel in 8-bit log format.
@@ -525,3 +526,6 @@ scope_draw_one_history:
     and r4, r4, #0xf
 
     ldr pc, [sp], #4
+
+fake_buffer:
+    .skip 208*4
