@@ -1,5 +1,6 @@
 ; ============================================================================
-; Scroller using outline font system. It big.
+; Scroller using outline font system. It big. (And uses a lot of RAM.)
+; Used in: ArchieKlang announce.
 ; ============================================================================
 
 .equ ScrollText_MaxSprites,     256

@@ -1,6 +1,7 @@
 ; ============================================================================
 ; Math emitter.
 ; A particle emitter described by some simple maths functions.
+; Used in: Push.
 ; ============================================================================
 
 ; Math Emitter context block:

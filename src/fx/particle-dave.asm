@@ -2,6 +2,7 @@
 ; Particle system.
 ; Free particles but adhering to Dave's dynamics equation.
 ; 2D particles only.
+; Used in: Push.
 ; ============================================================================
 
 .equ _PARTICLE_DAVE_FULL_EDGE_CLIP, 0

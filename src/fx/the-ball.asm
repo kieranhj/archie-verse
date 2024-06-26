@@ -1,5 +1,8 @@
 ; ============================================================================
 ; The Ball.
+; Beginnings of a 2D physics system.
+; Supports a single particle with radius and multiple infinite planes.
+; Used in: Push.
 ; ============================================================================
 
 .equ TheBall_Next,     0       ; R0 = pointer to next active/free.

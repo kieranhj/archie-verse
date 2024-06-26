@@ -4,6 +4,7 @@
 ; Fixed number of particles (not created/destroyed).
 ; Not necessarily in a grid arrangement but typically.
 ; Apply forces to each particle, including a spring force to return to origin.
+; Not used, although inspired Push.
 ; ============================================================================
 
 .equ _PARTICLE_GRID_FULL_EDGE_CLIP,     1

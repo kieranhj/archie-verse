@@ -1,5 +1,8 @@
 ; ============================================================================
-; Scroller
+; Scroller: single character y position for fixed sized glyphs.
+; Pre-shift glyph data 8 times (per pixel).
+; Copy and mask word-aligned glyph data to screen.
+; Used in: Chipo Django musicdisk.
 ; ============================================================================
 
 .equ Scroller_Y_Pos, 163

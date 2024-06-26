@@ -1,5 +1,6 @@
 ; ============================================================================
-; Starfield.
+; Starfield. 3D, fixed looking down Z axis.
+; Used in: Three-Dee Demo (Mikroreise)
 ; ============================================================================
 
 .equ Starfield_Total, 512

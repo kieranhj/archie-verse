@@ -1,6 +1,7 @@
 ; ============================================================================
 ; Particle system.
 ; 2D particles only.
+; Not used, although inspired Push.
 ; ============================================================================
 
 .equ _PARTICLES_MINIMAL_CODE,   _SMALL_EXE

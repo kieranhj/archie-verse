@@ -1,6 +1,7 @@
 ; ============================================================================
 ; Fast MODE 9 circle renderer.
 ; Kindly provided by Progen (Sarah Walker).
+; TODO: Generate this table at runtime using sqrt.
 ; ============================================================================
 
 circle_0:

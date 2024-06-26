@@ -202,8 +202,6 @@ app_init_audio:
 app_late_init:
     str lr, [sp, #-4]!
     ldr r10, init_screen_addr
-    bl scroll_text_init ; slow
-    ldr r10, init_screen_addr
     bl text_pool_init
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?
@@ -392,7 +390,7 @@ app_vsync_code:
 .if _DEBUG || _CHECK_FRAME_DROP
 .include "lib/palette.asm"
 .endif
-.include "lib/mode9-screen.asm"
+.include "lib/screen.asm"
 .include "lib/outline-font.asm"
 .include "lib/text-pool.asm"
 

@@ -136,7 +136,7 @@ greetz2_mode4_no_adr:
 
 ; ============================================================================
 
-.include "src/data/scroll-text-klang.asm"
+.include "src/data/aklang/scroll-text-klang.asm"
 
 ; ============================================================================
 ; QTM Embedded.

@@ -1,4 +1,9 @@
+; ============================================================================
 ; Logo plotting.
+; Make 8 shifted copies (1 per pixel) of word aligned sprite data.
+; Plot word aligned data to screen with mask.
+; Used in: Chipo Django musicdisk.
+; ============================================================================
 
 .equ Logo_Width, 216
 .equ Logo_Height, 68

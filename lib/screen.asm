@@ -1,5 +1,5 @@
 ; ============================================================================
-; MODE 9 screen routines
+; Screen routines, clear, copy, etc.
 ; ============================================================================
 
 ; TODO: Best way to configure this outside lib code.

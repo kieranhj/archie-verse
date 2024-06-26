@@ -41,7 +41,8 @@
     call_0 scope_init
 
     ; Screen setup.
-    write_addr palette_array_p, seq_palette_red_additive
+    palette_copy seq_palette_single_white, seq_palette_lerped
+    write_addr palette_array_p, seq_palette_lerped
 
 	; Setup layers of FX.
     call_3 fx_set_layer_fns, 0, 0,                          screen_cls_from_line
@@ -51,6 +52,145 @@
     write_fp scroll_text_y_pos, 4.0 ; NB. Must match mode9-screen.asm defines. :\
     write_addr scroller_speed, 2
     write_fp scope_yscale 0.5
+
+    ; Simple logo.
+    gosub seq_header                ; 5.0 patterns long
+
+    ; Can also go negative!
+    ; math_make_var scope_yscale, 0.0, 0.5, math_sin, 0.0, 1.0/400.0
+    fork seq_scope
+
+    on_pattern 11, seq_fade_at_end  ; 2 patterns
+    ; Total 18 patterns.
+
+seq_loop:
+    ; Start!
+    palette_lerp_from_existing seq_palette_red_additive, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 1.0
+
+    end_script_if_zero seq_loop_flag
+    palette_lerp_from_existing seq_palette_blue_cyan_ramp, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 1.0
+
+    end_script_if_zero seq_loop_flag
+    palette_lerp_from_existing seq_palette_red_magenta_ramp, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 1.0
+
+    end_script_if_zero seq_loop_flag
+    palette_lerp_from_existing seq_palette_green_white_ramp, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 1.0
+
+    end_script_if_zero seq_loop_flag
+    palette_lerp_from_existing seq_palette_all_white, SeqConfig_PatternLength_Secs*0.25
+    wait_patterns 1.0
+
+    end_script_if_zero seq_loop_flag
+
+    ; Loop.
+    fork seq_loop
+    end_script
+
+seq_loop_flag:
+    .long 1
+
+seq_fade_at_end:
+    write_addr seq_loop_flag, 0
+    wait_patterns 1.0
+    palette_lerp_from_existing seq_palette_all_black, SeqConfig_PatternLength_Secs*0.5
+    wait_patterns 0.5
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00ffffff, 0x00000000, SeqConfig_PatternLength_Secs*0.5   ; colour 1
+    rgb_lerp_over_secs seq_palette_lerped+60, 0x00ffffff, 0x00000000, SeqConfig_PatternLength_Secs*0.5  ; colour 15
+    end_script
+
+seq_scope:
+    ; Make scope breathe...
+    ;wait_patterns 2.0
+    ;math_make_var scope_yscale, 0.5, 0.25, math_sin, 0.0, 1.0/(SeqConfig_PatternLength_Frames)
+
+    ; Make scope invert.
+    wait_patterns 6.0
+    math_make_var scope_yscale, 0.0, 0.5, math_cos, 0.0, 1.0/(SeqConfig_PatternLength_Frames*0.5)
+
+    wait_patterns 4.0
+    math_kill_var scope_yscale
+
+    ; Where everything slows.
+    math_make_var scope_y_step, 9.0, -8.0, math_clamp, 0.0, 1/(SeqConfig_PatternLength_Frames*0.5)
+
+    wait_patterns 0.5
+
+    math_make_var scope_yscale, 0.5, 0.5, math_clamp, 0.0, 1/(SeqConfig_PatternLength_Frames*0.5)
+
+    wait_patterns 0.5
+    math_kill_var scope_y_step
+    math_kill_var scope_yscale
+
+    end_script
+
+seq_header:
+    call_3 fx_set_layer_fns, 1, 0,                          bits_draw_text
+
+    write_addr bits_text_curr, -1           ; blank
+    wait_patterns 0.2
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 5.0
+    write_addr bits_text_curr, 0            ; bitshifters
+    on_pattern 0.7, seq_fade_header
+    wait_patterns 0.8
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
+    write_addr bits_text_curr, 1            ; alcatraz
+    on_pattern 0.4, seq_fade_header
+    wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
+    write_addr bits_text_curr, 2            ; torment
+    on_pattern 0.4, seq_fade_header
+    wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
+    write_addr bits_text_curr, 3            ; present
+    on_pattern 0.4, seq_fade_header
+    wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 3.0
+    write_addr bits_text_curr, 4            ; ArchieKlang
+    on_pattern 0.4, seq_fade_header
+    wait_patterns 0.5
+
+    ; Or fade up histories one at a time? How...
+    write_fp scope_y_step, 1.0
+    palette_lerp_over_secs seq_palette_single_white, seq_palette_grey, SeqConfig_PatternLength_Secs*1.0
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
+    write_addr bits_text_curr, 5            ; code
+    on_pattern 0.4, seq_fade_header
+    wait_patterns 0.5
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
+    write_addr bits_text_curr, 7            ; synth
+    on_pattern 0.4, seq_fade_header
+    wait_patterns 0.5
+
+    math_make_var scope_y_step, 1.0, 8.0, math_clamp, 0.0, 1/(SeqConfig_PatternLength_Frames*1.0)
+
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00000000, 0x00ffffff, 2.0
+    write_addr bits_text_curr, 10           ; Rhino & Virgill
+    wait_patterns 0.5
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00ffffff, 0x00000000, 4.0
+
+    ; Remove text.
+    wait_patterns 0.4
+    write_addr bits_text_curr, -1           ; blank
+    wait_patterns 0.1
+    math_kill_var scope_y_step
+    write_fp scope_y_step, 9.0
+
+    ; Switch to scroller!
+    call_3 fx_set_layer_fns, 1, scroller_tick,              scroller_draw
+    end_script
+
+seq_fade_header:
+    rgb_lerp_over_secs seq_palette_lerped+4, 0x00ffffff, 0x00000000, 0.5
     end_script
 
 ; ============================================================================
@@ -99,7 +239,16 @@ seq_test_fade_up_loop:
 
 ; Font def, points size, point size height, text string, null terminated.
 text_pool_defs_no_adr:
-.if 0
+.if _SLOW_CPU
+    TextDef homerton_bold_italic,   76*0.7, 76*1.2*0.7, 0x1, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
+    TextDef corpus_bold,            90*0.7, 90*1.2*0.7, 0x1, "ALCATRAZ",        text_nums_no_adr+4  ; 1
+    TextDef trinity_bold,           80*0.7, 80*1.2*0.7, 0x1, "TORMENT",         text_nums_no_adr+8  ; 2
+    TextDef homerton_bold,          64*0.7, 64*1.1*0.7, 0x1, "present",         text_nums_no_adr+12 ; 3
+    TextDef homerton_bold,          76*0.7, 76*1.2*0.7, 0x1, "ArchieKlang",     text_nums_no_adr+16 ; 4
+    TextDef homerton_bold,          40*0.7, 48*1.1*0.7, 0x1, "code by kieran",  text_nums_no_adr+20 ; 5
+    TextDef homerton_bold,          40*0.7, 48*1.1*0.7, 0x1, "samples & synth by Virgill", text_nums_no_adr+28 ; 7
+    TextDef homerton_bold,          40*0.7, 48*1.1*0.7, 0x1, "music by Rhino & Virgill", text_nums_no_adr+40 ; 10
+.else
     TextDef homerton_bold_italic,   76, 76*1.2, 0x1, "BITSHIFTERS",     text_nums_no_adr+0  ; 0
     TextDef corpus_bold,            90, 90*1.2, 0x1, "ALCATRAZ",        text_nums_no_adr+4  ; 1
     TextDef trinity_bold,           80, 80*1.2, 0x1, "TORMENT",         text_nums_no_adr+8  ; 2
@@ -138,8 +287,6 @@ math_emitter_config_2:
 .endif
 
 ; ============================================================================
-; Colour palettes.
-; ============================================================================
 
 seq_palette_red_additive:
     .long 0x00000000                    ; 00 = 0000 = black
@@ -159,7 +306,6 @@ seq_palette_red_additive:
     .long 0x00c0e0e0                    ; 14 = 1110 = oranges
     .long 0x00f0f0f0                    ; 15 = 1111 = white
 
-.if 0
 seq_palette_grey:
     .long 0x00000000                    ; 00 = 0000 = black
     .long 0x00101010                    ; 01 = 0001 =
@@ -265,7 +411,6 @@ seq_palette_all_white:
     .rept 16
     .long 0x00ffffff
     .endr
-.endif
 
 seq_palette_lerped:
     .skip 15*4

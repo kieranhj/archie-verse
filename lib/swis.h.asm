@@ -22,6 +22,7 @@
 .equ OS_GenerateError, 0x2b
 .equ OS_ReadEscapeState, 0x2c
 .equ OS_ReadVduVariables, 0x31
+.equ XOS_ReadVduVariables, OS_ReadVduVariables | (1 << 17)
 .equ OS_ReadMonotonicTime, 0x42
 .equ OS_Plot, 0x45
 .equ OS_ClaimDeviceVector, 0x4b
@@ -242,3 +243,60 @@
 .equ VDU_TextColour, 17
 .equ VDU_Home, 30
 .equ VDU_SetPos, 31
+
+.equ IOC_Write,         0x3200000
+
+.equ IOC_Control,       0x00
+.equ IOC_Serial,        0x04
+.equ IOC_IRQ_StatusA,   0x10
+.equ IOC_IRQ_RequestA,  0x14    ; Read
+.equ IOC_IRQ_ClearA,    0x14    ; Write
+.equ IOC_IRQ_MaskA,     0x18
+.equ IOC_IRQ_StatusB,   0x20
+.equ IOC_IRQ_RequestB,  0x24    ; Read
+.equ IOC_IRQ_ClearB,    0x24    ; Write
+.equ IOC_IRQ_MaskB,     0x28
+.equ IOC_FIQ_Status,    0x30
+.equ IOC_FIQ_Request,   0x34
+.equ IOC_FIQ_Mask,      0x38
+.equ IOC_T0_CountLo,    0x40
+.equ IOC_T0_CountHi,    0x44
+.equ IOC_T0_Go,         0x48
+.equ IOC_T0_Latch,      0x4C
+.equ IOC_T1_CountLo,    0x50
+.equ IOC_T1_CountHi,    0x54
+.equ IOC_T1_Go,         0x58
+.equ IOC_T1_Latch,      0x5C
+.equ IOC_T2_CountLo,    0x60
+.equ IOC_T2_CountHi,    0x64
+.equ IOC_T2_Go,         0x68
+.equ IOC_T2_Latch,      0x6C
+.equ IOC_T3_CountLo,    0x70
+.equ IOC_T3_CountHi,    0x74
+.equ IOC_T3_Go,         0x78
+.equ IOC_T3_Latch,      0x7C
+
+.equ IRQA_PrinterBusy,  1<<0
+.equ IRQA_SerialPort,   1<<1
+.equ IRQA_PrinterAck,   1<<2
+.equ IRQA_Vsync,        1<<3
+.equ IRQA_PowerOn,      1<<4
+.equ IRQA_Timer0,       1<<5
+.equ IRQA_Timer1,       1<<6
+
+.equ ProcMode_User,     0b00
+.equ ProcMode_FIQ,      0b01
+.equ ProcMode_IRQ,      0b10
+.equ ProcMode_Svc,      0b11
+
+.equ IRQ_Disable,       1<<27
+.equ FIQ_Disable,       1<<26
+
+.equ HwVector_Reset,        0x00    ; When computer is reset. Otherwise 'Branch through zero'.
+.equ HwVector_UndefInst,    0x04    ; Attempt to execute an instruction that is not part of normal instruction set.
+.equ HwVector_SWI,          0x08    ; SWI instruction issued. PC saved to R14_svc, ARM enters SVC mode, IRQ interrupts are disabled.
+.equ HwVector_PrefAbort,    0x0C    ; Illegal attempt to prefetch instruction: EITHER attempt to access protected memory from insufficiently priviledge mode OR attempt to access non-existent logical page.
+.equ HwVector_DataAbort,    0x10    ; Illegal attempt to read dta: EITHER attempt to access protected memory from insufficiently priviledge mode OR attempt to access non-existent logical page.
+.equ HwVector_AddrExcep,    0x14    ; Data reference made outside range 0x00000000-0x03FFFFFF.
+.equ HwVector_IRQ,          0x18    ; ARM received interrupt request. PC saved to R14_irq, ARM enters IRQ mode, IRQ interrupts disabled.
+.equ HwVector_FIQ,          0x1C    ; ARM received fast interrupt requrest. PC saved to R14_fiq, ARM enters FIQ mode, IRQ & FIQ interrupts disabled.

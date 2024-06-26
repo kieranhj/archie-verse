@@ -1,5 +1,7 @@
 ; ============================================================================
 ; Circles 3D rendering functions.
+; Plot transformed verts using Progen's fast circle plot routines.
+; Used in: Mikroreise.
 ; ============================================================================
 
 object_colour_index:

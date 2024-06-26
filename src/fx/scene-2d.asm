@@ -4,6 +4,7 @@
 ; Assume single face, no culling.
 ; Assume multiple objects with independent position, rotation, scale.
 ; TODO: Remove code specific to previous demos etc.
+; Used in: Three-Dee Demo (Mikroreise)
 ; ============================================================================
 
 .equ Scene2D_ObjectBuffer_Size, 10 * VECTOR3_SIZE * 10 + 10 * 4 ; 10 objects with max 10 verts each.

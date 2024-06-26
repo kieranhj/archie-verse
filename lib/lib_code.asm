@@ -98,11 +98,11 @@ lib_init:
 .include "lib/mode13.asm"
 .endif
 .if Screen_Mode==9
-.include "lib/span_gen.asm"
+.include "lib/span-gen.asm"
 .endif
 .endif
 .if LibConfig_IncludeSprites
-.include "lib/sprite_utils.asm"
+.include "lib/sprite-utils.asm"
 .endif
 .if LibConfig_IncludeMathVar
 .include "lib/math-var.asm"

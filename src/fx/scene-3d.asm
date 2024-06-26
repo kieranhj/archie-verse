@@ -4,6 +4,7 @@
 ; Does not support camera rotation / look at.
 ; Single 3D object per scene.
 ; Supports position, rotation & scale of the object within the scene.
+; Used in: Chipo Django musicdisk, Three-Dee Demo (mikroreise)
 ; ============================================================================
 
 .equ MeshHeader_NumVerts,       0

@@ -1,6 +1,7 @@
 ; ============================================================================
 ; Balls (inspired/ripped from Marble Merger on PICO-8): 
 ; https://www.lexaloffle.com/bbs/?tid=54837
+; Not used yet!
 ; ============================================================================
 
 .equ Ball_Next,     0       ; R0 = pointer to next active/free.
