@@ -18,7 +18,7 @@
 .equ _SYNC_EDITOR,              (_DEBUG && 1)   ; sync driven by external editor.
 
 .equ DebugDefault_PlayPause,    1		; play
-.equ DebugDefault_ShowRasters,  0
+.equ DebugDefault_ShowRasters,  1
 .equ DebugDefault_ShowVars,     0		; slow
 
 ; ============================================================================
@@ -59,15 +59,6 @@ main:
 	SWI OS_Claim
     ; TODO: Do we need this outside of _DEBUG?
 
-	; Install our own IRQ handler - thanks Steve! :)
-    .if AppConfig_InstallIrqHandler
-	bl install_irq_handler
-    .else
-	mov r0, #OSByte_EventEnable
-	mov r1, #Event_VSync
-	SWI OS_Byte
-    .endif
-
     ; Generate sample data first?
     .if AppConfig_UseArchieKlang
     bl archieklang_init
@@ -105,6 +96,15 @@ main:
 	; Play music!
 	QTMSWI QTM_Start
 
+	; Install our own IRQ handler - thanks Steve! :)
+    .if AppConfig_InstallIrqHandler
+	bl install_irq_handler
+    .else
+	mov r0, #OSByte_EventEnable
+	mov r1, #Event_VSync
+	SWI OS_Byte
+    .endif
+
     ; Show whatever app_init set up as the first frame.
     bl mark_write_bank_as_pending_display
 
@@ -112,7 +112,29 @@ main:
     ldr r0, vsync_count
     str r0, last_vsync
 
+    mov r0, #1
+    mov r1, #0
+    ldr r12, screen_addr
+
+background_loop:
+	; repeat!
+    
+    bl math_rand
+    strb r0, [r12], #1
+    add r0, r0, #1
+    add r1, r1, #1
+    cmp r1, #Screen_Bytes
+    movge r1, #0
+    ldrge r12, screen_addr
+
+	swi OS_ReadEscapeState
+	bcc background_loop                   ; exit if Escape is pressed
+    b exit
+
+
 main_loop:
+
+    str lr, [sp, #-4]!
 
 	; ========================================================================
 	; PREPARE
@@ -172,9 +194,10 @@ main_loop:
     bl sync_set_time
     .endif
 
-    .if _DEBUG
+    .if _DEBUG && 0
     mov r0, #-1
     mov r1, #-1
+    ; SWIs in IRQ need special handling!
     QTMSWI QTM_Pos         ; read position.
 
     strb r1, music_pos+0
@@ -193,6 +216,7 @@ main_loop_skip_tick:
 	; ========================================================================
 
 	; This will block if there isn't a bank available to write to.
+    ; THIS SHOULD NEVER BLOCK AS TESTED OUTSIDE IN VSYNC HANDLER.
 	bl get_next_bank_for_writing
 
 	; Useful to determine frame rate for debug or frame-rate independent animation.
@@ -226,6 +250,7 @@ main_loop_skip_tick:
 	; ========================================================================
 
     ; TODO: app_pre_draw_frame if needed.
+    ldr r12, screen_addr
 	bl fx_draw_layers
 
 	; show debug
@@ -237,9 +262,8 @@ main_loop_skip_tick:
 	; Swap screens!
 	bl mark_write_bank_as_pending_display
 
-	; repeat!
-	swi OS_ReadEscapeState
-	bcc main_loop                   ; exit if Escape is pressed
+    ldr lr, [sp], #4    ; we actually want to restore the LR.
+    mov pc, lr
 
 exit:
 	; Disable music
@@ -471,8 +495,19 @@ mark_write_bank_as_pending_display:
 
 .2:
 	; Show pending bank at next vsync.
+    mov r9, pc
+    orr r8, r9, #ProcMode_Svc
+    teqp r8, #0 ; enter Svc mode
+    mov r0, r0
+    str lr, [sp, #-4]!  ; store lr_svc
+
 	MOV r0, #OSByte_WriteDisplayBank
-	swi OS_Byte
+	swi XOS_Byte
+
+    ldr lr, [sp], #4    ; restore lr_svc
+    teqp r9, #0 ; reenter original mode
+    mov r0, r0
+
 	mov pc, lr
 
 get_next_bank_for_writing:
@@ -493,8 +528,25 @@ get_next_bank_for_writing:
 	str r1, write_bank
 
 	; Now set the screen bank to write to
+    mov r9, pc
+    orr r8, r9, #ProcMode_Svc
+    teqp r8, #0 ; enter Svc mode
+    mov r0, r0
+    str lr, [sp, #-4]!  ; store lr_svc
+
 	mov r0, #OSByte_WriteVDUBank
-	swi OS_Byte
+	swi XOS_Byte
+
+	; Back buffer address for writing bank stored at screen_addr
+	adrl r0, screen_addr_input
+	adrl r1, screen_addr
+	swi XOS_ReadVduVariables
+
+    ldr lr, [sp], #4    ; restore lr_svc
+    teqp r9, #0 ; reenter original mode
+    mov r0, r0
+
+    mov pc, lr
 
 get_screen_addr:
 	; Back buffer address for writing bank stored at screen_addr
@@ -536,7 +588,7 @@ error_handler:
 	SWI OS_Byte
 
 	; Do these help?
-;	QTMSWI QTM_Stop
+	QTMSWI QTM_Stop
 
 	LDMIA sp!, {r0-r2, lr}
 	MOVS pc, lr
@@ -544,6 +596,8 @@ error_handler:
 ; ============================================================================
 ; Core code modules
 ; ============================================================================
+
+.skip 5*4               ; DO NOT SUBMIT
 
 screen_addr:
 	.long 0			    ; ptr to the current VIDC screen bank being written to.
@@ -593,13 +647,13 @@ debug_restart_flag:
 ; ============================================================================
 
 .include "lib/debug.asm"
-.include "lib/fx.asm"
 .include "lib/script.asm"
 .include "lib/sequence.asm"
+.include "lib/fx.asm"
+.include "src/app.asm"
 .if AppConfig_UseSyncTracks
 .include "src/sync.asm"
 .endif
-.include "src/app.asm"
 .include "lib/lib_code.asm"
 
 ; ============================================================================

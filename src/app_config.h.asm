@@ -6,9 +6,9 @@
 .equ AppConfig_StackSize,               1024
 .equ AppConfig_LoadModFromFile,         0
 .equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 0)   ; Because table gen takes time at boot...
-.equ AppConfig_InstallIrqHandler,       0       ; otherwise uses Event_VSync.
+.equ AppConfig_InstallIrqHandler,       1       ; otherwise uses Event_VSync.
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
-.equ AppConfig_UseQtmEmbedded,          1
+.equ AppConfig_UseQtmEmbedded,          0
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 1)
 
 ; ============================================================================
@@ -90,6 +90,18 @@ ldmfd sp!, {r11,lr}
 
 .else
 .macro QTMSWI swi_no
-swi \swi_no
+stmfd sp!, {r8,r9}
+    mov r9, pc
+    orr r8, r9, #ProcMode_Svc
+    teqp r8, #0 ; enter Svc mode
+    mov r0, r0
+    str lr, [sp, #-4]!  ; store lr_svc
+
+swi \swi_no | XOS_Flag
+
+    ldr lr, [sp], #4    ; restore lr_svc
+    teqp r9, #0 ; reenter original mode
+    mov r0, r0
+ldmfd sp!, {r8,r9}
 .endm
 .endif

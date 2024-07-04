@@ -5,7 +5,6 @@ Contains all accumulated libraries and code from previous prods.
 
 Framework TODOs as of 15/5/24:
 ~~~
-=> Add logo on screen and submit as blank framework. - DONE
 - Separate tick/draw order from being tied together.
     - Strict draw order in layers.
     - Are there any dependencies between tick?
@@ -30,112 +29,102 @@ And as of 6/6/24:
     => Shrinkler does a better job of compressing this unrolled code than generating it...!!!
 - How have I got this far without memcpy and memclr?!
   => Write optimised versions of these for lib. - DONE SIMPLE VERSION
-- Standardise code generation at init. - DONE
-    - Have R12=start of free RAM and expect to return top in R12 for next fn.
 
-
-ArchieKlang Announcetro
+TrackMo Inspo
 ~~~
-=> Like the oscilloscope view more when all channels are combined together.
-    Kinda want this to fade?
+See Leonard's LDOS: https://github.com/arnaud-carre/ldos
+Simple framework for loading executables and running them in order.
+Takes care of loading the next file, decompressing it and then running.
+Everything is blocking so up to the running exe to do this in the background.
+How to run background tasks on Archie / RISCOS?
 
-Try?
-- Lines not dots (expensive?) - DONE
-- Previous buffers plotted above/below in darker colour to fade out? - DONE
-- Use a Y buffer so they don't overlap? - DONE
-- Add palette fade as lines move up.
-- Custom faster line algo. - DONE
-- More lines but with smaller amplitude - DONE
-- Add 'zero' signal left and right of the wave lines - DONE
-- Add header text - DONE
-- Fade in header messages at the top (separate colour)
-- Add iterator to header?
-    - Looks meh. :\
-- Simple scroller at the bottom? - DONE
-    - Use RISCOS font? Corpus is fixed width (but might look meh?)
-    - Still need to figure out how to draw at the same Y pos for all glyphs. - DONE
-    - (Write a word with ascenders and descenders then grab the max height)
-    - Still need to work out which Y to plot at though! - DONE
-    ==> This is not going to work even with fixed width font due to kerning.
-    ==> Either use a traditional font or plot one word at a time from the scrolltext... - DONE
-    ==> Make a rough calculation of how much RAM this would be... - A LOT :)
-- Move scroll text to own code module and separate from text_pool API - DONE
-- Sort out outline_font vs text_pool APIs - LATER
-    - Separate paint to screen from copy from screen to sprite.
-    - Something like:
-        outline_font_paint_to_screen
-        sprite_utils_make_from_screen (copying in row or column order)
-        remove use of text_pool by outline_scroller.
-    => AM I MAKING THIS MORE COMPLICATED? JUST ADD THEM AFTER AND STORE THE ENTRY NUMBER SOMEHOW?
-       NEXT TIME: Sort out text pool vs sprite pool etc.
-
-- Have sequence start by fading in 'BITSHIFTERS' 'ALCATRAZ' 'present' etc. - DONE
-    - Then start scroll text in the same slot.
-- Possible to slow the scroller down? - DONE
-    - Scroll rows one byte at a time in sw and just plot right hand columns?
-    - What about double/triple buffers? - JUST DOUBLE
-- Add ArchieKlang sample gen at some point! - DONE
-- Plot samples as they're generated? Use same effect?
-    - Plot and move after each one? Hmmm!
-
-TO FINISH
+RasterMan inspired demo OS?
 ~~~
-- Add fade to static header text. - DONE
-- Add dynamic speed control to the scroller, otherwise it's a bit monotonous. - DONE
-- Add some nice colour palette fades across the track. - IN PROGRESS
-- BONUS: More colour palettes to cycle through?
-- Get the final tune?!?!?! (Probably last minute... ;) => Rhino!
-- Final scrolltext => get a few words from Virgill & Rhino. - DONE
-- What to do about audio filter mod? => Steve?!
-- BUG: Check first frame glitches ==> loader to zero BSS? No, already zero'd. Hmm.
-- BUG: Wave peak leaks into fixed scroller area and gets dragged... - HACK IT! :)
-- BUG: Base line drawn in colour 14 at offset 0 => flickers with certain palettes - DONE
-- BUG: First frame sometimes displayed before palette is set - race condition?
-- Add control code for additional spaces in scroller? - DONE
-- Fade out at the end rather than loop for compo? => wait final tune.
-- BUG! Scroller is at 25Hz not 50Hz!! WHAT?! - DONE
-- BUG: Turn off flashing cursor in loader. - DONE
-- Rename !folder to !ArchieKlang and add icon. - DONE
-- Write a !Help file to explain where to find AmigaKlang etc.
-- Tidy up the new build of AmigaKlangGUI and send to Virgill.
+Requirements:
+- Can run arbitrary blocking operations e.g. disk load, code gen, image gen, decompression
+  in the background, using spare cycles across many frames.
+- Don't have to write special handling within the tasks themselves (i.e. poll & yield).
+- Demo effects are guaranteed to continue to update at 50Hz.
+
+Already achieve this on the Beeb:
+- Hang everything off a 50Hz IRQ timer - update logic, render screen, play music in IRQ.
+- When IRQ returns it gives remaining cycles back to the original running exe.
+- Simple task system for calling arbitrary functions on main exe thread.
+
+Ignore RasterMan stable raster requirements for now.
+- Check special version of QTM.
+** Don't claim FIQ's
+- Reset keyboard
+- Resync sound
+- Set IRQA mask vsync only, IRQB mask 0.
+** Install IRQ handler with branch (not copy over FIQ space)
+** Don't steal FIQ registers
+** Assume not Arthur
+
+IRQ handler:
+- Disable IRQs and FIQs
+** Don't switch to FIQ mode?
+- Test if vsync
+- If not vsync check keyboard
+** Don't turn off vsync
+- Set IRQB mask to enable Keyboard Serial Receive
+- Update vsync byte
+** Don't update time
+** Don't worry about raster tables
+- Check for QTM running
+- Return to SVC mode
+- Do QTM rastersound (enables IRQs so now reentrant)
+- On return IRQs/FIQs are disabled
+- Back to IRQ mode
+** Enable FIQs but not IRQs + call main loop
+- Return to foreground w/out RISCOS
 
 
-BONUS
+Sarah's Vertex Transform code
 ~~~
-- Generate any repeated code at runtime, e.g. cls, scroller shifts.
-- Multiply scale of each line by a dynamic value. - STARTED
-    - sin(camera a) so can 'look down' on the scope waves / contours.
-        => dynamically changing the scale looks nice and emphasizes the y buffer effect.
-        => doesn't have the effect of tilting the view 'towards' the camera.
-           Need to run through the perspective equation.
-           Can't really do a divide per Y value. Well....
-    - sin(ypos - centre) so looks like it rotates around a cylinder.
-    - Could do different scale per line. <== BONUS!
-- Remove divide call from arcmusic - it's always 32767/const - DONE
-- Use a proper modulo fn. for scope scroll, not a loop. - DONE
-- Try having the live waveform NOT moving with the others? - DONE
-- Does it look better without the flat lines on the left/right? => small border looks best.
-- Dynamically cut down version for ARM2 machines? Party version can be 12MHz. - DONE AS COMPILE OPTION FOR NOW
-    - Fewer samples => doesn't have much effect on overall perf => linedraw bound.
-    - Fewer lines => biggest impact.
-    - Need to change scopes to 8/14 :(
-    - Probably also shrink text size
-    - Actually switching to 32 samples for the waveform but keeping the dx=4
-      makes the waveform part smaller and looks cool enough!
-      Can reduce scopes to 11/11 or higher!
-- Dynamically set sample speed for ARM2/ARM250+ machines for highest quality.
-    - DONE AS COMPILE OPTION FOR NOW
+9 muls/vert, full 3x3 matrix rotation.
+Push results on the stack.
+Combine vertex count w/ source ptr as a temporary.
+Pre-shift vertex precision.
+Pre-shift matrix precision.
 
-Line segment drawing.
-dx is fixed == 4 (or whatever)
-dy limited: -128 <= dy <= 127
-Line segments are connected.
+transform_loop:
+	LDMIA r12!, {r9, r10} ;x, y
+	ORR r12, r14, r12, LSL #11
 
-Use MODE 12.
-Unroll all 256 possible code paths.
-Just do Bresenham, steep and shallow paths with
-x+=1:y+=0 => strb r4, [r11], #1
-x+=1:y+=1 => strb r4, [r11], #-ScreenStride+1
-x+=1:y-=1 => strb r4, [r11], #ScreenStride+1
-x+=0:y+=1 => strb r4, [r11], #-ScreenStride
-x+=0:y-=1 => strb r4, [r11], #ScreenStride
+	;r0-r8 - matrix
+	;r9, r10 - x, y
+	;r11 - temp
+	;r12 - source ptr
+	;r14 - temp
+
+	MUL r11, r9, r6   ;z=x*m20 + y*m21
+	MLA r11, r10, r7, r11
+
+	MUL r14, r10, r1  ;x = y*m01
+
+	MUL r10, r4, r10     ;y = y*m11
+	MLA r10, r3, r9, r10 ;y = x*m00 + y*m11
+
+	MLA r9, r0, r9, r14 ;x = x*m00 + y*m01
+
+	MOV r14, r12, LSR #11
+	LDR r14, [r14]  ;z
+	ADD r12, r12, #4<<11
+
+	MLA r9, r2, r14, r9   ;x = x*m00 + y*m01 + z*m02
+	MLA r10, r5, r14, r10 ;y = x*m01 + y*m11 + z*m12
+	MLA r11, r8, r14, r11 ;z = x*m02 + y*m21 + z*m22	
+
+	MOV r14, r12, LSL #(32-11)
+	MOV r14, r14, LSR #(32-11)
+	MOV r12, r12, LSR #11
+
+	MOV r9, r9, ASR #12
+	MOV r10, r10, ASR #12
+	MOV r11, r11, ASR #12
+	STMDB sp!, {r9, r10, r11}
+
+
+	SUBS r14, r14, #1
+	BNE transform_loop

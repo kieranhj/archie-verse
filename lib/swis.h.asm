@@ -3,14 +3,16 @@
 ; TODO: Tidy this up into sections and make more comprehensive.
 ; ============================================================================
 
+.equ XOS_Flag, 1<<17
+
 .equ OS_WriteC, 0
 .equ OS_WriteO, 2
 .equ OS_WriteN, 0x46
 .equ OS_NewLine, 3
 .equ OS_Byte, 6
-.equ XOS_Byte, OS_Byte | (1 << 17)
+.equ XOS_Byte, OS_Byte | XOS_Flag
 .equ OS_Word, 7
-.equ XOS_Word, OS_Word | (1 << 17)
+.equ XOS_Word, OS_Word | XOS_Flag
 .equ OS_File, 8
 .equ OS_Exit, 0x11
 .equ OS_IntOn, 0x13
@@ -21,13 +23,18 @@
 .equ OS_ChangeDynamicArea, 0x2a
 .equ OS_GenerateError, 0x2b
 .equ OS_ReadEscapeState, 0x2c
+.equ OS_ServiceCall, 0x30
+.equ XOS_ServiceCall, OS_ServiceCall | XOS_Flag
 .equ OS_ReadVduVariables, 0x31
-.equ XOS_ReadVduVariables, OS_ReadVduVariables | (1 << 17)
+.equ XOS_ReadVduVariables, OS_ReadVduVariables | XOS_Flag
 .equ OS_ReadMonotonicTime, 0x42
 .equ OS_Plot, 0x45
 .equ OS_ClaimDeviceVector, 0x4b
 .equ OS_ReleaseDeviceVector, 0x4c
+.equ OS_ReadMemMapInfo, 0x51
 .equ OS_ReadDynamicArea, 0x5c
+.equ OS_FindMemMapEntries, 0x60
+.equ XOS_FindMemMapEntries, OS_FindMemMapEntries | XOS_Flag
 .equ OS_ConvertHex2, 0xd1
 .equ OS_ConvertHex4, 0xd2
 .equ OS_ConvertHex8, 0xd4
@@ -153,6 +160,7 @@
 .equ QTM_Volume, 0x47E48
 .equ QTM_SetSampleSpeed, 0x47E49
 .equ QTM_DMABuffer, 0x47E4A
+.equ XQTM_DMABuffer, QTM_DMABuffer | XOS_Flag
 .equ QTM_RemoveChannel, 0x47E4B
 .equ QTM_RestoreChannel, 0x47E4C
 .equ QTM_Stereo, 0x47E4D
@@ -167,6 +175,7 @@
 .equ QTM_ReadPlayingTime, 0x47E56
 .equ QTM_PlayRawSample, 0x47E57
 .equ QTM_SoundControl, 0x47E58
+.equ XQTM_SoundControl, QTM_SoundControl | XOS_Flag
 .equ QTM_SWITableAddress, 0x47E59
 .equ QTM_RegisterSample, 0x47E5A
 .equ QTM_SetSpeed, 0x47E5B
@@ -177,6 +186,8 @@
 .equ QTM_ReadChannelData, 0x47E60
 .equ QTM_ReadNoteWord, 0x47E61
 .equ QTM_DMAHandler, 0x47E62
+.equ QTM_Debug, 0x47E62
+.equ XQTM_Debug, QTM_Debug | XOS_Flag
 
 .equ MusicInterrupt_SongEnded, 0
 
@@ -245,6 +256,7 @@
 .equ VDU_SetPos, 31
 
 .equ IOC_Write,         0x3200000
+.equ MEMC_Write,        0x3600000
 
 .equ IOC_Control,       0x00
 .equ IOC_Serial,        0x04

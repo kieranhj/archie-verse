@@ -1,2 +1,4 @@
+RMLOAD <Obey$Dir>.QTM146c_24
 wimpslot -min 1400K
 <Obey$Dir>.!RunImage
+RMKILL QTMTracker

@@ -22,8 +22,20 @@ palette_set_colour:
     strb r0, [r1, #3]       ; green
     mov r0, r4, lsr #16
     strb r0, [r1, #4]       ; blue
+
+    mov r9, pc
+    orr r8, r9, #ProcMode_Svc
+    teqp r8, #0 ; enter Svc mode
+    mov r0, r0
+    str lr, [sp, #-4]!  ; store lr_svc
+
     mov r0, #12
-    swi OS_Word
+    swi XOS_Word
+
+    ldr lr, [sp], #4    ; restore lr_svc
+    teqp r9, #0 ; reenter original mode
+    mov r0, r0
+
     mov pc,lr
 
 ; R2 = palette block ptr
@@ -51,8 +63,20 @@ palette_set_border:
     strb r0, [r1, #3]       ; green
     mov r0, r4, lsr #16
     strb r0, [r1, #4]       ; blue
+
+    mov r9, pc
+    orr r8, r9, #ProcMode_Svc
+    teqp r8, #0 ; enter Svc mode
+    mov r0, r0
+    str lr, [sp, #-4]!  ; store lr_svc
+
     mov r0, #12
     swi OS_Word
+
+    ldr lr, [sp], #4    ; restore lr_svc
+    teqp r9, #0 ; reenter original mode
+    mov r0, r0
+
     mov pc,lr
 .endif
 
