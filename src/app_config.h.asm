@@ -10,6 +10,7 @@
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 .equ AppConfig_UseQtmEmbedded,          0
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 1)
+.equ AppConfig_UseRasterCore,           1
 
 ; ============================================================================
 ; Sequence config.
@@ -88,6 +89,14 @@ ldr pc, QtmEmbedded_Swi
 ldmfd sp!, {r11,lr}
 .endm
 
+.macro QTMSWI_NOTIRQ swi_no
+stmfd sp!, {r11,lr}
+mov r11, #\swi_no - QTM_SwiBase
+mov lr, pc
+ldr pc, QtmEmbedded_Swi
+ldmfd sp!, {r11,lr}
+.endm
+
 .else
 .macro QTMSWI swi_no
 stmfd sp!, {r8,r9}
@@ -104,4 +113,27 @@ swi \swi_no | XOS_Flag
     mov r0, r0
 ldmfd sp!, {r8,r9}
 .endm
+
+.macro QTMSWI_NOTIRQ swi_no
+swi \swi_no
+.endm
 .endif
+
+; ============================================================================
+; IRQ safe SWI call.
+; TODO: _DEBUG check whether this is called when not required and vice-versa?
+; ============================================================================
+
+.macro IRQSWI swi_no
+    mov r9, pc
+    orr r8, r9, #ProcMode_Svc
+    teqp r8, #0 ; enter Svc mode
+    mov r0, r0
+    str lr, [sp, #-4]!  ; store lr_svc
+
+    swi \swi_no | XOS_Flag
+
+    ldr lr, [sp], #4    ; restore lr_svc
+    teqp r9, #0 ; reenter original mode
+    mov r0, r0
+.endm

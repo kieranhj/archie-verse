@@ -13,6 +13,12 @@
 
 ; ============================================================================
 
+.if AppConfig_UseRasterCore
+.include "lib/rastercore-dat.asm"
+.endif
+
+; ============================================================================
+
 .if 0   ; fx/scroller.asm
 .p2align 2
 scroller_font_data_no_adr:

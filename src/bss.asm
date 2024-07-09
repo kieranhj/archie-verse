@@ -22,6 +22,11 @@ stack_no_adr:
     .skip AppConfig_StackSize
 stack_base_no_adr:
 
+.if AppConfig_UseRasterCore
+   .skip AppConfig_StackSize
+rastercore_svc_stack_no_adr:
+.endif
+
 ; ============================================================================
 ; Palette buffers.
 ; ============================================================================

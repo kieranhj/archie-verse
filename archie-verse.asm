@@ -98,7 +98,7 @@ main:
 
 	; Install our own IRQ handler - thanks Steve! :)
     .if AppConfig_InstallIrqHandler
-	bl install_irq_handler
+	bl rastercore_install_irq_handler
     .else
 	mov r0, #OSByte_EventEnable
 	mov r1, #Event_VSync
@@ -272,7 +272,7 @@ exit:
 
 	; Remove our IRQ handler
     .if AppConfig_InstallIrqHandler
-	bl uninstall_irq_handler
+	bl rastercore_uninstall_irq_handler
     .else
 	; Disable vsync event
 	mov r0, #OSByte_EventDisable
@@ -495,18 +495,8 @@ mark_write_bank_as_pending_display:
 
 .2:
 	; Show pending bank at next vsync.
-    mov r9, pc
-    orr r8, r9, #ProcMode_Svc
-    teqp r8, #0 ; enter Svc mode
-    mov r0, r0
-    str lr, [sp, #-4]!  ; store lr_svc
-
 	MOV r0, #OSByte_WriteDisplayBank
-	swi XOS_Byte
-
-    ldr lr, [sp], #4    ; restore lr_svc
-    teqp r9, #0 ; reenter original mode
-    mov r0, r0
+    IRQSWI OS_Byte
 
 	mov pc, lr
 
@@ -559,7 +549,7 @@ error_handler:
 	STMDB sp!, {r0-r2, lr}
 
     .if AppConfig_InstallIrqHandler
-	bl uninstall_irq_handler
+	bl rastercore_uninstall_irq_handler
     .else
 	mov r0, #OSByte_EventDisable
 	mov r1, #Event_VSync

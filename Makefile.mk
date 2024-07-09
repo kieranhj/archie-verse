@@ -47,6 +47,7 @@ $(FOLDER): build ./build/archie-verse.bin ./build/!run.txt ./build/icon.bin
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
 	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\QTM146c_24,ffa" "$(FOLDER)\QTM146c_24,ffa"
+#	$(COPY) ".\data\riscos\QTM146d_48,ffa" "$(FOLDER)\QTM146d_48,ffa"
 	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ff8"
 
 .PHONY:seq
