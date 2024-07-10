@@ -56,6 +56,7 @@ qtmseerror:
    .byte      0
    .p2align 2
 
+; TODO: Don't need private stack for keyboard handling in IRQ mode.
 kbd_stack:
    .long      0 ;R4
    .long      0 ;R5
@@ -187,7 +188,9 @@ rastercore_install_irq_handler:
     STRB      R0,[R1,#IOC_IRQ_MaskA]    ;set IRQA mask to 0b00001000 = VSync only
     MOV       R0,#0
     STRB      R0,[R1,#IOC_IRQ_MaskB]    ;set IRQB mask to 0
-    STRB      R0,[R1,#IOC_FIQ_Mask]    ;set FIQ mask to 0 (disable FIQs)
+
+; ** Do we need to do this?
+;    STRB      R0,[R1,#IOC_FIQ_Mask]    ;set FIQ mask to 0 (disable FIQs)
 
     ; ** Don't set T1
 
@@ -232,18 +235,25 @@ rastercore_install_irq_handler:
     ldr pc, [sp], #4                ; R14_user
 
 rastercore_uninstall_irq_handler:
+	SWI		OS_EnterOS
+
    MOV       R0,#0
    LDR       R1,oldIRQbranch
    STR       R1,[R0,#HwVector_IRQ]        ;restore original IRQ controller
 
    MOV       R0,#0
    MOV       R1,#IOC_Write
-   STRB      R0,[R1,#IOC_FIQ_Mask]      ;set FIQ mask to 0 (disable FIQs)
+
+; ** Do we need to do this?
+;   STRB      R0,[R1,#IOC_FIQ_Mask]      ;set FIQ mask to 0 (disable FIQs)
 
    LDR       R0,oldIRQa
    STRB      R0,[R1,#IOC_IRQ_MaskA]
    LDR       R0,oldIRQb
    STRB      R0,[R1,#IOC_IRQ_MaskB]      ;restore IRQ masks
+
+    TEQP      PC,#ProcMode_User     ;enable IRQs and FIQs, change to USER mode
+    MOV       R0,R0
 
     mov pc, lr
 
@@ -340,7 +350,7 @@ exitysoundcode:
 
 done_sound:
 
-   TEQP      PC,#IRQ_Disable | ProcMode_IRQ  ;back to IRQ mode but ENABLE FIQs
+   TEQP      PC,#IRQ_Disable|ProcMode_IRQ  ;back to IRQ mode but ENABLE FIQs
    MOV       R0,R0               ;sync
 
     stmfd sp!, {r0-r12,lr}
@@ -537,6 +547,7 @@ rastersound_1:                ;entered in SVC mode, with IRQs/FIQs disabled
 
 ; ============================================================================
 ; Direct keyboard checking from RasterMan code.
+; We're in IRQ mode here not FIQ mode in RasterMan.
 ; ============================================================================
 
 checkkeyboard:                ;only called during retrace
@@ -546,7 +557,7 @@ checkkeyboard:                ;only called during retrace
    LDRB      R4,[R9,#0x24+0]     ;load irq_B triggers [R14=0x3200000, IOC base]
    TST       R4,#0b10000000       ;is it bit 7 = SRx? (cleared by a read from 04)
    LDMEQIA   R8,{R4-R7}          ;restore regs
-   BEQ       exitVScode          ;back to IRQ mode and exit
+   BEQ       exit_kbd_code          ;back to IRQ mode and exit
 
 kbd_received:                    ;store key byte, and transmit ack value
    LDRB      R6,keycounter       ;0=no byte, so that 1-0=1->NE = first byte read
@@ -579,26 +590,31 @@ kbd_RO_delay:
 
    STRB      R6,[R9,#0x04+2]     ;transmit response
    LDMNEIA   R8,{R4-R7}          ;if not second byte, restore regs
-   BNE       exitVScode          ;...and back to IRQ mode and exit
+   BNE       exit_kbd_code          ;...and back to IRQ mode and exit
 
 ;   TST       R5,#0b10000000       ;test bit 7 of 2nd byte
 ;   BEQ       gotmousemoved       ;...if bit 7 clear, it's MDAT!
 
    MOV       R5,R5,LSR#4         ;shift to top nibble of R5
-   ;TEQ       R5,#0b1101           ;0xD=KUDA is 2nd byte the "new key up" code?
-   ;BEQ       gotnewkeyreleased
+   ; ** Added these two lines back in to get key up events!
+   TEQ       R5,#0b1101           ;0xD=KUDA is 2nd byte the "new key up" code?
+   BEQ       gotnewkeyreleased
    TEQ       R5,#0b1100           ;0xC=KDDA is 2nd byte the "new key down" code?
    LDMNEIA   R8,{R4-R7}          ;if not, restore regs
-   BNE       exitVScode          ;...and back to IRQ mode and exit
+   BNE       exit_kbd_code          ;...and back to IRQ mode and exit
 
    ; get here if key-pressed and both bytes received
 
 gotnewkeypressed:
    LDMIA     R8,{R4-R7}          ;restore regs
+
+.if 0
    TEQP      PC,#0b11<<26 | 0b11  ;enter SVC mode, IRQs/FIQs off
    MOV       R0,R0               ;sync
    STMFD     R13!,{R0-R4,R14}    ;stack R13_SVC
    MOV       R0,#138
+
+   ; Insert ASCII code into keyboard buffer.
 
    LDRB      R1,keybyte1         ;high nibble
    AND       R1,R1,#0xF
@@ -611,11 +627,37 @@ gotnewkeypressed:
    ldr r1, keycode_table_p       ; ADR       R1,keytable
    LDRB      R2,[R1,R2]          ;load ascii value
 
+   ; NB. Could remove this and keycode table if only interested in key presses...
+
    MOV       R1,#0
    SWI       XOS_Byte
    LDMFD     R13!,{R0-R4,R14}
+.else
+    stmfd sp!, {r1-r2,lr}
+   LDRB      R1,keybyte1         ;high nibble
+   AND       R1,R1,#0xF
+   LDRB      R2,keybyte2         ;low nibble
+   AND       R2,R2,#0xF
+   ORR       R2,R2,R1,LSL#4
+    mov r1, #1                  ; key down
+    bl debug_handle_keypress
+    ldmfd sp!, {r1-r2,lr}
+.endif
 
-   B         exitVScode          ;back to IRQ mode and exit
+   B         exit_kbd_code          ;back to IRQ mode and exit
+
+gotnewkeyreleased:
+   LDMIA     R8,{R4-R7}          ;restore regs
+    stmfd sp!, {r1-r2,lr}
+   LDRB      R1,keybyte1         ;high nibble
+   AND       R1,R1,#0xF
+   LDRB      R2,keybyte2         ;low nibble
+   AND       R2,R2,#0xF
+   ORR       R2,R2,R1,LSL#4
+    mov r1, #0                  ; key down
+    bl debug_handle_keypress
+    ldmfd sp!, {r1-r2,lr}
+   B         exit_kbd_code          ;back to IRQ mode and exit
 
 ; keyboard protocol reset code added v0.25...
 ; ...but doesn't seem to stop the occasional keyboard freeze
@@ -660,9 +702,9 @@ exitkbdreset:
    STRB      R6,keycounter
    STRB      R5,[R9,#0x04+2]     ;transmit response
    LDMIA     R8,{R4-R7}          ;if not second byte, restore regs
-;   B         exitVScode          ;...and back to IRQ mode and exit
+;   B         exit_kbd_code          ;...and back to IRQ mode and exit
     ; FALL THROUGH!
-exitVScode:
+exit_kbd_code:
    LDMFD     R13!,{r8,r9}
    TEQP      PC,#0b000011<<26 | 0b10 ;36 A4 back to IRQ mode
    MOV       R0,R0                  ;37 A8 sync IRQ registers

@@ -47,10 +47,12 @@ main:
     ldr sp, stack_p
 
 	; Claim the Event vector.
+    .if !AppConfig_UseRasterCore
 	MOV r0, #EventV
 	ADR r1, event_handler
 	MOV r2, #0
 	SWI OS_Claim
+    .endif
 
 	; Claim the Error vector.
 	MOV r0, #ErrorV
@@ -88,10 +90,12 @@ main:
     ldr r12, screen_addr
     bl app_late_init
 
+    .if !AppConfig_UseRasterCore
 	; Enable key pressed event.
 	mov r0, #OSByte_EventEnable
 	mov r1, #Event_KeyPressed
 	SWI OS_Byte
+    .endif
 
 	; Play music!
 	QTMSWI QTM_Start
@@ -127,14 +131,25 @@ background_loop:
     movge r1, #0
     ldrge r12, screen_addr
 
-	swi OS_ReadEscapeState
-	bcc background_loop                   ; exit if Escape is pressed
+    ; Until Escape is pressed.
+    ldrb r11, app_exit
+    cmp r11, #0
+    beq background_loop
+
+    ; Wait until main_loop completed.
+    .1:
+    ldrb r11, app_main_loop
+    cmp r11, #0
+    bne .1
+
+    ; Then exit.
     b exit
 
 
 main_loop:
-
     str lr, [sp, #-4]!
+    mov r0, #1
+    strb r0, app_main_loop
 
 	; ========================================================================
 	; PREPARE
@@ -194,10 +209,9 @@ main_loop:
     bl sync_set_time
     .endif
 
-    .if _DEBUG && 0
+    .if _DEBUG
     mov r0, #-1
     mov r1, #-1
-    ; SWIs in IRQ need special handling!
     QTMSWI QTM_Pos         ; read position.
 
     strb r1, music_pos+0
@@ -262,63 +276,10 @@ main_loop_skip_tick:
 	; Swap screens!
 	bl mark_write_bank_as_pending_display
 
+    mov r0, #0
+    strb r0, app_main_loop
     ldr lr, [sp], #4    ; we actually want to restore the LR.
     mov pc, lr
-
-exit:
-	; Disable music
-	mov r0, #0
-	QTMSWI QTM_Clear
-
-	; Remove our IRQ handler
-    .if AppConfig_InstallIrqHandler
-	bl rastercore_uninstall_irq_handler
-    .else
-	; Disable vsync event
-	mov r0, #OSByte_EventDisable
-	mov r1, #Event_VSync
-	swi OS_Byte
-    .endif
-
-	; Disable key press event
-	mov r0, #OSByte_EventDisable
-	mov r1, #Event_KeyPressed
-	swi OS_Byte
-
-	; Release our event handler
-	mov r0, #EventV
-	adr r1, event_handler
-	mov r2, #0
-	swi OS_Release
-
-	; Release our error handler
-	mov r0, #ErrorV
-	adr r1, error_handler
-	mov r2, #0
-	swi OS_Release
-
-	; Display whichever bank we've just written to
-	mov r0, #OSByte_WriteDisplayBank
-	ldr r1, write_bank
-	swi OS_Byte
-	; and write to it
-	mov r0, #OSByte_WriteVDUBank
-	ldr r1, write_bank
-	swi OS_Byte
-
-	; Flush keyboard buffer.
-	mov r0, #15
-	mov r1, #1
-	swi OS_Byte
-
-.if AppConfig_UseQtmEmbedded
-    adr lr, .1
-    ldr pc, QtmEmbedded_Exit
-    .1:
-.endif
-
-    ; Goodbye.
-	SWI OS_Exit
 
 ; ============================================================================
 ; Debug helpers.
@@ -340,8 +301,19 @@ debug_toggle_main_loop_pause:
     ldr pc, QtmEmbedded_Swi
     ldmfd sp!, {r11,lr}
 .else
-    swieq QTM_Pause			    ; pause
-    swine QTM_Start             ; play
+    mov r9, pc
+    orr r8, r9, #ProcMode_Svc
+    teqp r8, #0 ; enter Svc mode
+    mov r0, r0
+    str lr, [sp, #-4]!  ; store lr_svc
+
+    cmp r0, #0
+    swieq QTM_Pause | XOS_Flag			    ; pause
+    swine QTM_Start | XOS_Flag             ; play
+
+    ldr lr, [sp], #4    ; restore lr_svc
+    teqp r9, #0 ; reenter original mode
+    mov r0, r0
 .endif
 
     .if AppConfig_UseSyncTracks
@@ -416,6 +388,7 @@ music_pos:
     .long 0
 .endif
 
+.if !AppConfig_UseRasterCore
 ; R0=event number
 event_handler:
     .if _DEBUG
@@ -443,8 +416,11 @@ event_handler_return:
     .else
     mov pc, lr
     .endif
+.endif
 
-
+; ============================================================================
+; Screen and palette buffer management.
+; ============================================================================
 
 mark_write_bank_as_pending_display:
 	; Mark write bank as pending display.
@@ -545,49 +521,87 @@ get_screen_addr:
 	swi OS_ReadVduVariables
     mov pc, lr
 
+; ============================================================================
+; Error handling and exit
+; ============================================================================
+
+cleanup:
+    str lr, [sp, #-4]!
+
+	; Disable music
+	mov r0, #0
+	QTMSWI QTM_Clear
+
+	; Remove our IRQ handler
+    .if AppConfig_UseRasterCore
+	bl rastercore_uninstall_irq_handler
+    .else
+	; Disable vsync event
+	mov r0, #OSByte_EventDisable
+	mov r1, #Event_VSync
+	swi OS_Byte
+
+	; Disable key press event
+	mov r0, #OSByte_EventDisable
+	mov r1, #Event_KeyPressed
+	swi OS_Byte
+
+	; Release our event handler
+	mov r0, #EventV
+	adr r1, event_handler
+	mov r2, #0
+	swi OS_Release
+    .endif
+
+	; Release our error handler
+	mov r0, #ErrorV
+	adr r1, error_handler
+	mov r2, #0
+	swi OS_Release
+
+	; Display whichever bank we've just written to
+	mov r0, #OSByte_WriteDisplayBank
+	ldr r1, write_bank
+	swi OS_Byte
+	; and write to it
+	mov r0, #OSByte_WriteVDUBank
+	ldr r1, write_bank
+	swi OS_Byte
+
+    .if AppConfig_UseQtmEmbedded
+    adr lr, .1
+    ldr pc, QtmEmbedded_Exit
+    .1:
+    .endif
+
+    ldr pc, [sp], #4
+
+.if _DEBUG
+; Called when OS_GenerateError is issued.
+; Enter in SVC mode?
 error_handler:
 	STMDB sp!, {r0-r2, lr}
 
-    .if AppConfig_InstallIrqHandler
-	bl rastercore_uninstall_irq_handler
-    .else
-	mov r0, #OSByte_EventDisable
-	mov r1, #Event_VSync
-	SWI OS_Byte
-    .endif
-
-	; Release event handler.
-	MOV r0, #OSByte_EventDisable
-	MOV r1, #Event_KeyPressed
-	SWI OS_Byte
-
-	MOV r0, #EventV
-	ADR r1, event_handler
-	mov r2, #0
-	SWI OS_Release
-
-	; Release error handler.
-	MOV r0, #ErrorV
-	ADR r1, error_handler
-	MOV r2, #0
-	SWI OS_Release
-
-	; Write & display current screen bank.
-	MOV r0, #OSByte_WriteDisplayBank
-	LDR r1, write_bank
-	SWI OS_Byte
-
-	; Do these help?
-	QTMSWI QTM_Stop
+    bl cleanup
 
 	LDMIA sp!, {r0-r2, lr}
 	MOVS pc, lr
+.endif
+
+exit:
+    bl cleanup
+
+	; Flush keyboard buffer.
+	mov r0, #15
+	mov r1, #1
+	swi OS_Byte
+
+    ; Goodbye.
+	SWI OS_Exit
 
 ; ============================================================================
 ; Core code modules
 ; ============================================================================
-
-.skip 5*4               ; DO NOT SUBMIT
 
 screen_addr:
 	.long 0			    ; ptr to the current VIDC screen bank being written to.
@@ -628,9 +642,14 @@ debug_show_rasters:
 
 debug_restart_flag:
     .byte 0
-
-.p2align 2
 .endif
+
+app_main_loop:
+    .byte 0
+
+app_exit:
+    .byte 0
+.p2align 2
 
 ; ============================================================================
 ; Support library code modules used by the FX.

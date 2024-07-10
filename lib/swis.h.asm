@@ -74,6 +74,7 @@
 ; Archimedes low-level internal key numbers transmitted by IOC.
 ; Found in RISCOS PRMs pp 1-156.
 ; Used by RasterMan and OS_Event Event_KeyPressed (11)
+.equ RMKey_Esc, 0x00
 .equ RMKey_ArrowUp, 0x59
 .equ RMKey_ArrowLeft, 0x62
 .equ RMKey_ArrowDown, 0x63

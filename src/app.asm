@@ -33,9 +33,11 @@ app_init_debug:
     DEBUG_REGISTER_KEY RMKey_Space,      debug_toggle_main_loop_pause,  0
     DEBUG_REGISTER_KEY RMKey_A,          debug_set_byte_true,           debug_restart_flag
     DEBUG_REGISTER_KEY RMKey_S,          debug_set_byte_true,           debug_main_loop_step
-    DEBUG_REGISTER_KEY RMKey_D,          debug_toggle_byte,             debug_show_info
+    ; Uses SWI calls that are not IRQ safe.
+    ; DEBUG_REGISTER_KEY RMKey_D,          debug_toggle_byte,             debug_show_info
     DEBUG_REGISTER_KEY RMKey_R,          debug_toggle_byte,             debug_show_rasters
     DEBUG_REGISTER_KEY RMKey_ArrowRight, debug_skip_to_next_pattern,    0
+    DEBUG_REGISTER_KEY RMKey_Esc,        debug_set_byte_true,           app_exit
 
     DEBUG_REGISTER_VAR math_var_active_count
     ldr pc, [sp], #4

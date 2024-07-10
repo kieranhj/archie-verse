@@ -82,6 +82,7 @@
 
 .if AppConfig_UseQtmEmbedded
 .macro QTMSWI swi_no
+; TODO: Embedded QTM SWI under IRQ!
 stmfd sp!, {r11,lr}
 mov r11, #\swi_no - QTM_SwiBase
 mov lr, pc
