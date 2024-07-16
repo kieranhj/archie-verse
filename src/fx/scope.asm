@@ -113,7 +113,7 @@ scope_init:
 ; R0=frame counter.
 ; R1=vsync delta.
 scope_tick:
-    QTMSWI QTM_DMABuffer
+    IRQ_MODE_QTMSWI QTM_DMABuffer
     ; R0 = address of last used DMA sound buffer (208 bytes per channel)
     ; Interleaved 1 byte per channel in 8-bit log format.
 
@@ -132,7 +132,7 @@ scope_tick:
 scope_draw:
     str lr, [sp, #-4]!
 
-    ; QTMSWI QTM_DMABuffer
+    ; IRQ_MODE_QTMSWI QTM_DMABuffer
     ; R0 = address of last used DMA sound buffer (208 bytes per channel)
     ; Interleaved 1 byte per channel in 8-bit log format.
     ldr r0, scope_dma_buffer_copy_p
@@ -274,7 +274,7 @@ scope_tick_with_history:
     str r7, scope_histories_p
 
 .2:
-    QTMSWI QTM_DMABuffer
+    IRQ_MODE_QTMSWI QTM_DMABuffer
     ; R0 = address of last used DMA sound buffer (208 bytes per channel)
     ; Interleaved 1 byte per channel in 8-bit log format.
 

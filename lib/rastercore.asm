@@ -18,93 +18,6 @@
 .equ KbAck2, 0b11111101  ; = reset response 2
 
 ; ============================================================================
-; RasterMan vars.
-; ============================================================================
-
-oldIRQa:
-   .long      0
-oldIRQb:
-   .long      0
-oldIRQbranch:
-   .long      0
-oldIRQaddress:
-   .long      0
-
-qtmcontrol:
-   .byte      0               ;=0 if QTM sound handler not enabled
-vsyncbyte:
-   .byte      0
-   .byte      0
-   .byte      0
-pagesize:
-   .long      0
-numpages:
-   .long      0
-pagefindblk:
-   .long      0 ;0
-   .long      0 ;4
-   .long      0 ;8
-   .long      0 ;12
-qtmdmabuffer2:                ;buffer 2 must be immediately before buffer 1
-   .long      0               ;
-qtmdmabuffer1:                ;keep after buffer 2
-   .long      0               ;
-
-qtmseerror:
-   .long      255
-   .byte      "QTM_se failed to initialise correctly"
-   .byte      0
-   .p2align 2
-
-; TODO: Don't need private stack for keyboard handling in IRQ mode.
-kbd_stack:
-   .long      0 ;R4
-   .long      0 ;R5
-   .long      0 ;R6
-   .long      0 ;R7
-
-dmabank_num:
-   .long      0
-physicaldma2: ;dma buffer 2 must be immediately before dma buffer 1
-   .long      0   ;
-physicaldma1: ;keep these together
-   .long      0   ;
-qtmdmasize:
-   .long      0
-qtmdmahandler:
-   .long      0
-qtmr12pointer:
-   .long      0
-dmaentry_r9:
-   .long      0
-qtmchannels:
-   .long      0
-
-;   BACK=0b00111111 = 1st byte acknowleged
-;   SACK=0b00110001 = keyboard only
-;   SMAK=0b00110011 = keyboard and non-zero mouse
-;   HRST=0b11111111 = keyboard hard reset
-; KbAck1=0b11111110 = reset response 1
-; KbAck2=0b11111101 = reset response 2
-
-keycounter:  .byte 0 ; \   -> 1 or 0, or 0x10,0x20,0x30 = reset
-keybyte1:    .byte 0 ;  }_ this block of 4 bytes must keep together..
-keybyte2:    .byte 0 ;  }
-nextkeybyte: .byte 0 ; /
-
-dma_in_progress:
-   .byte      0
-   .byte      0
-   .byte      0
-   .byte      0
-
-tempr13:
-   .long      0
-
-temp_svc_stack_p:
-    .long rastercore_svc_stack_no_adr
-
-; ============================================================================
 ; Interrupt handling.
 ; ============================================================================
 
@@ -724,3 +637,90 @@ exit_kbd_code:
    TEQP      PC,#0b000011<<26 | 0b10 ;36 A4 back to IRQ mode
    MOV       R0,R0                  ;37 A8 sync IRQ registers
    SUBS      PC,R14,#4              ;38 AC return to foreground
+
+; ============================================================================
+; RasterMan vars.
+; ============================================================================
+
+oldIRQa:
+   .long      0
+oldIRQb:
+   .long      0
+oldIRQbranch:
+   .long      0
+oldIRQaddress:
+   .long      0
+
+qtmcontrol:
+   .byte      0               ;=0 if QTM sound handler not enabled
+vsyncbyte:
+   .byte      0
+   .byte      0
+   .byte      0
+pagesize:
+   .long      0
+numpages:
+   .long      0
+pagefindblk:
+   .long      0 ;0
+   .long      0 ;4
+   .long      0 ;8
+   .long      0 ;12
+qtmdmabuffer2:                ;buffer 2 must be immediately before buffer 1
+   .long      0               ;
+qtmdmabuffer1:                ;keep after buffer 2
+   .long      0               ;
+
+qtmseerror:
+   .long      255
+   .byte      "QTM_se failed to initialise correctly"
+   .byte      0
+   .p2align 2
+
+; TODO: Don't need private stack for keyboard handling in IRQ mode.
+kbd_stack:
+   .long      0 ;R4
+   .long      0 ;R5
+   .long      0 ;R6
+   .long      0 ;R7
+
+dmabank_num:
+   .long      0
+physicaldma2: ;dma buffer 2 must be immediately before dma buffer 1
+   .long      0   ;
+physicaldma1: ;keep these together
+   .long      0   ;
+qtmdmasize:
+   .long      0
+qtmdmahandler:
+   .long      0
+qtmr12pointer:
+   .long      0
+dmaentry_r9:
+   .long      0
+qtmchannels:
+   .long      0
+
+;   BACK=0b00111111 = 1st byte acknowleged
+;   SACK=0b00110001 = keyboard only
+;   SMAK=0b00110011 = keyboard and non-zero mouse
+;   HRST=0b11111111 = keyboard hard reset
+; KbAck1=0b11111110 = reset response 1
+; KbAck2=0b11111101 = reset response 2
+
+keycounter:  .byte 0 ; \   -> 1 or 0, or 0x10,0x20,0x30 = reset
+keybyte1:    .byte 0 ;  }_ this block of 4 bytes must keep together..
+keybyte2:    .byte 0 ;  }
+nextkeybyte: .byte 0 ; /
+
+dma_in_progress:
+   .byte      0
+   .byte      0
+   .byte      0
+   .byte      0
+
+tempr13:
+   .long      0
+
+temp_svc_stack_p:
+    .long rastercore_svc_stack_no_adr

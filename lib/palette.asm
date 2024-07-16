@@ -64,18 +64,22 @@ palette_set_border:
     mov r0, r4, lsr #16
     strb r0, [r1, #4]       ; blue
 
+    .if AppConfig_UseRasterCore
     mov r9, pc
     orr r8, r9, #ProcMode_Svc
     teqp r8, #0 ; enter Svc mode
     mov r0, r0
     str lr, [sp, #-4]!  ; store lr_svc
+    .endif
 
     mov r0, #12
     swi OS_Word
 
+    .if AppConfig_UseRasterCore
     ldr lr, [sp], #4    ; restore lr_svc
     teqp r9, #0 ; reenter original mode
     mov r0, r0
+    .endif
 
     mov pc,lr
 .endif

@@ -63,9 +63,15 @@
 
 .macro IRQ_MODE_SET_BORDER_R4
     .if _DEBUG_RASTERS
+    .if AppConfig_UseRasterCore
     mov r0, #VIDC_Write
     orr r4, r4, #VIDC_Border
     str r4, [r0]
+    .else
+    stmfd sp!, {r1,lr}
+    bl debug_set_border
+    ldmfd sp!, {r1,lr}
+    .endif
     .endif
 .endm
 
@@ -74,7 +80,7 @@
     mov r4, #\rgb
 	ldrb r0, debug_show_rasters
 	cmp r0, #0
-    addeq pc, pc, #4      ; TODO: CHECK THIS ACTUALLY skips 3 instructions...
+    addeq pc, pc, #8      ; TODO: CHECK THIS ACTUALLY skips 3 instructions...
     IRQ_MODE_SET_BORDER_R4
     .endif
 .endm

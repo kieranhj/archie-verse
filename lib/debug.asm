@@ -402,4 +402,26 @@ debug_calc_scr_ptr:
 debug_plot_string_slow:
     swi OS_WriteO
     mov pc, lr
+
+; R4 = colour as 0x0bgr
+; Uses R0,R1 
+debug_set_border:
+    adrl r1, debug_osword_block
+    mov r0, #24
+    strb r0, [r1, #0]       ; logical colour
+    strb r0, [r1, #1]       ; mode
+    and r0, r4, #0x00f
+    mov r0, r0, lsl #4
+    strb r0, [r1, #2]       ; red
+    and r0, r4, #0x0f0
+    strb r0, [r1, #3]       ; green
+    and r0, r4, #0xf00
+    mov r0, r0, lsr #4
+    strb r0, [r1, #4]       ; blue
+    mov r0, #12
+    swi OS_Word
+    mov pc, lr
+
+debug_osword_block:
+    .skip 8
 .endif

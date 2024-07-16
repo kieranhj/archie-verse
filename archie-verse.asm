@@ -90,7 +90,7 @@ main:
     bl app_late_init
 
 	; Play music!
-	QTMSWI_NOTIRQ QTM_Start
+	USER_MODE_QTMSWI QTM_Start
 
 	; Install our own IRQ handler - thanks Steve! :)
     .if AppConfig_UseRasterCore
@@ -223,7 +223,7 @@ main_loop:
     .if _DEBUG
     mov r0, #-1
     mov r1, #-1
-    QTMSWI QTM_Pos         ; read position.
+    IRQ_MODE_QTMSWI QTM_Pos         ; read position.
 
     strb r1, music_pos+0
     strb r0, music_pos+1
@@ -340,7 +340,7 @@ debug_restart_sequence:
     mov r0, #0
     strb r0, debug_restart_flag
     mov r1, #0
-	QTMSWI QTM_Pos
+	IRQ_MODE_QTMSWI QTM_Pos
 
     ; Start script again.
     b sequence_init
@@ -348,7 +348,7 @@ debug_restart_sequence:
 debug_skip_to_next_pattern:
     mov r0, #-1
     mov r1, #-1
-    QTMSWI QTM_Pos         ; read position.
+    IRQ_MODE_QTMSWI QTM_Pos         ; read position.
 
     add r0, r0, #1
     cmp r0, #SeqConfig_MaxPatterns
@@ -357,7 +357,7 @@ debug_skip_to_next_pattern:
     bl sequence_jump_to_pattern
 
     mov r1, #0
-    QTMSWI QTM_Pos         ; set position.
+    IRQ_MODE_QTMSWI QTM_Pos         ; set position.
     mov pc, lr
 .endif
 
@@ -476,7 +476,7 @@ mark_write_bank_as_pending_display:
 .2:
 	; Show pending bank at next vsync.
 	MOV r0, #OSByte_WriteDisplayBank
-    IRQSWI OS_Byte
+    IRQ_MODE_SWI OS_Byte
 
 	mov pc, lr
 
@@ -534,7 +534,7 @@ cleanup:
 
 	; Disable music
 	mov r0, #0
-	QTMSWI_NOTIRQ QTM_Clear
+	USER_MODE_QTMSWI QTM_Clear
 
 	; Remove our IRQ handler
     .if AppConfig_UseRasterCore

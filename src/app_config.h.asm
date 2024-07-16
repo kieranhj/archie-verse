@@ -80,8 +80,8 @@
 ; ============================================================================
 
 .if AppConfig_UseQtmEmbedded
-.macro QTMSWI swi_no
-; TODO: Embedded QTM SWI under IRQ!
+.macro IRQ_MODE_QTMSWI swi_no
+.err "TODO: Embedded QTM SWI under IRQ!"
 stmfd sp!, {r11,lr}
 mov r11, #\swi_no - QTM_SwiBase
 mov lr, pc
@@ -89,7 +89,7 @@ ldr pc, QtmEmbedded_Swi
 ldmfd sp!, {r11,lr}
 .endm
 
-.macro QTMSWI_NOTIRQ swi_no
+.macro USER_MODE_QTMSWI swi_no
 stmfd sp!, {r11,lr}
 mov r11, #\swi_no - QTM_SwiBase
 mov lr, pc
@@ -98,7 +98,8 @@ ldmfd sp!, {r11,lr}
 .endm
 
 .else
-.macro QTMSWI swi_no
+.if AppConfig_UseRasterCore
+.macro IRQ_MODE_QTMSWI swi_no
 stmfd sp!, {r8,r9}
     mov r9, pc
     orr r8, r9, #ProcMode_Svc
@@ -113,8 +114,13 @@ swi \swi_no | XOS_Flag
     mov r0, r0
 ldmfd sp!, {r8,r9}
 .endm
+.else
+.macro IRQ_MODE_QTMSWI swi_no
+USER_MODE_QTMSWI \swi_no
+.endm
+.endif
 
-.macro QTMSWI_NOTIRQ swi_no
+.macro USER_MODE_QTMSWI swi_no
 swi \swi_no
 .endm
 .endif
@@ -124,7 +130,8 @@ swi \swi_no
 ; TODO: _DEBUG check whether this is called when not required and vice-versa?
 ; ============================================================================
 
-.macro IRQSWI swi_no
+.if AppConfig_UseRasterCore
+.macro IRQ_MODE_SWI swi_no
     mov r9, pc
     orr r8, r9, #ProcMode_Svc
     teqp r8, #0 ; enter Svc mode
@@ -137,3 +144,8 @@ swi \swi_no
     teqp r9, #0 ; reenter original mode
     mov r0, r0
 .endm
+.else
+.macro IRQ_MODE_SWI swi_no
+    swi \swi_no
+.endm
+.endif

@@ -142,7 +142,7 @@ app_init_audio:
 	mov r0, #4
 	mov r1, #-1
 	mov r2, #-1
-	QTMSWI_NOTIRQ QTM_SoundControl
+	USER_MODE_QTMSWI QTM_SoundControl
 
 .if AppConfig_DynamicSampleSpeed
 	; Count how long the init takes as a very rough estimate of CPU speed.
@@ -156,29 +156,29 @@ app_init_audio:
     str r0, music_sample_speed      ; to query on real hw because I paranoid.
 
 	; Setup QTM for our needs.
-	QTMSWI_NOTIRQ QTM_SetSampleSpeed
+	USER_MODE_QTMSWI QTM_SetSampleSpeed
 
     .if 0
     mov r0, #AudioConfig_VuBars_Effect
     mov r1, #AudioConfig_VuBars_Gravity
-    QTMSWI_NOTIRQ QTM_VUBarControl
+    USER_MODE_QTMSWI QTM_VUBarControl
     .endif
 
     mov r0, #1
     mov r1, #AudioConfig_StereoPos_Ch1
-    QTMSWI_NOTIRQ QTM_Stereo
+    USER_MODE_QTMSWI QTM_Stereo
 
     mov r0, #2
     mov r1, #AudioConfig_StereoPos_Ch2
-    QTMSWI_NOTIRQ QTM_Stereo
+    USER_MODE_QTMSWI QTM_Stereo
 
     mov r0, #3
     mov r1, #AudioConfig_StereoPos_Ch3
-    QTMSWI_NOTIRQ QTM_Stereo
+    USER_MODE_QTMSWI QTM_Stereo
 
     mov r0, #4
     mov r1, #AudioConfig_StereoPos_Ch4
-    QTMSWI_NOTIRQ QTM_Stereo
+    USER_MODE_QTMSWI QTM_Stereo
 
     mov r0, #0b0010
     .if SeqConfig_EnableLoop
@@ -186,7 +186,7 @@ app_init_audio:
     .else
     mov r1, #0b0010
     .endif
-    QTMSWI_NOTIRQ QTM_MusicOptions
+    USER_MODE_QTMSWI QTM_MusicOptions
 
 	; Load the music.
     .if AppConfig_LoadModFromFile
@@ -196,7 +196,7 @@ app_init_audio:
 	mov r0, #0              ; load from address, don't copy to RMA.
     ldr r1, music_mod_p
     .endif
-	QTMSWI_NOTIRQ QTM_Load
+	USER_MODE_QTMSWI QTM_Load
 
     mov pc, lr
 
