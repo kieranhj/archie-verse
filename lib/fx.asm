@@ -32,12 +32,12 @@ fx_tick_layers:
     mov r4, #0                  ; rgb
     add r8, r9, #1
     tst r8, #1
-    orrne r4, r4, #0x88
+    orrne r4, r4, #0x8
     tst r8, #2
-    orrne r4, r4, #0x8800
+    orrne r4, r4, #0x80
     tst r8, #4
-    orrne r4, r4, #0x880000
-	bl palette_set_border
+    orrne r4, r4, #0x800
+    IRQ_MODE_SET_BORDER_R4           ;bl palette_set_border
     .10:
 	.endif
 
@@ -55,7 +55,7 @@ fx_tick_layers:
     cmp r9, #Fx_MaxLayers
     blt .1
 
-	SET_BORDER 0x000000
+	IRQ_MODE_SET_BORDER 0x000
 
     ldr pc, [sp], #4
 
@@ -79,12 +79,12 @@ fx_draw_layers:
     mov r4, #0                  ; rgb
     add r8, r9, #1
     tst r8, #1
-    orrne r4, r4, #0xff
+    orrne r4, r4, #0xf
     tst r8, #2
-    orrne r4, r4, #0xff00
+    orrne r4, r4, #0xf0
     tst r8, #4
-    orrne r4, r4, #0xff0000
-	bl palette_set_border
+    orrne r4, r4, #0xf00
+    IRQ_MODE_SET_BORDER_R4           ;bl palette_set_border
     .10:
 	.endif
 
@@ -100,7 +100,7 @@ fx_draw_layers:
     cmp r9, #Fx_MaxLayers
     blt .1
 
-	SET_BORDER 0x000000
+	IRQ_MODE_SET_BORDER 0x000
 
     ldr pc, [sp], #4
 

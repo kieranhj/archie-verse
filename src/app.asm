@@ -262,6 +262,9 @@ app_vsync_code:
 	mov r0, #0
 	str r0, pending_bank
 
+    ; RasterCore (core of RasterMan) runs the main loop under IRQ!
+
+.if AppConfig_UseRasterCore
 .3:
 	; Increment to next bank for writing
 	ldr r1, write_bank
@@ -270,14 +273,15 @@ app_vsync_code:
 	movgt r1, #1
 
 	; Skip main loop if would have blocked waiting for a free screen buffer.
-.if VideoConfig_ScreenBanks > 1
+    .if VideoConfig_ScreenBanks > 1
 	ldr r0, displayed_bank
 	cmp r1, r0
 	beq .4
-.endif
+    .endif
 
     ; Do main loop tick and draw. BOOM!
     bl main_loop
+.endif
 
     .4:
     ldr pc, [sp], #4
@@ -302,9 +306,6 @@ app_vsync_code:
 ; Support library code modules used by the FX sequence.
 ; ============================================================================
 
-.if _DEBUG || _CHECK_FRAME_DROP
-.include "lib/palette.asm"
-.endif
 .include "lib/screen.asm"
 .include "lib/outline-font.asm"
 .include "lib/text-pool.asm"

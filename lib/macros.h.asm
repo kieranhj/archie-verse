@@ -52,13 +52,31 @@
     EOR    \seed, \temp, \temp, LSR #20             ; (similarly involved!)
 .endm
 
-.macro SET_BORDER rgb
+.macro SET_BORDER_DEPRECATED rgb
 	.if _DEBUG_RASTERS
 	mov r4, #\rgb
 	ldrb r0, debug_show_rasters
 	cmp r0, #0
 	blne palette_set_border
 	.endif
+.endm
+
+.macro IRQ_MODE_SET_BORDER_R4
+    .if _DEBUG_RASTERS
+    mov r0, #VIDC_Write
+    orr r4, r4, #VIDC_Border
+    str r4, [r0]
+    .endif
+.endm
+
+.macro IRQ_MODE_SET_BORDER rgb
+    .if _DEBUG_RASTERS
+    mov r4, #\rgb
+	ldrb r0, debug_show_rasters
+	cmp r0, #0
+    addeq pc, pc, #4      ; TODO: CHECK THIS ACTUALLY skips 3 instructions...
+    IRQ_MODE_SET_BORDER_R4
+    .endif
 .endm
 
 ; TODO: Make this table based if code gets unwieldy.

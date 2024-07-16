@@ -59,7 +59,6 @@ main:
 	ADR r1, error_handler
 	MOV r2, #0
 	SWI OS_Claim
-    ; TODO: Do we need this outside of _DEBUG?
 
     ; Generate sample data first?
     .if AppConfig_UseArchieKlang
@@ -90,20 +89,22 @@ main:
     ldr r12, screen_addr
     bl app_late_init
 
-    .if !AppConfig_UseRasterCore
+	; Play music!
+	QTMSWI_NOTIRQ QTM_Start
+
+	; Install our own IRQ handler - thanks Steve! :)
+    .if AppConfig_UseRasterCore
+	bl rastercore_install_irq_handler
+    .else
+
+    ; TODO: Refactor event handling into separate code module.
+    ;       Ensure can toggle between events and rastercore.
+
 	; Enable key pressed event.
 	mov r0, #OSByte_EventEnable
 	mov r1, #Event_KeyPressed
 	SWI OS_Byte
-    .endif
 
-	; Play music!
-	QTMSWI QTM_Start
-
-	; Install our own IRQ handler - thanks Steve! :)
-    .if AppConfig_InstallIrqHandler
-	bl rastercore_install_irq_handler
-    .else
 	mov r0, #OSByte_EventEnable
 	mov r1, #Event_VSync
 	SWI OS_Byte
@@ -116,6 +117,9 @@ main:
     ldr r0, vsync_count
     str r0, last_vsync
 
+; TODO: Tidy this up and make more generic!
+
+.if AppConfig_UseRasterCore
     mov r0, #1
     mov r1, #0
     ldr r12, screen_addr
@@ -144,7 +148,14 @@ background_loop:
 
     ; Then exit.
     b exit
+.else
+foreground_loop:
+    bl main_loop
 
+	swi OS_ReadEscapeState
+	bcc foreground_loop                   ; exit if Escape is pressed
+    b exit
+.endif
 
 main_loop:
     str lr, [sp, #-4]!
@@ -253,11 +264,13 @@ main_loop_skip_tick:
 	ldr r2, last_dropped_frame
 	ldr r1, last_last_dropped_frame
 	cmp r2, r1
-	moveq r4, #0x000000
-	movne r4, #0x0000ff
+	moveq r4, #0x000
+	movne r4, #0x00f
 	strne r2, last_last_dropped_frame
-	bl palette_set_border
+	IRQ_MODE_SET_BORDER_R4           ; bl palette_set_border
 	.endif
+
+    ; TODO: Sort out direct (fast) write to set border.
 
 	; ========================================================================
 	; DRAW
@@ -398,24 +411,15 @@ event_handler:
     beq debug_handle_keypress
     .endif
 
-    .if !AppConfig_InstallIrqHandler
 	cmp r0, #Event_VSync
 	bne event_handler_return
 
 	STMDB sp!, {r0-r1,r11-r12,lr}
-    b app_vsync_code
-exitVs:
+    bl app_vsync_code
 	LDMIA sp!, {r0-r1,r11-r12,lr}
-    .endif
 
 event_handler_return:
 	mov pc, lr
-
-    .if _DEBUG
-    b debug_handle_keypress
-    .else
-    mov pc, lr
-    .endif
 .endif
 
 ; ============================================================================
@@ -530,7 +534,7 @@ cleanup:
 
 	; Disable music
 	mov r0, #0
-	QTMSWI QTM_Clear
+	QTMSWI_NOTIRQ QTM_Clear
 
 	; Remove our IRQ handler
     .if AppConfig_UseRasterCore
@@ -576,17 +580,15 @@ cleanup:
 
     ldr pc, [sp], #4
 
-.if _DEBUG
 ; Called when OS_GenerateError is issued.
-; Enter in SVC mode?
+; Entered in User mode.
 error_handler:
 	STMDB sp!, {r0-r2, lr}
 
     bl cleanup
 
 	LDMIA sp!, {r0-r2, lr}
-	MOVS pc, lr
-.endif
+	MOVS pc, lr             ; pass back to previous handler (RISCOS).
 
 exit:
     bl cleanup

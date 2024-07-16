@@ -96,7 +96,7 @@ debug_plot_vars:
 
 	str lr, [sp, #-4]!
 
-	SET_BORDER 0xffffff		; white = debug
+	IRQ_MODE_SET_BORDER 0xfff		; white = debug
 
     bl debug_cursor_home
 
@@ -116,7 +116,7 @@ debug_plot_vars:
     blt .1
 
 .2:
-	SET_BORDER 0x000000
+	IRQ_MODE_SET_BORDER 0x000
 	ldr pc, [sp], #4
 
 ; R0=key code to register.

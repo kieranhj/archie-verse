@@ -101,9 +101,6 @@ dma_in_progress:
 tempr13:
    .long      0
 
-keycode_table_p:
-    .long rastercore_keytable_no_adr
-
 temp_svc_stack_p:
     .long rastercore_svc_stack_no_adr
 
@@ -186,8 +183,10 @@ rastercore_install_irq_handler:
 
     MOV       R0,#IRQA_Vsync
     STRB      R0,[R1,#IOC_IRQ_MaskA]    ;set IRQA mask to 0b00001000 = VSync only
-    MOV       R0,#0
-    STRB      R0,[R1,#IOC_IRQ_MaskB]    ;set IRQB mask to 0
+    MOV       R0,#0b10000000
+    STRB      R0,[R1,#IOC_IRQ_MaskB]     ;set IRQB mask to 0b10000000 = SRx only
+    ;MOV       R0,#0
+    ;STRB      R0,[R1,#IOC_IRQ_MaskB]    ;set IRQB mask to 0
 
 ; ** Do we need to do this?
 ;    STRB      R0,[R1,#IOC_FIQ_Mask]    ;set FIQ mask to 0 (disable FIQs)
@@ -288,7 +287,9 @@ notHSync:
 
    BEQ       checkkeyboard       ;if not VSync, check IRQ_B for SRx interrupt
 
-   ; VSYNC CODE GOES HERE.
+; ============================================================================
+; VSYNC CODE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; ============================================================================
 
    STRB      R8,[R9,#0x14+2]     ;if VSync, clear all IRQ_A interrupt triggers
 
@@ -296,8 +297,10 @@ notHSync:
 
    ;MOV       R8,#0b01000000       ; (removed VSync trigger v0.05)
    ;STRB      R8,[R9,#0x18+2]     ;set IRQA mask to 0b01000000 = T1 only
-   MOV       R8,#0b10000000
-   STRB      R8,[R9,#0x28+2]     ;set IRQB mask to 0b10000000 = SRx only
+
+   ; ** Don't need to turn on keyboard as we don't turn it off without hsync.
+   ;MOV       R8,#0b10000000
+   ;STRB      R8,[R9,#0x28+2]     ;set IRQB mask to 0b10000000 = SRx only
 
    ; ** Don't set T1.
 
@@ -305,14 +308,30 @@ notHSync:
    RSB       R8,R8,#3
    STRB      R8,vsyncbyte
 
-   ; ** Don't increment TIME.
+   ; ** Don't increment TIME (no BASIC).
 
    LDRB      R8,qtmcontrol
    TEQ       R8,#1
-   LDMFD     R13!,{r8,r9}
-   BNE       done_sound                   ;back to IRQ mode and exit
+   LDMNEFD   R13!,{r8,r9}
+   BNE       done_sound
 
-rastersound:                     ;entered in FIQ mode, must exit via IRQ mode with SUBS PC,R14,#4
+; ============================================================================
+; AUDIO CODE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; ============================================================================
+
+    ; SET_BORDER to cyan to time QTM music player.
+
+    .if _DEBUG_RASTERS
+  	ldrb r8, debug_show_rasters
+	cmp r8, #0
+    beq .1
+    mov r8, #VIDC_Border | 0xff0 ;
+    mov r9, #VIDC_Write
+    str r8, [r9]
+    .1:
+    ldmfd sp!, {r8,r9}
+    .endif
+
    ; ** Already in IRQ mode.
    ;TEQP      PC,#0b11<<26 | 0b10  ;enter IRQ mode, IRQs/FIQs off
    ;MOV       R0,R0               ;sync
@@ -348,14 +367,32 @@ exitysoundcode:
    MOV       R0,R0               ;sync
    LDMFD     R13!,{R14}
 
+    ; SET_BORDER to black.
+
+    .if _DEBUG_RASTERS
+    stmfd sp!, {r8,r9}
+  	ldrb r8, debug_show_rasters
+	cmp r8, #0
+    beq .1
+    mov r8, #VIDC_Border | 0x000 ;
+    mov r9, #VIDC_Write
+    str r8, [r9]
+    .1:
+    ldmfd sp!, {r8,r9}
+    .endif
+
 done_sound:
+
+; ============================================================================
+; APP VSYNC CODE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; ============================================================================
 
    TEQP      PC,#IRQ_Disable|ProcMode_IRQ  ;back to IRQ mode but ENABLE FIQs
    MOV       R0,R0               ;sync
 
     stmfd sp!, {r0-r12,lr}
 
-    ; DO THE APP VSYNC CODE.
+    ; Callback to app for vsync logic (inc. main loop where implemented).
     bl app_vsync_code
 
     ldmfd sp!, {r0-r12,lr}
@@ -607,32 +644,7 @@ kbd_RO_delay:
 
 gotnewkeypressed:
    LDMIA     R8,{R4-R7}          ;restore regs
-
-.if 0
-   TEQP      PC,#0b11<<26 | 0b11  ;enter SVC mode, IRQs/FIQs off
-   MOV       R0,R0               ;sync
-   STMFD     R13!,{R0-R4,R14}    ;stack R13_SVC
-   MOV       R0,#138
-
-   ; Insert ASCII code into keyboard buffer.
-
-   LDRB      R1,keybyte1         ;high nibble
-   AND       R1,R1,#0xF
-   LDRB      R2,keybyte2         ;low nibble
-   AND       R2,R2,#0xF
-   ORR       R2,R2,R1,LSL#4
-   ;CMP       R2,#0x70
-   ;BGE       mousebuttonpress
-   
-   ldr r1, keycode_table_p       ; ADR       R1,keytable
-   LDRB      R2,[R1,R2]          ;load ascii value
-
-   ; NB. Could remove this and keycode table if only interested in key presses...
-
-   MOV       R1,#0
-   SWI       XOS_Byte
-   LDMFD     R13!,{R0-R4,R14}
-.else
+.if _DEBUG
     stmfd sp!, {r1-r2,lr}
    LDRB      R1,keybyte1         ;high nibble
    AND       R1,R1,#0xF
@@ -643,11 +655,13 @@ gotnewkeypressed:
     bl debug_handle_keypress
     ldmfd sp!, {r1-r2,lr}
 .endif
-
    B         exit_kbd_code          ;back to IRQ mode and exit
+
+; TODO: Consolidate this code, decide on non_DEBUG keys inc. Escape!
 
 gotnewkeyreleased:
    LDMIA     R8,{R4-R7}          ;restore regs
+.if _DEBUG
     stmfd sp!, {r1-r2,lr}
    LDRB      R1,keybyte1         ;high nibble
    AND       R1,R1,#0xF
@@ -657,6 +671,7 @@ gotnewkeyreleased:
     mov r1, #0                  ; key down
     bl debug_handle_keypress
     ldmfd sp!, {r1-r2,lr}
+.endif
    B         exit_kbd_code          ;back to IRQ mode and exit
 
 ; keyboard protocol reset code added v0.25...
