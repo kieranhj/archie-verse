@@ -10,9 +10,9 @@ Framework TODOs as of 15/5/24:
     - Are there any dependencies between tick?
       => Could be if moving objects in a scene then doing collisions, say.
     - Tick just means 'call this function every frame without fail'
-      Could be implemented using script_fork!!
+      Could be implemented using script_fork!! (But don't do this.)
 - Improve build using Tom's Python scripts and makefile-foo.
-- Does ErrorV actually do anything?
+- Does ErrorV actually do anything? - YES.
 - Move png2arc to Python 3.
 - MOD file analyser to configure code / script.
 - Move scripting to use seconds throughout?
@@ -30,55 +30,7 @@ And as of 6/6/24:
 - How have I got this far without memcpy and memclr?!
   => Write optimised versions of these for lib. - DONE SIMPLE VERSION
 
-TrackMo Inspo
-~~~
-See Leonard's LDOS: https://github.com/arnaud-carre/ldos
-Simple framework for loading executables and running them in order.
-Takes care of loading the next file, decompressing it and then running.
-Everything is blocking so up to the running exe to do this in the background.
-How to run background tasks on Archie / RISCOS?
-
-RasterMan inspired demo OS?
-~~~
-Requirements:
-- Can run arbitrary blocking operations e.g. disk load, code gen, image gen, decompression
-  in the background, using spare cycles across many frames.
-- Don't have to write special handling within the tasks themselves (i.e. poll & yield).
-- Demo effects are guaranteed to continue to update at 50Hz.
-
-Already achieve this on the Beeb:
-- Hang everything off a 50Hz IRQ timer - update logic, render screen, play music in IRQ.
-- When IRQ returns it gives remaining cycles back to the original running exe.
-- Simple task system for calling arbitrary functions on main exe thread.
-
-Ignore RasterMan stable raster requirements for now.
-- Check special version of QTM.
-** Don't claim FIQ's
-- Reset keyboard
-- Resync sound
-- Set IRQA mask vsync only, IRQB mask 0.
-** Install IRQ handler with branch (not copy over FIQ space)
-** Don't steal FIQ registers
-** Assume not Arthur
-
-IRQ handler:
-- Disable IRQs and FIQs
-** Don't switch to FIQ mode?
-- Test if vsync
-- If not vsync check keyboard
-** Don't turn off vsync
-- Set IRQB mask to enable Keyboard Serial Receive
-- Update vsync byte
-** Don't update time
-** Don't worry about raster tables
-- Check for QTM running
-- Return to SVC mode
-- Do QTM rastersound (enables IRQs so now reentrant)
-- On return IRQs/FIQs are disabled
-- Back to IRQ mode
-** Enable FIQs but not IRQs + call main loop
-- Return to foreground w/out RISCOS
-
+Sort out my shoddy (shitty :) vertex transform code:
 
 Sarah's Vertex Transform code
 ~~~

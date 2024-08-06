@@ -207,7 +207,7 @@
 .equ RasterMan_Configure, 0x47e8c
 
 .equ VIDC_Col0, 0x00000000
-.equ VIDC_Col1, 0x04000000              ; index << 26
+.equ VIDC_Col1, 0x04000000              ; index << 26 | 0xBGR
 .equ VIDC_Col2, 0x08000000
 .equ VIDC_Col3, 0x0c000000
 .equ VIDC_Col4, 0x10000000

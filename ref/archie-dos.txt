@@ -1,0 +1,211 @@
+Archie-DOS
+Archimedes Demo Operating System
+~~~
+
+RasterMan inspired demo OS?
+~~~
+Requirements: - DONE with RasterCore
+- Can run arbitrary blocking operations e.g. disk load, code gen, image gen decompression
+  in the background, using spare cycles across many frames.
+- Don't have to write special handling within the tasks themselves (i.e. poll & yield).
+- Demo effects are guaranteed to continue to update at 50Hz.
+
+Already achieve this on the Beeb:
+- Hang everything off a 50Hz IRQ timer - update logic, render screen, play music in IRQ.
+- When IRQ returns it gives remaining cycles back to the original running exe.
+- Simple task system for calling arbitrary functions on main exe thread.
+
+Ignore RasterMan stable raster requirements for now.
+- Check special version of QTM.
+** Don't claim FIQ's
+- Reset keyboard
+- Resync sound
+- Set IRQA mask vsync only, IRQB mask 0.
+** Install IRQ handler with branch (not copy over FIQ space)
+** Don't steal FIQ registers
+** Assume not Arthur
+
+IRQ handler:
+- Disable IRQs and FIQs
+** Don't switch to FIQ mode?
+- Test if vsync
+- If not vsync check keyboard
+** Don't turn off vsync
+- Set IRQB mask to enable Keyboard Serial Receive
+- Update vsync byte
+** Don't update time
+** Don't worry about raster tables
+- Check for QTM running
+- Return to SVC mode
+- Do QTM rastersound (enables IRQs so now reentrant)
+- On return IRQs/FIQs are disabled
+- Back to IRQ mode
+** Enable FIQs but not IRQs + call main loop
+- Return to foreground w/out RISCOS
+
+^
++--- THIS WORKS.
+
+
+TrackMo Inspo
+~~~
+See Leonard's LDOS: https://github.com/arnaud-carre/ldos
+Simple framework for loading executables and running them in order.
+Takes care of loading the next file, decompressing it and then running.
+Everything is blocking so up to the running exe to do this in the background.
+How to run background tasks on Archie / RISCOS? (done, see above)
+
+Will need more of a framework that LDOS, as can't just pass off the entire interrupt loop to each subsequent exe.
+
+Something like:
+    - Set up Error handler.
+    - Allocate initial RISCOS buffers.
+    - Set up initial video MODE.
+    - Set up music.
+    - Set up IRQ handler.
+    - Don't set up sequence / script - this is FX specific.
+    - Let each FX do its own screen buffer management.
+    - Background loop just runs tasks in a queue?
+    - Currently running foreground FX triggers load of next FX which adds a task:
+        - cf. LDOS_PRELOAD_NEXT_FX
+        - Load executable to safe address.
+        - Initialise BSS.
+        - Call init fn for new FX.
+    - Currently running foreground FX decides when to hand off to next FX.
+        - Just return from running exe.
+        - Replace the vsync callback.
+        - Will get called regardless - up to FX to determine frame swaps, palette swaps etc.
+
+LDOS just runs in the main loop and blocks each fn.
+Next FX is triggered when previous FX exits.
+It doesn't attempt to impose a task system etc.
+Although does handle memory management.
+Relocates the exe to low memory just before execution to avoid fragmentation.
+Parses the HUNK header to do this then clears BSS.
+==> Check out Amiga HUNK format. Is there an Acorn equivalent? ==> ELF?
+This stops us doing any pre-generation of code etc. whilst the current FX is running.
+Which is kinda the point, particularly as ARM requires quite a lot of codegen/sprite shifting.
+==> Watch the TrackMo demos to see how they do the hand-offs. (Blanks are there but well hidden.)
+
+Have a similar approach - just hand off to the next exe but have an API call to set a vsync callback?
+We don't have a Copper list to trigger our vsync and can't use RISCOS, so just add vsync.
+So the outer loop vsync handler just has a callback list? Or just one callback...
+
+==> Need to check that RISCOS file operations still work... Seems fine? :)
+
+Archie-DOS needs to handle:
+- Initial RISCOS memory allocation, screen buffers etc.
+- Initial screen mode otherwise music may need to be resync'd.
+- File and asset loading and decompression.
+- Music player on IRQ.
+- Vsync callback for long-running code to cooperate with music player.
+- Chaining the next FX exe.
+- Potentially memory management? <== tbd
+- Keyboard and mouse input.
+
+FX handles:
+- Screen buffer management.
+- Whether to run demo code in IRQ or not.
+- Any and all script / sequencing (other than get music pos / vsync since start).
+- Any background task system.
+- Using Timer1 for specific purposes (just need to hand back to prev IRQ handler).
+
+To decide:
+- How to call ADOS API?
+- What helpers ADOS provides?
+- Any particular global debug features?
+    - E.g. skip to next FX, overlay stats, app exit etc.
+    - Timing rasters etc.
+- Use ARM ELF format?
+    - Or vlink rawbin1 with -q to keep relocation offsets.
+- The 'proper' way to do this on Archie is an RModule that becomes the current application?
+    - Looks straightforward enough and frees up RAM at 0x8000.
+    - Could also use actual SWIs (:S) as the API.
+
+Memory management?
+- For next FX to precalc during a running FX we'll need both in RAM at the same time.
+- Presumably want to avoid too much (any?) dynamic RAM allocation?
+- End up needing code + data + bss x 2 in RAM.
+- If targetting 2Mb+ machines, is this a problem?
+- Preprocessing step for the order of FX will determine the required wimpslot size.
+- I.e. what's the size of the two buffers if we're alternating between them?
+- Seems wasteful of RAM. :)
+- Would still need to ensure code is relocatable.
+    - Using ELF or dynamic relocation could help here.?
+- This is only two FX remember - not two full demos in RAM at the same time...
+
+
+Spindle: C64 trackmo system by LFT.
+~~~
+Also specifies a list of files to be packed and sequenced on disk.
+Call a memory resident loader (at $200) to load the next file.
+Can also specify the RAM address, offset and file size.
+
+
+Also has an effect linking system that's more 'hands on':
+Specify fns for your effect with a fixed header plus optional flags that define memory areas used.
+
+prepare - bulk of init, gen speedcode and tables, do not write to VIC registers (in parallel to running FX)
+setup - initialise VIC regs just before the effect starts
+interrupt - called on IRQ
+main - intended for FX that don't run at 50Hz (newskool FX) (main thread, blocks loader)
+fadeout - runs until Carry set (carry on)
+cleanup - tear down in controlled fashion (interrupts enabled)
+
+Sequence controls when and how next FX is triggered, default is 'press space'
+
+Start with a demo sequence that has each effect and press space to continue.
+Then look to overlap FX and see where Spindle inserts blanks for loading.
+Then optimise to be seamless.
+
+
+Am I trying to solve a problem that nobody has?
+~~~
+Goal: 'Acorn' Megademo for NOVA 2025.
+Requirements: Each person in the Collective can contribute an effect in relative isolation and then we can put these all together relatively easily.
+
+First Q: which platform Archie or Beeb?
+Beeb would enable more people to contribute (essentially all of us).
+But would require more coordination as RAM is tighter.
+And I'm completely rusty (been over 2 years since did any Beeb stuff!)
+
+Define the parameters:
+- Stock BBC Master 128 w/ real floppy drive or Gotek
+- Standard 80T DFS floppy (possible double-sided) - no weird formats!
+- (Supporting MMC or RAMFS is a nice-to-have.)
+- Keep the memory map simple and rely on disk:
+    - 1x SWRAM bank for music (or HAZEL? depends on the size)
+    - Demo framework code resides &400-&800 (say)
+    - Reserve some ZP for demo framework
+    - HAZEL leave usual 3x pages clear.
+    - Page &D00 protected for NMI.
+    - Otherwise everything above &800 is for FX to use.
+    - Leave both screen buffers free for FX to use.
+    - ANDY tbd.
+
+- Music player to be handled externally on IRQ?
+- FX need to be able to decide whether to use stable raster, RVI etc. for simplicity.
+- Each person gets one bank of SWRAM at a time.
+    - Me, Adrian, Tom, Sarah, ToBach, any more (Simon?) (0xC0DE?)
+- Use a lower-overhead decompressor (ZX0?)
+    - Keep this memory resident for everyone to use.
+- Decompress bank file and copy up from framework.
+- Bank not specified at compile time, so need some method for managing bank switching (agree standard ZP address for bank #)
+- Pass off to FX to setup / run / teardown.
+- Don't worry about bg disk load for now. 16Kb ~= 4 second wait between parts - should be less with compressed SWRAM banks.
+- FX can load files from the disk, e.g. direct to screen RAM.
+
+How to make sure demos can do stable raster FX?
+- IRQ for T1 setup at init and stablised to agreed spot (e.g. scanline -2)
+- FX required to call music player afterwards?
+    - Or have the music player setup as T2 or alternating T1 as per FF?
+- Keep it simple and let demo FX handle it's own IRQ.
+    - Expectation is that it calls music every 50Hz as a minimum.
+    - This could be the default handler - replace it on cleanup.
+
+SMFX system just has three standard callbacks:
+- vsync
+- main loop
+- MFP interrupt (for overscan)
+The script is just a series of 3x fn labels, one for each callback, plus a frame counter.
+Once the frame counter reaches zero it moves on to the next 3x callbacks in the list.
