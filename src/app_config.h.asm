@@ -10,7 +10,7 @@
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 .equ AppConfig_UseQtmEmbedded,          0
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
-.equ AppConfig_UseRasterMan,            1       ; removes event / IRQ handler.
+.equ AppConfig_UseRasterMan,            0       ; removes event / IRQ handler.
 
 ; ============================================================================
 ; Sequence config.
@@ -56,8 +56,8 @@
 .equ VideoConfig_Widescreen,    0
 .equ VideoConfig_ScreenBanks,   2
 
-.equ Screen_Mode,               9
-.equ Screen_Width,              320
+.equ Screen_Mode,               12
+.equ Screen_Width,              640
 .equ Screen_PixelsPerByte,      2
 
 .if VideoConfig_Widescreen

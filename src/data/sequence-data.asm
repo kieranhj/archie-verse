@@ -45,12 +45,12 @@
 ;    write_addr palette_array_p, seq_palette_red_additive
 
 	; Setup layers of FX.
-    call_3 fx_set_layer_fns, 0, rasters_tick,               screen_cls
-    call_3 fx_set_layer_fns, 1, text_box_tick,              text_box_draw
+    call_3 fx_set_layer_fns, 0, 0,               text_screen_draw
+    ;call_3 fx_set_layer_fns, 1, text_box_tick,              text_box_draw
     call_3 fx_set_layer_fns, 2, sine_scroller_tick,         sine_scroller_draw
 
-    math_make_var text_box_pos_x, 64, 32, math_cos, 0.0, 1.0/(SeqConfig_PatternLength_Frames*0.5)
-    math_make_var text_box_pos_y, 80, 40, math_sin, 0.0, 1.0/(SeqConfig_PatternLength_Frames*1.5)
+    ;math_make_var text_box_pos_x, 64, 32, math_cos, 0.0, 1.0/(SeqConfig_PatternLength_Frames*0.5)
+    ;math_make_var text_box_pos_y, 80, 40, math_sin, 0.0, 1.0/(SeqConfig_PatternLength_Frames*1.5)
 
     ; FX params.
 ;    write_fp scroll_text_y_pos, 4.0 ; NB. Must match mode9-screen.asm defines. :\

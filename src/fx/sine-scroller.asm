@@ -4,7 +4,7 @@
 
 .equ SineScroller_NoPlotZeros,      1   ; don't plot 0 bytes.
 
-.equ SineScroller_GlyphWidthBytes,  8
+.equ SineScroller_GlyphWidthBytes,  16
 .equ SineScroller_GlyphHeight,      15
 .equ SineScroller_TableSize,        1024
 .equ SineScroller_Amplitude,        100
@@ -110,7 +110,7 @@ sine_scroller_draw:
     ldr r8, sine_scroller_text_p
     ldrb r0, [r8]       ; get ASCII
     sub r0, r0, #32
-    add r9, r9, r0, lsl #7      ; 128 bytes per glyph.
+    add r9, r9, r0, lsl #8      ; 256 bytes per glyph.
     ; R7=current byte column
     ldr r7, sine_scroller_byte_col
     add r9, r9, r7, lsl #4      ; 16 bytes per column
@@ -132,9 +132,9 @@ sine_scroller_draw:
     ; Y pos for column.
     add r14, r14, r6                    ; base pos + offset
 
-    ; R11=plot addr=screen base + y * 160
-    add r11, r12, r14, lsl #7
-    add r11, r11, r14, lsl #5
+    ; R11=plot addr=screen base + y * 320
+    add r11, r12, r14, lsl #8
+    add r11, r11, r14, lsl #6
 
     ; Plot a column unrolled.
     ldmia r9!, {r0-r3}
@@ -258,7 +258,7 @@ get_next_glyph:
 
     sub r0, r0, #32
     ldr r9, sine_scroller_font_p
-    add r9, r9, r0, lsl #7      ; 128 bytes per glyph.
+    add r9, r9, r0, lsl #8      ; 128 bytes per glyph.
     mov r7, #0
     mov pc, lr
 
@@ -268,4 +268,3 @@ scroll_text_text_no_adr:
     .byte "          "
     .byte 0 ; end.
 .p2align 2
-

@@ -12,6 +12,9 @@ sine_wave_table_no_adr:
 text_box_font_mode9_no_adr:
     .skip TextBox_MaxGlyphs * 4*8
 
+text_screen_back_buffer_no_adr:
+    .skip Screen_Bytes
+
 ; ============================================================================
 
 .if AppConfig_UseArchieKlang

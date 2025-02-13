@@ -66,11 +66,14 @@ def to_box_row_palette_indices(boxed_row_flat_pixel, palette, closest_match):
 
 def main(options):
     # Only support MODE 9 for now. MODE 13 coming later.
-    if options.mode != 9:
+    if not options.mode == 9 and not options.mode ==12:
         print>>sys.stderr,'FATAL: invalid mode: %d.'%options.mode
         sys.exit(1)
 
-    pixels_per_byte=2
+    if options.mode == 12:
+        pixels_per_byte=1       # Not really but bodged to double pixels.
+    else:
+        pixels_per_byte=2
     pack=arc.pack_4bpp
 
     png_result=png.Reader(filename=options.input_path).asRGBA8()
@@ -157,7 +160,9 @@ def main(options):
                         xs=[]
                         for p in range(0,pixels_per_byte):
                             xs.append(row[glyph_left+x+p])
-                        assert len(xs)==pixels_per_byte
+                            if options.mode == 12:
+                                xs.append(row[glyph_left+x+p])
+                        # assert len(xs)==pixels_per_byte
                         pixel_data.append(pack(xs))
                     # Pad byte columns to whole words.
                     if (options.glyph_dim[1] & 0x3) != 0:
@@ -172,7 +177,9 @@ def main(options):
                         xs=[]
                         for p in range(0,pixels_per_byte):
                             xs.append(row[glyph_left+x+p])
-                        assert len(xs)==pixels_per_byte
+                            if options.mode == 12:
+                                xs.append(row[glyph_left+x+p])
+                        # assert len(xs)==pixels_per_byte
                         pixel_data.append(pack(xs))
             
             num_glyphs+=1

@@ -214,6 +214,8 @@ app_late_init:
     bl rasters_init
 .endif
 
+    bl text_screen_init
+
     ;ldr r10, init_screen_addr
     ;bl text_pool_init
 
@@ -397,6 +399,7 @@ app_vsync_code:
 
 .include "src/fx/sine-scroller.asm"
 .include "src/fx/text-box.asm"
+.include "src/fx/text-screen.asm"
 
 ; ============================================================================
 ; Support library code modules used by the FX sequence.
