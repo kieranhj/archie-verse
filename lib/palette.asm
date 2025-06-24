@@ -8,6 +8,8 @@
 ;                 or just lucky!!
 ; ============================================================================
 
+.err "This module has been very deprecated - are you sure you want to use it?"
+
 .equ Palette_IncludeFade, 0
 
 ; R3 = index
@@ -88,6 +90,7 @@ palette_set_gradient:
 
     ldr pc, [sp], #4
 
+.if 0   ; Replaced with macro to convert format at assemble time.
 ; R0=ptr to gradient table in 0x0rgb format.
 ; R1=ptr to palette table in 0x00BbGgRr format.
 palette_from_gradient:
@@ -117,6 +120,7 @@ palette_from_gradient:
     bne .1
 
     ldr pc, [sp], #4
+.endif
 
 
 .if Palette_IncludeFade

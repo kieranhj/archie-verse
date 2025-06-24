@@ -227,6 +227,24 @@ def main(options):
         save_file(pal_data,options.palette_path)
         print 'Wrote {0} bytes palette data.'.format(len(pal_data))
 
+    if options.vidc_path is not None:
+        pal_data=[]
+        with open(options.vidc_path,'w') as f:
+            r=0
+            f.write('; Palette as VIDC registers from input file: {0}\n'.format(options.input_path))
+            for p in palette:
+                warned=False
+                for i in range(0,3):
+                    if (p[i] & 0x0f) != 0 and not warned:
+                        if options.loud:
+                            print 'Warning: lost precision for colour',p
+                        warned=True
+                reg=(r<<26)|p[0]>>4|p[1]&0xf0|(p[2]&0xf0)<<4
+                f.write('\t.long 0x{0:08x}\n'.format(reg))           
+                r+=1
+
+        print 'Wrote palette data as VIDC regs to {0}.'.format(options.vidc_path)
+
 
 ##########################################################################
 ##########################################################################
@@ -244,6 +262,7 @@ if __name__=='__main__':
     parser.add_argument('--mask-colour',dest='mask_colour',default=None,type=lambda x: int(x,0),help='RGBA colour used as mask.')
     parser.add_argument('--use-palette',dest='use_palette',metavar='FILE',help='use palette binary data from %(metavar)s')
     parser.add_argument('--is-index',action='store_true',help='source image uses index values in RGB')
+    parser.add_argument('--vidc-regs',dest='vidc_path',metavar='FILE',help='output palette data to %(metavar)s as vidc reg')
     parser.add_argument('input_path',metavar='FILE',help='load PNG data from %(metavar)s')
     parser.add_argument('mode',type=int,help='screen mode')
     main(parser.parse_args())

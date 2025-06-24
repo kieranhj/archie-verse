@@ -102,40 +102,22 @@ rasters_donut_init:
 
     mov pc, lr
 
-; R0=ptr to OSWORD format table.
+; R0=ptr to VIDC reg format table.
 rasters_donut_set_palette:
     ldr r2, raster_table_vidc1_p
     add r2, r2, #RastersDonut_PaletteLine*16
     mov r3, r0
 
-; R3=ptr to OSWORD format table.
-; R2=ptr to VIDC format table.
-; Trashes: R0, R4-R7.
-rasters_convert_osword_to_vidc:
-    mov r4, #0
-.3:
-    ldr r0, [r3], #4            ; 0x00BbGgRr
+    ; Copy 16 words of VIDC registers.
+    ldmia r3!, {r4-r11}
+    stmia r2!, {r4-r11}
+    ldmia r3!, {r4-r11}
+    stmia r2!, {r4-r11}
 
-    ; Convert from OSWORD to VIDC format.
-    mov r7, r0, lsr #20
-    and r7, r7, #0xf            ; 0xB
-    mov r6, r0, lsr #12
-    and r6, r6, #0xf            ; 0xG
-    mov r5, r0, lsr #4
-    and r5, r5, #0xf            ; 0xR
-
-    orr r0, r5, r6, lsl #4
-    orr r0, r0, r7, lsl #8      ; 0xBGR
-    orr r0, r0, r4, lsl #26     ; VIDC_ColN = N << 26
-    str r0, [r2], #4
-
-    add r4, r4, #1
-    cmp r4, #16
-    blt .3
     mov pc, lr
 
 rasters_tick:
-    ldr r0, raster_donut_osword_p
+    ldr r0, raster_donut_palette_p
     cmp r0, #0
     bne rasters_donut_set_palette
     
@@ -147,7 +129,7 @@ rasters_tick:
 ; Next 192 lines are the donut - ?
 ; Last 8 lines are the scroller - set bg blend?
 
-raster_donut_osword_p:
+raster_donut_palette_p:
     .long 0
 
 raster_donut_bg:

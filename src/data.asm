@@ -23,7 +23,7 @@ three_logo_no_adr:
 .incbin "build/three-logo.bin"
 
 three_logo_pal_no_adr:
-.incbin "build/three-logo.bin.pal"
+.include "build/three-logo.bin.asm"         ; prefer palettes as asm format now.
 .endif
 
 .if TipsyScrollerOnVsync

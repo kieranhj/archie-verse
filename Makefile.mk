@@ -292,7 +292,7 @@ clean:
 	$(PYTHON2) $(PNG2ARC_FONT) -o $@ --glyph-dim 8 8 --max-glyphs 96 $< 9
 
 ./build/three-logo.bin: ./data/gfx/3-logos-v0.21.png $(PNG2ARC_DEPS)
-	$(PYTHON2) $(PNG2ARC) -o $@ -p $@.pal $< 9
+	$(PYTHON2) $(PNG2ARC) -o $@ --vidc-regs $@.asm $< 9
 
 ./build/donut-font.bin: ./data/font/donut-font-v2-final.png $(PNG2ARC_DEPS)
 	$(PYTHON2) $(PNG2ARC_FONT) -o $@ --loud --glyph-dim 8 8 $< 9

@@ -72,9 +72,11 @@ app_init_video:
     swi OS_WriteI+VideoConfig_VduMode
     swi OS_RemoveCursors
 
-    ; Blank our palette for 
+    ; Blank our palette for MODE switch glitch? 
     ldr r0, black_palette_p
-    bl palette_set_block
+    str r0, palette_array_p
+    ; TODO: Check whether the one-frame default palette glitch comes back
+    ;       Might need to tell RISCOS about the palette in the first N vsyncs after MODE cange.
     
     .if !AppConfig_ReturnMainToCaller   ; assume caller handles this for us.
 	; Set screen size for number of buffers
@@ -624,9 +626,6 @@ app_copy_to_screen:
 ; Additional library code modules used by the FX sequence.
 ; ============================================================================
 
-.if _DEBUG || _CHECK_FRAME_DROP || 1
-.include "lib/palette.asm"
-.endif
 .include "lib/screen.asm"
 .if _DEMO_PART==_PART_DONUT
 .include "lib/mesh.asm"

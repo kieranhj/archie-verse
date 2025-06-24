@@ -586,7 +586,9 @@ mark_write_bank_as_pending_display:
 	bne .1
 	str r1, pending_bank
 
-    ; Convert palette buffer to VIDC writes here!
+    ; If there is a new palette for this frame then stash it ready
+    ; for sending to the VIDC on the next vsync.
+
     ldr r2, vidc_buffers_p
     add r2, r2, r1, lsl #6              ; 64 bytes per bank
 
@@ -596,30 +598,13 @@ mark_write_bank_as_pending_display:
     streq r0, [r2]
     beq .2
 
-    ; TODO: Could think about a palette dirty flag.
-    ; TODO: Stop needlessly converting between OSWORD and VIDC formats.
-    ; TODO: Code is duplicated in rasters_convert_osword_to_vidc.
+    ; TODO: Could think about a palette dirty flag? Although overhead lower now.
 
-    mov r4, #0
-.3:
-    ldr r0, [r3], #4            ; 0x00BbGgRr
-
-    ; Convert from OSWORD to VIDC format.
-    mov r7, r0, lsr #20
-    and r7, r7, #0xf            ; 0xB
-    mov r6, r0, lsr #12
-    and r6, r6, #0xf            ; 0xG
-    mov r5, r0, lsr #4
-    and r5, r5, #0xf            ; 0xR
-
-    orr r0, r5, r6, lsl #4
-    orr r0, r0, r7, lsl #8      ; 0xBGR
-    orr r0, r0, r4, lsl #26     ; VIDC_ColN = N << 26
-    str r0, [r2], #4
-
-    add r4, r4, #1
-    cmp r4, #16
-    blt .3
+    ; Copy 16 words of VIDC register data.
+    ldmia r3!, {r4-r11}
+    stmia r2!, {r4-r11}
+    ldmia r3!, {r4-r11}
+    stmia r2!, {r4-r11}
 
 .2:
 	; Show pending bank at next vsync.

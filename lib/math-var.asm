@@ -302,12 +302,26 @@ math_evaluate_func3:
 ; Trashes: R1-R9
 ; Returns: R0=v
 ; TODO: Replace with RGB blend in one mul: https://gist.github.com/mattiasgustavsson/c11e824e3d603d0c86e5e0dde4ecf839
+;    // color1 and color2 are R4G4B4 12bit RGB color values, alpha is 0-255
+;    uint16_t blend_12bit( uint16_t color1, uint16_t color2, uint8_t alpha ) {
+;        uint64_t c1 = (uint64_t) color1;
+;        uint64_t c2 = (uint64_t) color2;
+;        uint64_t a = (uint64_t)( alpha >> 4 );
+;        // bit magic to alpha blend R G B with single mul
+;        c1 = ( c1 | ( c1 << 12 ) ) & 0x0f0f0f;
+;        c2 = ( c2 | ( c2 << 12 ) ) & 0x0f0f0f;
+;        uint32_t o = ( ( ( ( c2 - c1 ) * a ) >> 4 ) + c1 ) & 0x0f0f0f;
+;        return (uint16_t) ( o | ( o >> 12 ) );
+;    }
+.if 0
 math_evaluate_rgb_lerp:
     ldmia r10!, {r1-r3}     ; [a, b, c]
 
     ldr r3, [r3]            ; blend = RAM[c] [1.16]
 
     ; TODO: Clamp to [0,1] here?
+
+    .err "TODO: Unpack RGB value as VIDC register format, not OS_Word!"
 
     ; col_a = 0x00BbGgRr
     and r4, r1, #0xff       ; col_a.r   [8.0]
@@ -344,6 +358,7 @@ math_evaluate_rgb_lerp:
     orr r0, r0, r6, lsl #16
     
     mov pc, lr
+.endif
 
 ; ============================================================================
 
@@ -371,17 +386,19 @@ math_evaluate_palette_lerp:
     ldr r1, [r1, r0, lsl #2]    ; col_a = palette_A[i]
     ldr r2, [r2, r0, lsl #2]    ; col_b = palette_B[i]
 
-    ; col_a = 0x00BbGgRr
-    and r4, r1, #0xff       ; col_a.r   [8.0]
-    mov r5, r1, lsr #8
-    and r5, r5, #0xff       ; col_a.g   [8.0]
-    mov r6, r1, lsr #16     ; col_a.b   [8.0]
+    ; col_a = 0x0BGR
+    and r4, r1, #0x00f
+    mov r4, r4, lsl #4      ; col_a.r   [8.0]
+    and r5, r1, #0x0f0      ; col_a.g   [8.0]
+    and r6, r1, #0xf00
+    mov r6, r6, lsr #4      ; col_a.b   [8.0]
 
-    ; col_b = 0x00BbGgRr
-    and r7, r2, #0xff       ; col_b.r   [8.0]
-    mov r8, r2, lsr #8
-    and r8, r8, #0xff       ; col_b.g   [8.0]
-    mov r9, r2, lsr #16     ; col_b.b   [8.0]
+    ; col_b = 0x0BGR
+    and r7, r2, #0x00f
+    mov r7, r7, lsl #4      ; col_b.r   [8.0]
+    and r8, r2, #0x0f0      ; col_b.g   [8.0]
+    and r9, r2, #0xf00
+    mov r9, r9, lsr #4      ; col_b.b   [8.0]
 
     ; col_b - col_a
     sub r7, r7, r4
@@ -389,21 +406,26 @@ math_evaluate_palette_lerp:
     sub r9, r9, r6
 
     ; lerp
-    mul r7, r3, r7      ; col_a.r + blend * (col_b.r - col_a.r)     [8.16]
-    mul r8, r3, r8      ; col_a.g + blend * (col_b.g - col_a.g)     [8.16]
-    mul r9, r3, r9      ; col_a.b + blend * (col_b.b - col_a.b)     [8.16]
+    mul r7, r3, r7      ; blend * (col_b.r - col_a.r)     [8.16]
+    mul r8, r3, r8      ; blend * (col_b.g - col_a.g)     [8.16]
+    mul r9, r3, r9      ; blend * (col_b.b - col_a.b)     [8.16]
 
     ; precision.
-    add r4, r4, r7, asr #16
+    add r4, r4, r7, asr #16 ; col_a.r + blend * (col_b.r - col_a.r) [8.0]
     and r4, r4, #0xff
-    add r5, r5, r8, asr #16
+    add r5, r5, r8, asr #16 ; col_a.g + blend * (col_b.g - col_a.g) [8.0]
     and r5, r5, #0xff
-    add r6, r6, r9, asr #16
+    add r6, r6, r9, asr #16 ; col_a.b + blend * (col_b.b - col_a.b) [8.0]
     and r6, r6, #0xff
 
     ; combine.
-    orr r4, r4, r5, lsl #8
-    orr r4, r4, r6, lsl #16
+    and r4, r4, #0xf0   ; r     [4.0] << 4
+    and r5, r5, #0xf0   ; g     [4.0] << 4
+    and r6, r6, #0xf0   ; b     [4.0] << 4
+
+    orr r4, r5, r4, lsr #4      ; 0x00GR
+    orr r4, r4, r6, lsl #4      ; 0x0BGR
+    orr r4, r4, r0, lsl #26     ; 0x0BGR | (index << 26)
 
     ; store
     ldr r5, [r10, #12]          ; dest_palette
@@ -444,6 +466,8 @@ math_evaluate_palette_offset:
     movgt r2, #15
 
     ldr r4, [r1, r2, lsl #2]    ; colour = palette_A[lookup_index]
+    bic r4, r4, #0xf << 26      ; mask out index A
+    orr r4, r4, r0, lsl #26     ; mask in index B
     str r4, [r5, r0, lsl #2]    ; dest_palette[i] = colour
 
     add r0, r0, #1

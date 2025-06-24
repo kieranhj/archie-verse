@@ -48,14 +48,18 @@
     call_3 mem_copy_words, \palette_src, \palette_dst, 16
 .endm
 
+.macro palette_from_gradient grad_src, palette_dst
+    palette_copy \grad_src, \palette_dst
+.endm
+
 .macro palette_lerp_from_existing palette_B, secs
     palette_copy seq_palette_lerped, seq_palette_copy
     palette_lerp_over_secs seq_palette_copy, \palette_B, \secs
 .endm
 
-; Converts 8 values in 0x0RGB format (e.g. from Gradient Blaster) to 
-; VIDC format = index << 26 | 0xBGR
-.macro grad_to_vidc col0, col1, col2, col3, col4, col5, col6, col7
+; Converts 16 values in 0x0RGB format (e.g. from Gradient Blaster) to 
+; VIDC reg format = index << 26 | 0xBGR
+.macro grad_to_vidc col0, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15
     .long 0<<26 | (\col0&0x00f)<<8 | (\col0&0x0f0) | (\col0&0xf00)>>8
     .long 1<<26 | (\col1&0x00f)<<8 | (\col1&0x0f0) | (\col1&0xf00)>>8
     .long 2<<26 | (\col2&0x00f)<<8 | (\col2&0x0f0) | (\col2&0xf00)>>8
@@ -64,4 +68,54 @@
     .long 5<<26 | (\col5&0x00f)<<8 | (\col5&0x0f0) | (\col5&0xf00)>>8
     .long 6<<26 | (\col6&0x00f)<<8 | (\col6&0x0f0) | (\col6&0xf00)>>8
     .long 7<<26 | (\col7&0x00f)<<8 | (\col7&0x0f0) | (\col7&0xf00)>>8
+    .long 8<<26 | (\col8&0x00f)<<8 | (\col8&0x0f0) | (\col8&0xf00)>>8
+    .long 9<<26 | (\col9&0x00f)<<8 | (\col9&0x0f0) | (\col9&0xf00)>>8
+    .long 10<<26 | (\col10&0x00f)<<8 | (\col10&0x0f0) | (\col10&0xf00)>>8
+    .long 11<<26 | (\col11&0x00f)<<8 | (\col11&0x0f0) | (\col11&0xf00)>>8
+    .long 12<<26 | (\col12&0x00f)<<8 | (\col12&0x0f0) | (\col12&0xf00)>>8
+    .long 13<<26 | (\col13&0x00f)<<8 | (\col13&0x0f0) | (\col13&0xf00)>>8
+    .long 14<<26 | (\col14&0x00f)<<8 | (\col14&0x0f0) | (\col14&0xf00)>>8
+    .long 15<<26 | (\col15&0x00f)<<8 | (\col15&0x0f0) | (\col15&0xf00)>>8
+.endm
+
+; Converts 16 values in 0x00BbGgRr format (used in OS_Word) to
+; VIDC reg format = index << 26 | 0xBGR
+.macro osword_to_vidc col0, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15
+    .long  0<<26 | (\col0&0xf00000)>>12  | (\col0&0x00f000)>>8  | (\col0&0x0000f0)>>4
+    .long  1<<26 | (\col1&0xf00000)>>12  | (\col1&0x00f000)>>8  | (\col1&0x0000f0)>>4
+    .long  2<<26 | (\col2&0xf00000)>>12  | (\col2&0x00f000)>>8  | (\col2&0x0000f0)>>4
+    .long  3<<26 | (\col3&0xf00000)>>12  | (\col3&0x00f000)>>8  | (\col3&0x0000f0)>>4
+    .long  4<<26 | (\col4&0xf00000)>>12  | (\col4&0x00f000)>>8  | (\col4&0x0000f0)>>4
+    .long  5<<26 | (\col5&0xf00000)>>12  | (\col5&0x00f000)>>8  | (\col5&0x0000f0)>>4
+    .long  6<<26 | (\col6&0xf00000)>>12  | (\col6&0x00f000)>>8  | (\col6&0x0000f0)>>4
+    .long  7<<26 | (\col7&0xf00000)>>12  | (\col7&0x00f000)>>8  | (\col7&0x0000f0)>>4
+    .long  8<<26 | (\col8&0xf00000)>>12  | (\col8&0x00f000)>>8  | (\col8&0x0000f0)>>4
+    .long  9<<26 | (\col9&0xf00000)>>12  | (\col9&0x00f000)>>8  | (\col9&0x0000f0)>>4
+    .long 10<<26 | (\col10&0xf00000)>>12 | (\col10&0x00f000)>>8 | (\col10&0x0000f0)>>4
+    .long 11<<26 | (\col11&0xf00000)>>12 | (\col11&0x00f000)>>8 | (\col11&0x0000f0)>>4
+    .long 12<<26 | (\col12&0xf00000)>>12 | (\col12&0x00f000)>>8 | (\col12&0x0000f0)>>4
+    .long 13<<26 | (\col13&0xf00000)>>12 | (\col13&0x00f000)>>8 | (\col13&0x0000f0)>>4
+    .long 14<<26 | (\col14&0xf00000)>>12 | (\col14&0x00f000)>>8 | (\col14&0x0000f0)>>4
+    .long 15<<26 | (\col15&0xf00000)>>12 | (\col15&0x00f000)>>8 | (\col15&0x0000f0)>>4
+.endm
+
+; Converts 16 values in 0x0BGR format (used in VIDC regs) to
+; VIDC reg format = index << 26 | 0xBGR
+.macro vidc_palette col0, col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15
+    .long 0<<26 | \col0
+    .long 1<<26 | \col1
+    .long 2<<26 | \col2
+    .long 3<<26 | \col3
+    .long 4<<26 | \col4
+    .long 5<<26 | \col5
+    .long 6<<26 | \col6
+    .long 7<<26 | \col7
+    .long 8<<26 | \col8
+    .long 9<<26 | \col9
+    .long 10<<26 | \col10
+    .long 11<<26 | \col11
+    .long 12<<26 | \col12
+    .long 13<<26 | \col13
+    .long 14<<26 | \col14
+    .long 15<<26 | \col15
 .endm
