@@ -57,7 +57,7 @@
 	mov r4, #\rgb
 	ldrb r0, debug_show_rasters
 	cmp r0, #0
-	blne palette_set_border
+	blne debug_set_border
 	.endif
 .endm
 

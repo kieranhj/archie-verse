@@ -549,8 +549,8 @@ triangle_plot_quad_indexed:
     ; NB. Assume screen addr is pre-cached with triangle_prepare!
 
     .if _DEBUG && 0
-    mov r4, #0x0000dd00
-    bl palette_set_border
+    mov r4, #0x0d0
+    bl debug_set_border
     .endif
 
     ; v1, v2, v3
@@ -577,8 +577,8 @@ triangle_plot_quad_indexed:
     bl triangle_plot_ex
 
     .if _DEBUG && 0
-    mov r4, #0x0000bb00
-    bl palette_set_border
+    mov r4, #0x0b0
+    bl debug_set_border
     .endif
 
     ; v3, v4, v0
@@ -599,8 +599,8 @@ triangle_plot_quad_indexed:
     bl triangle_plot_ex
 
     .if _DEBUG && 0
-    mov r4, #0x0000ff00
-    bl palette_set_border
+    mov r4, #0x0f0
+    bl debug_set_border
     .endif
 
     ldr pc, [sp], #4

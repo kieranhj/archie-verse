@@ -5,7 +5,7 @@ Contains all accumulated libraries and code from previous prods.
 
 NEXT STEPS
 ~~~
-- Submit a clean-ish branch to a separate repo for the Megademo source.
+- Submit a clean-ish branch to a separate repo for the Megademo source. - DONE (MINUS README)
 - Tidy up app.asm with three parts to verify APIs?
 - Sort out palette nonsense whilst it's fresh?
 - Strip back to a single effect and merge back into main.
@@ -35,7 +35,8 @@ Framework TODOs as of 18/6/25 (post-NOVA):
 - Sort out palette nonsense - three different formats in use...
     OS_Word           : 0x00BbGgRr
     VIDC reg          : index << 26 | 0xBGR
-    Gradient Blaster  : 0x0RGB <= use a macro to twizzle these into VIDC format?
+    Gradient Blaster  : 0x0RGB <= use a macro to twizzle these into VIDC format? - DONE
+    Propose to settle on VIDC reg format?
 
 - Disentangle app.asm, which got very messy:
     - Better API/seperate module for handling audio.

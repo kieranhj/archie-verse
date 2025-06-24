@@ -15,7 +15,7 @@
 .endif
 
 .ifndef _DEMO_PART
-.equ _DEMO_PART,                _PART_DONUT       ; 0=donut, 1=tables, 2=test
+.equ _DEMO_PART,                _PART_SPACE       ; 0=donut, 1=tables, 2=test
 .endif
 
 .ifndef _DEBUG
@@ -312,16 +312,16 @@ main_loop_skip_tick:
 	ldr r2, last_dropped_frame
 	ldr r1, last_last_dropped_frame
 	cmp r2, r1
-	moveq r4, #0x000000
-	movne r4, #0x0000ff
+	moveq r4, #0x000
+	movne r4, #0x00f
 	strne r2, last_last_dropped_frame
-	bl palette_set_border
+	bl debug_set_border
     .else
     ldr r2, vsync_delta
     cmp r2, #2
-    movgt r4, #0x0000ff
-    movle r4, #0x000000
-	bl palette_set_border
+    movgt r4, #0x00f
+    movle r4, #0x000
+	bl debug_set_border
     .endif
     .endif
 
