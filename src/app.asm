@@ -3,26 +3,7 @@
 ; Hack as necessary per prod.
 ; ============================================================================
 
-.equ TipsyScrollerOnVsync,      _DEMO_PART==_PART_DONUT ; <= makes RasterMan wobble
-.equ TipsyTempHack,             (TipsyScrollerOnVsync && 0) ; FIXME: optimise or remove!
-
 .equ RasterSplitLine,           56+90			; 56 lines from vsync to screen start
-
-; ============================================================================
-
-.if AppConfig_UseQtmEmbedded
-QtmEmbedded_Init:
-    .long QtmEmbedded_Base + 52
-
-QtmEmbedded_Swi:
-    .long QtmEmbedded_Base + 56
-
-QtmEmbedded_Service:
-    .long QtmEmbedded_Base + 60
-
-QtmEmbedded_Exit:
-    .long QtmEmbedded_Base + 64
-.endif
 
 ; ============================================================================
 ; App debug code.
@@ -60,183 +41,6 @@ app_init_debug:
 .endif
 
 ; ============================================================================
-; App video code.
-; ============================================================================
-
-; R12=top of RAM used.
-app_init_video:
-    str lr, [sp, #-4]!
-
-	; Set screen MODE & disable cursor
-    swi OS_WriteI+22
-    swi OS_WriteI+VideoConfig_VduMode
-    swi OS_RemoveCursors
-
-    ; Blank our palette for MODE switch glitch? 
-    ldr r0, black_palette_p
-    str r0, palette_array_p
-    ; TODO: Check whether the one-frame default palette glitch comes back
-    ;       Might need to tell RISCOS about the palette in the first N vsyncs after MODE cange.
-    
-    .if !AppConfig_ReturnMainToCaller   ; assume caller handles this for us.
-	; Set screen size for number of buffers
-	MOV r0, #DynArea_Screen
-	SWI OS_ReadDynamicArea
-	MOV r0, #DynArea_Screen
-	MOV r2, #Mode_Bytes * VideoConfig_ScreenBanks
-    ; NB. This gets rounded up to page size = Total RAM / 128
-    ;     So 3x40K MODE 9 buffers = 128K not 120K!
-	SUBS r1, r2, r1
-	SWI OS_ChangeDynamicArea
-	MOV r0, #DynArea_Screen
-	SWI OS_ReadDynamicArea
-	CMP r1, r2
-	ADRCC r0, error_noscreenmem
-	SWICC OS_GenerateError
-    .endif
-
-	; Clear all screen buffers
-    ldr r10, vidc_buffers_p
-	mov r1, #1
-.1:
-	str r1, write_bank
-
-	; CLS bank N
-	mov r0, #OSByte_WriteVduBank
-	swi OS_Byte
-	SWI OS_WriteI + 12		; cls
-
-    ; Void VIDC buffer for bank N.
-    mov r0, #-1
-    str r0, [r10, r1, lsl #6]            ; 64 bytes per bank
-
-	add r1, r1, #1
-	cmp r1, #VideoConfig_ScreenBanks
-	ble .1
-
-    ; Display prev bank.
-    subs r1, r1, #1
-    movle r1, #VideoConfig_ScreenBanks
-    mov r0, #OSByte_WriteDisplayBank
-    swi OS_Byte
-    str r1, displayed_bank
-
-    ; Get address of the displayed bank.
-    bl get_screen_addr
-    ldr r0, screen_addr
-    str r0, init_screen_addr
-
-    ; No flashing colours (FFS).
-    mov r0, #9
-    mov r1, #0
-    swi OS_Byte
-
-.if AppConfig_UseQtmEmbedded
-    mov lr, pc
-    ldr pc, QtmEmbedded_Init
-.endif
-
-.if AppConfig_UseRasterMan
-    bl rasters_init
-.endif
-
-    ldr pc, [sp], #4
-
-; TODO: Junk this for non_DEBUG?
-error_noscreenmem:
-	.long 0
-	.byte "Cannot allocate screen memory!"
-	.p2align 2
-	.long 0
-
-black_palette_p:
-    .long seq_palette_all_black
-
-; ============================================================================
-; App audio code.
-; ============================================================================
-
-.if AppConfig_LoadModFromFile
-music_filename:
-	.byte "<Demo$Dir>.Music",0
-	.p2align 2
-.else
-music_mod_p:
-	.long music_mod_no_adr		; 14
-.endif
-
-music_sample_speed:
-    .long 0
-
-; R12=top of RAM used.
-app_init_audio:
-    .if AppConfig_UseRasterMan
-   	; Required to make QTM play nicely with RasterMan.
-	mov r0, #4
-	mov r1, #-1
-	mov r2, #-1
-	swi QTM_SoundControl
-    .endif
-
-.if AppConfig_DynamicSampleSpeed
-	; Count how long the init takes as a very rough estimate of CPU speed.
-	ldr r1, vsync_count
-	cmp r1, #AudioConfig_SampleSpeed_CPUThreshold
-	movge r0, #AudioConfig_SampleSpeed_SlowCPU
-	movlt r0, #AudioConfig_SampleSpeed_FastCPU
-.else
-    mov r0, #AudioConfig_SampleSpeed_Default
-.endif
-    str r0, music_sample_speed      ; to query on real hw because I paranoid.
-
-	; Setup QTM for our needs.
-	QTMSWI QTM_SetSampleSpeed
-
-    .if 0
-    mov r0, #AudioConfig_VuBars_Effect
-    mov r1, #AudioConfig_VuBars_Gravity
-    QTMSWI QTM_VUBarControl
-    .endif
-
-    mov r0, #1
-    mov r1, #AudioConfig_StereoPos_Ch1
-    QTMSWI QTM_Stereo
-
-    mov r0, #2
-    mov r1, #AudioConfig_StereoPos_Ch2
-    QTMSWI QTM_Stereo
-
-    mov r0, #3
-    mov r1, #AudioConfig_StereoPos_Ch3
-    QTMSWI QTM_Stereo
-
-    mov r0, #4
-    mov r1, #AudioConfig_StereoPos_Ch4
-    QTMSWI QTM_Stereo
-
-    mov r0, #0b0010
-    .if SeqConfig_EnableLoop
-    mov r1, #0b0000
-    .else
-    mov r1, #0b0010
-    .endif
-    QTMSWI QTM_MusicOptions
-
-	; Load the music.
-    .if AppConfig_LoadModFromFile
-    adr r0, music_filename
-    mov r1, r12             ; HIMEM.
-    .err "TODO: Return top of RAM in R12 after MOD load."
-    .else
-	mov r0, #0              ; load from address, don't copy to RMA.
-    ldr r1, music_mod_p
-    .endif
-	QTMSWI QTM_Load
-
-    mov pc, lr
-
-
-; ============================================================================
 ; App late initialisation for things that require access to the screen.
 ; ============================================================================
 
@@ -254,15 +58,6 @@ app_late_init:
     mov r2, r2, lsr #2          ; #words
     bl mem_copy_words
 
-    .if TipsyTempHack
-    ; Plot some text into the scroller buffer for now.
-    bl tipsy_scroller_tick
-    ldr r12, app_scroller_logical
-    bl tipsy_scroller_draw
-    .endif
-    .endif
-
-    .if TipsyScrollerOnVsync
     mov r0, #1
     str r0, app_ready
     .endif
@@ -288,9 +83,7 @@ app_scroller_phys:
 
 app_scroller_logical:
     .long MEMC_PhysRam - TotalScreenSize + 248*Screen_Stride ; logical 
-.endif
 
-.if TipsyScrollerOnVsync
 app_ready:
     .long 0
 
@@ -550,7 +343,7 @@ app_vsync_code:
     .2:     ; only set palette for a new frame otherwise.
     .endif
 
-    .if TipsyScrollerOnVsync && !TipsyTempHack
+    .if  _DEMO_PART==_PART_DONUT
     ; Do scrolltext?!
     ldr r0, app_ready
     cmp r0, #0
@@ -584,14 +377,12 @@ app_vsync_code:
     SUBS PC,R14,#4
 .endif
 
-; R0=src ptr
-; R1=dst offset
-; R2=bytes
-app_copy_to_screen:
-    ldr r3, screen_addr
-    add r1, r3, r1
-    mov r2, r2, lsr #2          ; #words
-    b mem_copy_words
+; ============================================================================
+; App modules.
+; ============================================================================
+
+.include "src/app_audio.asm"
+.include "src/app_video.asm"
 
 ; ============================================================================
 ; FX code modules.
@@ -612,7 +403,7 @@ app_copy_to_screen:
     .endif
 .endif
  
-.if TipsyScrollerOnVsync
+.if  _DEMO_PART==_PART_DONUT
 .include "src/fx/tipsy-scroller.asm"
 .endif
 

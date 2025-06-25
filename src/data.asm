@@ -24,9 +24,7 @@ three_logo_no_adr:
 
 three_logo_pal_no_adr:
 .include "build/three-logo.bin.asm"         ; prefer palettes as asm format now.
-.endif
 
-.if TipsyScrollerOnVsync
 fine_font_no_adr:
 .incbin "build/donut-font.bin"
 .endif

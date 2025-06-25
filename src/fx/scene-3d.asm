@@ -128,7 +128,7 @@ scene3d_init:
 ;    DEBUG_REGISTER_VEC3 torus_entity+Entity_Pos
 
     ; SHOW normal_transform Z vector!!
-    DEBUG_REGISTER_VEC3 normal_transform+MATRIX_20
+;    DEBUG_REGISTER_VEC3 normal_transform+MATRIX_20
 
     ldr pc, [sp], #4
 
