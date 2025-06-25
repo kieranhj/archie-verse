@@ -19,6 +19,7 @@
 seq_donut_part:
 
     ; Init FX modules.
+    call_0      rasters_init
     call_0      scene3d_init
     call_0      rasters_donut_init
     .if LibTriangle_EnableFutz
@@ -885,13 +886,14 @@ seq_greets_text_no_adr:
 seq_test_part:
 
     ; Init FX modules.
+    call_0      rasters_init
     call_0      sine_scroller_init
 
     ; Screen setup.
     ; NB. Use write_addr palette_array_p, seq_palette_red_additive if setting per frame.
 
     ; Sine scroller.
-    .if AppConfig_UseRasterMan
+    .if AppVsync_UseRasterMan       ; TODO: Shouldn't really use this def.
     call_3      fx_set_layer_fns,   0, rasters_tick,               screen_cls
     .else
     call_3      fx_set_layer_fns,   0, 0,                          screen_cls

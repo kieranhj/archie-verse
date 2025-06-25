@@ -12,6 +12,9 @@ NEXT STEPS
 - ProTracker processor Python script.
     https://www.stef.be/bassoontracker/docs/ProtrackerCommandReference.pdf
     https://www.aes.id.au/modformat.html
+    Have a watcher script so when Dave saves the MOD file it automatically splits it
+    into a 4ch MOD and the events file, copies this into the Arculator hostfs folder.
+    Then just need to press a key to reload and restart the sequence.
 - Build something simple in ArchieSDK to assess prototyping/scripting potential.
 
 
@@ -32,7 +35,7 @@ Framework TODOs as of 18/6/25 (post-NOVA):
     => See below.
 - Automatic clearing of BSS by loader?
 
-- Sort out palette nonsense - three different formats in use...
+- Sort out palette nonsense - three different formats in use... - DONE!
     OS_Word           : 0x00BbGgRr <= use a macro to convert to VIDC format - DONE
     VIDC reg          : index << 26 | 0xBGR
     Gradient Blaster  : 0x0RGB <= use a macro to twizzle these into VIDC format? - DONE
@@ -60,6 +63,35 @@ Framework TODOs as of 18/6/25 (post-NOVA):
 - Do we still care about AppConfig_UseSyncTracks?
     Replace with MOD event system and C code?
 
+- Move screen buffer handling code to app_video module.
+
+
+---
+VSYNC nonsense
+
+Three ways to enter VSYNC code, all of which have different exit code:
+- Vsync Event handler
+- Own rolled IRQ handler
+- RasterMan vsync callback
+
+Functions that need to happen in VSYNC:
+- Update vsync counter
+- Handle pending frame buffer switch if manually managing MEMC
+- Set palette to match the pending frame
+- Manually fiddle MEMC values for VRUP, if applicable
+
+App itself should have (optional) entry points:
+- Init (Make)
+- Late Init
+- Tick
+- Draw
+- Interrupt
+- Exit (Kill)
+
+Interrupt code should be move to own module.
+
+
+---
 
 ---
 Fix frames / vsyncs / seconds once and for all:

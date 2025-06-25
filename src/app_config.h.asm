@@ -8,15 +8,24 @@
 .else
 .equ AppConfig_StackSize,               1024
 .endif
+
 .equ AppConfig_LoadModFromFile,         0
 .equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 0)   ; Because table gen takes time at boot...
-.equ AppConfig_InstallIrqHandler,       0       ; otherwise uses Event_VSync.
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 .equ AppConfig_UseQtmEmbedded,          0
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
-.equ AppConfig_UseRasterMan,            _DEMO_PART!=_PART_SPACE     ; removes event / IRQ handler.
 .equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 1)       ; desktop by default TOOD: Should be an exe config?
 .equ AppConfig_UseMemcBanks,            1       ; not currently compatible with IrqHandler.
+
+.equ AppVsyncHandler_Events,            0
+.equ AppVsyncHandler_Irq,               1
+.equ AppVsyncHandler_RasterMan,         2
+
+.if _DEMO_PART=_PART_SPACE
+.equ AppConfig_VsyncHandler,            AppVsyncHandler_Events
+.else
+.equ AppConfig_VsyncHandler,            AppVsyncHandler_RasterMan
+.endif
 
 ; ============================================================================
 ; Machine config.

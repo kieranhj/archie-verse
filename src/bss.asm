@@ -127,7 +127,6 @@ stack_base_no_adr:
 ; Palette buffers.
 ; ============================================================================
 
-; TODO: Check if we need VIDC buffer?
 vidc_buffers_no_adr:
     .skip VideoConfig_ScreenBanks * 16 * 4
 
@@ -135,7 +134,7 @@ vidc_buffers_no_adr:
 ; Per FX BSS.
 ; ============================================================================
 
-.if AppConfig_UseRasterMan
+.if AppVsync_UseRasterMan   ; TODO: Shouldn't really use this def.
 .p2align 2
 .if _DEMO_PART==_PART_TEST
 vidc_table_1_no_adr:

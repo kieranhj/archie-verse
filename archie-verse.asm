@@ -80,22 +80,8 @@ main:
 	SWI OS_Claim
     .endif
 
-    .if !AppConfig_UseRasterMan
-	; Claim the Event vector.
-	MOV r0, #EventV
-	ADR r1, event_handler
-	MOV r2, #0
-	SWI OS_Claim
-
-	; Install our own IRQ handler - thanks Steve! :)
-    .if AppConfig_InstallIrqHandler
-	bl install_irq_handler
-    .else
-	mov r0, #OSByte_EventEnable
-	mov r1, #Event_VSync
-	SWI OS_Byte
-    .endif
-    .endif
+    ; Set up interrupt code.
+    bl app_vsync_init
 
     ; Generate sample data first?
     .if AppConfig_UseArchieKlang
@@ -132,26 +118,6 @@ main:
     ldr r12, screen_addr
     bl app_late_init
 
-    .if !AppConfig_UseRasterMan
-	; Enable key pressed event.
-	mov r0, #OSByte_EventEnable
-	mov r1, #Event_KeyPressed
-	SWI OS_Byte
-    .else
-    ; TODO: Sort out the screen mode / QTM / RasterMan init timing.
-    ; From Steve: QTM's DMA routine needs to be enabled for a few VSyncs after the final mode 
-    ;             change before RM starts - hence need for QTM_SoundControl.
-    ; TODO: Does this mean QTM_Start has to run for a few frames?
-
-    adr r0, app_vsync_code
-    swi RasterMan_Callback
-    swi RasterMan_Wait
-    swi RasterMan_Wait
-
-	; Fire up the RasterMan!
-	swi RasterMan_Install
-    .endif
-
 	; Play music!
 	QTMSWI QTM_Start
 
@@ -168,23 +134,8 @@ main_loop:
 	; PREPARE
 	; ========================================================================
 
-    ;bl app_pre_tick_frame
-
     .if _DEBUG
-
-    .if AppConfig_UseRasterMan
-    swi RasterMan_ScanKeyboard
-    str r0, debug_rm_key        ; R0=(low key nibble << 8) | (high key nibble)
-    mov r1, r0, lsr #12         ; 0xc=key down 0xd=key up
-    and r1, r1, #1
-    eor r1, r1, #1              ; 1=key down 0=key up
-    mov r2, r0, lsr #8
-    and r2, r2, #0xf
-    and r0, r0, #0xf
-    orrs r2, r2, r0, lsl #4     ; combine nibbles back into RMKey_* value
-    bl debug_handle_keypress
-    .endif
-
+    bl app_vsync_scankeys               ; NOP w/out RasterMan
     bl debug_do_key_callbacks
 
     ldrb r0, debug_restart_flag
@@ -348,15 +299,8 @@ main_loop_skip_tick:
     bne exit
 
 	; repeat!
-    .if AppConfig_UseRasterMan
-	swi RasterMan_ScanKeyboard
-	mov r1, #0xc0c0
-	cmp r0, r1
-    bne main_loop
-    .else
-	swi OS_ReadEscapeState
+    bl app_vsync_checkescape
 	bcc main_loop                   ; exit if Escape is pressed
-    .endif
 
 exit:
     .if _DEMO_PART==_PART_DONUT
@@ -364,33 +308,8 @@ exit:
     str r0, app_ready
     .endif
 
-    .if !AppConfig_UseRasterMan
-	; Remove our IRQ handler
-    .if AppConfig_InstallIrqHandler
-	bl uninstall_irq_handler
-    .else
-	; Disable vsync event
-	mov r0, #OSByte_EventDisable
-	mov r1, #Event_VSync
-	swi OS_Byte
-    .endif
-
-	; Disable key press event
-	mov r0, #OSByte_EventDisable
-	mov r1, #Event_KeyPressed
-	swi OS_Byte
-
-	; Release our event handler
-	mov r0, #EventV
-	adr r1, event_handler
-	mov r2, #0
-	swi OS_Release
-    .else
-	swi RasterMan_Wait
-  	swi RasterMan_Release
-	swi RasterMan_Wait
-	swi RasterMan_Wait
-    .endif
+    ; Release all interupt handling.
+    bl app_vsync_exit
 
 	; Disable music
 	mov r0, #0
@@ -408,6 +327,7 @@ exit:
 	mov r0, #OSByte_WriteDisplayBank
 	ldr r1, write_bank
 	swi OS_Byte
+
 	; and write to it
 	mov r0, #OSByte_WriteVduBank
 	ldr r1, write_bank
@@ -547,31 +467,6 @@ music_pos:
     .long 0
 .endif
 
-.if !AppConfig_UseRasterMan
-; R0=event number
-event_handler:
-    .if _DEBUG
-	cmp r0, #Event_KeyPressed
-	; R1=0 key up or 1 key down
-	; R2=internal key number (RMKey_*)
-    beq debug_handle_keypress
-    .endif
-
-    .if !AppConfig_InstallIrqHandler
-	cmp r0, #Event_VSync
-	bne event_handler_return
-
-	STMDB sp!, {r0-r1,r11-r12,lr}
-    b app_vsync_code
-exitVs:
-	LDMIA sp!, {r0-r1,r11-r12,lr}
-    .endif
-
-event_handler_return:
-	mov pc, lr
-.endif
-
-
 mark_write_bank_as_pending_display:
 	; Mark write bank as pending display.
 	ldr r1, write_bank
@@ -675,25 +570,8 @@ screen_addr_phys:
 error_handler:
 	STMDB sp!, {r0-r2, lr}
 
-    .if !AppConfig_UseRasterMan
-    .if AppConfig_InstallIrqHandler
-	bl uninstall_irq_handler
-    .else
-	mov r0, #OSByte_EventDisable
-	mov r1, #Event_VSync
-	SWI OS_Byte
-    .endif
-
-	; Release event handler.
-	MOV r0, #OSByte_EventDisable
-	MOV r1, #Event_KeyPressed
-	SWI OS_Byte
-
-	MOV r0, #EventV
-	ADR r1, event_handler
-	mov r2, #0
-	SWI OS_Release
-    .endif
+    ; Release an interrupt handlers.
+    bl app_vsync_exit
 
 	; Release error handler.
 	MOV r0, #ErrorV
@@ -708,10 +586,6 @@ error_handler:
 
 	; Do these help?
 ;	QTMSWI QTM_Stop
-
-    .if AppConfig_UseRasterMan
-    ;swi RasterMan_Release
-    .endif
 
 	LDMIA sp!, {r0-r2, lr}
 	MOVS pc, lr

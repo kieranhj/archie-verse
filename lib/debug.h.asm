@@ -1,5 +1,6 @@
 ; ============================================================================
 ; Debug MACROS.
+; TODO: These should really push LR on the stack before calling.
 ; ============================================================================
 
 .macro DEBUG_REGISTER_VAR addr

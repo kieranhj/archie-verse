@@ -80,10 +80,6 @@ app_init_video:
     ldr pc, QtmEmbedded_Init
 .endif
 
-.if AppConfig_UseRasterMan
-    bl rasters_init
-.endif
-
     ldr pc, [sp], #4
 
 ; TODO: Junk this for non_DEBUG?

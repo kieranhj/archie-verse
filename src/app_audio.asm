@@ -35,13 +35,6 @@ music_sample_speed:
 
 ; R12=top of RAM used.
 app_init_audio:
-    .if AppConfig_UseRasterMan
-   	; Required to make QTM play nicely with RasterMan.
-	mov r0, #4
-	mov r1, #-1
-	mov r2, #-1
-	swi QTM_SoundControl
-    .endif
 
 .if AppConfig_DynamicSampleSpeed
 	; Count how long the init takes as a very rough estimate of CPU speed.
