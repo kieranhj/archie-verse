@@ -245,7 +245,7 @@ seq_space_part:
     gradient_fade_down_over_secs      gradient_grey,  2.0
 
     wait_secs   2.56
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -270,8 +270,8 @@ seq_space_part:
 
     gradient_fade_down_over_secs      gradient_ship,  1.0
     wait_secs   1.0
-    math_kill_var uv_table_fp_v
-    math_kill_var seq_dv
+    destroy uv_table_fp_v
+    destroy seq_dv
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -295,7 +295,7 @@ seq_space_part:
 
     gradient_fade_down_over_secs      gradient_space,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -325,8 +325,8 @@ seq_space_warp:
 
     gradient_fade_down_over_secs      gradient_sun,   SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
-    math_kill_var seq_dv
+    destroy uv_table_fp_v
+    destroy seq_dv
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -375,7 +375,7 @@ seq_space_black_hole:
 
     gradient_fade_down_over_secs      gradient_wormhole,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -400,13 +400,13 @@ seq_space_tunnel:
 ;    gosub       seq_space_do_flash
     math_make_var seq_palette_blend,   0.0, 15.0, math_clamp, 0.0,  1.0/16.0
     wait 16
-    math_kill_var uv_table_fp_v     ; pause motion
+    destroy uv_table_fp_v     ; pause motion
     math_make_var seq_palette_blend,   15.0, -15.0, math_clamp, 0.0,  1.0/SpaceScene_FlashDown
     wait 50*2.4-16
 
     gradient_fade_down_over_secs      gradient_tunnel,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -433,8 +433,8 @@ seq_space_tunnel:
 
     gradient_fade_down_over_secs      gradient_wormhole,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_u
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_u
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -462,8 +462,8 @@ seq_space_torus:
 
     gradient_fade_down_over_secs      gradient_red_alert,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_u
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_u
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -495,10 +495,10 @@ seq_space_rotate:
     gradient_fade_down_over_secs      gradient_red_alert,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
 
-    math_kill_var rotate_scale
-    math_kill_var rotate_angle
-    math_kill_var rotate_tl_x
-    math_kill_var rotate_tl_y
+    destroy rotate_scale
+    destroy rotate_angle
+    destroy rotate_tl_x
+    destroy rotate_tl_y
 
     ; Back to LUT FX
     call_3      fx_set_layer_fns,     0, uv_table_tick          uv_table_draw
@@ -526,7 +526,7 @@ seq_space_spin:
 
     gradient_fade_down_over_secs      gradient_tunnel,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -566,11 +566,11 @@ seq_space_spin:
     call_7      math_var_register_ex, seq_palette_id, gradient_red_alert, 0, seq_panic_combined, seq_palette_lerped, 0, math_evaluate_palette_offset    
     wait_secs   SpaceScene_FadeDown
 
-    math_kill_var seq_panic_speed
-    math_kill_var seq_panic_offset
-    math_kill_var seq_panic_combined
-    math_kill_var seq_panic_handle
-    math_kill_var uv_table_fp_v
+    destroy seq_panic_speed
+    destroy seq_panic_offset
+    destroy seq_panic_combined
+    destroy seq_panic_handle
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -595,8 +595,8 @@ seq_space_spin:
 
     gradient_fade_down_over_secs      gradient_tunnel,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
-    math_kill_var seq_dv
+    destroy uv_table_fp_v
+    destroy seq_dv
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -620,13 +620,13 @@ seq_space_spin:
 ;    gosub       seq_space_do_flash
     math_make_var seq_palette_blend,   0.0, 15.0, math_clamp, 0.0,  1.0/16.0
     wait 16
-    math_kill_var uv_table_fp_v     ; pause motion
+    destroy uv_table_fp_v     ; pause motion
     math_make_var seq_palette_blend,   15.0, -15.0, math_clamp, 0.0,  1.0/SpaceScene_FlashDown
     wait 50*3.36-16
  
     gradient_fade_down_over_secs      gradient_ship,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -671,8 +671,8 @@ seq_space_greets:
 
     gradient_fade_down_over_secs      gradient_default,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
-    math_kill_var seq_dv
+    destroy uv_table_fp_v
+    destroy seq_dv
 
     call_3      fx_set_layer_fns,     1, 0,                     0
     ; ================================
@@ -700,14 +700,14 @@ seq_space_monolith:
 ;    gosub       seq_space_do_flash
     math_make_var seq_palette_blend,   0.0, 15.0, math_clamp, 0.0,  1.0/16.0
     wait 16
-    math_kill_var uv_table_fp_v     ; pause motion
+    destroy uv_table_fp_v     ; pause motion
     math_make_var seq_palette_blend,   15.0, -15.0, math_clamp, 0.0,  1.0/SpaceScene_FlashDown
     wait 50*3.36-16
 
     gradient_fade_down_over_secs      gradient_default,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
-    math_kill_var seq_dv
+    destroy uv_table_fp_v
+    destroy seq_dv
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -731,13 +731,13 @@ seq_space_monolith:
 ;    gosub       seq_space_do_flash
     math_make_var seq_palette_blend,   0.0, 15.0, math_clamp, 0.0,  1.0/16.0
     wait 16
-    math_kill_var uv_table_fp_v     ; pause motion
+    destroy uv_table_fp_v     ; pause motion
     math_make_var seq_palette_blend,   15.0, -15.0, math_clamp, 0.0,  1.0/SpaceScene_FlashDown
     wait 50*3.36-16
 
     gradient_fade_down_over_secs      gradient_sun,  SpaceScene_FadeDown
     wait_secs   SpaceScene_FadeDown
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -781,7 +781,7 @@ seq_space_relax:
 
     gradient_fade_down_over_secs      gradient_ship,  4.48
     wait_secs   4.48
-    math_kill_var uv_table_fp_v
+    destroy uv_table_fp_v
     ; ================================
 
     gosub seq_unlink_palette_lerp
@@ -793,7 +793,7 @@ seq_space_relax:
 seq_space_do_flash:
     math_make_var seq_palette_blend,   0.0, 15.0, math_clamp, 0.0,  1.0/16.0
     wait 16
-    math_kill_var uv_table_fp_v     ; pause motion
+    destroy uv_table_fp_v     ; pause motion
     math_make_var seq_palette_blend,   15.0, -15.0, math_clamp, 0.0,  1.0/SpaceScene_FlashDown
     wait 50*SpaceScene_Flash-16
     end_script
@@ -1008,8 +1008,8 @@ gradient_wormhole:
 .if _DEMO_PART==_PART_SPACE || _DEMO_PART==_PART_DONUT
 seq_unlink_palette_lerp:
     write_fp      seq_palette_blend, 1.0
-    math_kill_var seq_palette_blend
-    math_kill_var seq_palette_id
+    destroy seq_palette_blend
+    destroy seq_palette_id
     end_script
 
 ; Used as the destination palette for all fading operations.

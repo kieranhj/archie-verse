@@ -197,6 +197,11 @@
     .long script_call_1, math_var_unregister, \addr
 .endm
 
+; Really what we mean is a variable goes out of scope...
+.macro destroy var_name
+    math_kill_var \var_name
+.endm
+
 ; Make a math variable: *addr = a + b * (*c)
 ; Where a, b are s15.16 fixed-point values.
 ; Where c is a memory address.

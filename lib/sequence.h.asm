@@ -3,6 +3,10 @@
 ; TODO: Nice detailed descriptions of how to use each MACRO.
 ; ============================================================================
 
+; ============================================================================
+; Synchronise timing with MOD.
+; ============================================================================
+
 .macro on_pattern pattern_no, do_thing
     fork_and_wait_secs SeqConfig_PatternLength_Secs*\pattern_no, \do_thing
 .endm
@@ -11,6 +15,17 @@
     wait_secs SeqConfig_PatternLength_Secs*\pats
 .endm
 
+; ============================================================================
+; Palette blending operations.
+; ============================================================================
+
+; LERP a single RGB value.
+.macro rgb_lerp_over_secs rgb_addr, from_rgb, to_rgb, secs
+    math_make_var seq_rgb_blend, 0.0, 1.0, math_clamp, 0.0, 1.0/(\secs*50.0)  ; 5 seconds.
+    math_make_rgb \rgb_addr, \from_rgb, \to_rgb, seq_rgb_blend
+.endm
+
+; LERP an entire 16 entry palette.
 .macro palette_lerp_over_secs palette_A, palette_B, secs
     math_make_var seq_palette_blend, 0.0, 1.0, math_clamp, 0.0, 1.0/(\secs*50.0)  ; seconds.
     math_make_palette seq_palette_id, \palette_A, \palette_B, seq_palette_blend, seq_palette_lerped
@@ -19,6 +34,13 @@
     ; NB. Subtract a frame to avoid race condition.
 .endm
 
+; LERP a palette from the palette used for a previous LERP.
+.macro palette_lerp_from_existing palette_B, secs
+    palette_copy seq_palette_lerped, seq_palette_copy
+    palette_lerp_over_secs seq_palette_copy, \palette_B, \secs
+.endm
+
+; Fade up a palette that is assumed to be a brightness gradient.
 .macro gradient_fade_up_over_secs palette_B, secs
     ; Create a variable: offset = -15.0 + 15.0 * clamp(i/2.0*50.0) ; lerp over 2.0 secs
     math_make_var seq_palette_blend,    -15.0, 15.0, math_clamp, 0.0,  1.0/(\secs*50.0)
@@ -29,6 +51,7 @@
     ; NB. Subtract a frame to avoid race condition.
 .endm
 
+; Fade down a palette that is assumed to be a brightness gradient.
 .macro gradient_fade_down_over_secs palette_A, secs
     ; Create a variable: offset = -15.0 + 15.0 * clamp(i/2.0*50.0) ; lerp over 2.0 secs
     math_make_var seq_palette_blend,    0.0, -15.0, math_clamp, 0.0,  1.0/(\secs*50.0)
@@ -39,23 +62,14 @@
     ; NB. Subtract a frame to avoid race condition.
 .endm
 
-.macro rgb_lerp_over_secs rgb_addr, from_rgb, to_rgb, secs
-    math_make_var seq_rgb_blend, 0.0, 1.0, math_clamp, 0.0, 1.0/(\secs*50.0)  ; 5 seconds.
-    math_make_rgb \rgb_addr, \from_rgb, \to_rgb, seq_rgb_blend
-.endm
-
+; Copy a palette block of 16 words.
 .macro palette_copy palette_src, palette_dst
     call_3 mem_copy_words, \palette_src, \palette_dst, 16
 .endm
 
-.macro palette_from_gradient grad_src, palette_dst
-    palette_copy \grad_src, \palette_dst
-.endm
-
-.macro palette_lerp_from_existing palette_B, secs
-    palette_copy seq_palette_lerped, seq_palette_copy
-    palette_lerp_over_secs seq_palette_copy, \palette_B, \secs
-.endm
+; ============================================================================
+; MACROs to declare palettes from various formats to our VIDC reg format.
+; ============================================================================
 
 ; Converts 16 values in 0x0RGB format (e.g. from Gradient Blaster) to 
 ; VIDC reg format = index << 26 | 0xBGR
@@ -119,3 +133,5 @@
     .long 14<<26 | \col14
     .long 15<<26 | \col15
 .endm
+
+; ============================================================================
