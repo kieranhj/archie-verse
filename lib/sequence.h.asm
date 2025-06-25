@@ -19,7 +19,7 @@
     ; NB. Subtract a frame to avoid race condition.
 .endm
 
-.macro gradient_fade_up_over_secs palette_A, palette_B, secs
+.macro gradient_fade_up_over_secs palette_B, secs
     ; Create a variable: offset = -15.0 + 15.0 * clamp(i/2.0*50.0) ; lerp over 2.0 secs
     math_make_var seq_palette_blend,    -15.0, 15.0, math_clamp, 0.0,  1.0/(\secs*50.0)
     ; RGB[d][i] = RGB[a][i+c]
@@ -29,7 +29,7 @@
     ; NB. Subtract a frame to avoid race condition.
 .endm
 
-.macro gradient_fade_down_over_secs palette_A, palette_B, secs
+.macro gradient_fade_down_over_secs palette_A, secs
     ; Create a variable: offset = -15.0 + 15.0 * clamp(i/2.0*50.0) ; lerp over 2.0 secs
     math_make_var seq_palette_blend,    0.0, -15.0, math_clamp, 0.0,  1.0/(\secs*50.0)
     ; RGB[d][i] = RGB[a][i+c]
