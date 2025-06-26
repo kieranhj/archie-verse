@@ -1,7 +1,10 @@
 ; ============================================================================
 ; App standard code.
 ; Hack as necessary per prod.
+; Want this file to be hackable.
 ; ============================================================================
+
+.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
 
 ; ============================================================================
 ; App debug code.
@@ -46,6 +49,8 @@ app_init_debug:
 app_late_init:
     str lr, [sp, #-4]!
 
+    ldr r12, screen_addr
+
     ; Custom init for Donut.
 
     .if _DEMO_PART==_PART_DONUT
@@ -60,16 +65,12 @@ app_late_init:
     str r0, app_ready
     .endif
 
-    ; Kick off anything that happens just before start.
-
-    bl app_vsync_late_init
-
     ldr pc, [sp], #4
 ; TODO: Make this more generic or include in sequence?
 
 .if _DEMO_PART==_PART_DONUT
 app_logo_p:
-    .long three_logo_no_adr  ; src ptr
+    .long three_logo_no_adr ; src ptr
     .long 0                 ; offset
     .long 56*Screen_Stride  ; length
     .long MEMC_PhysRam - TotalScreenSize + 192*Screen_Stride ; logical 
@@ -90,6 +91,13 @@ tipsy_r14_irq:
     .long 0
 .endif
 
+app_exit:
+    .if _DEMO_PART==_PART_DONUT
+    mov r0, #0
+    str r0, app_ready
+    .endif
+    mov pc, lr
+
 ; ============================================================================
 ; App main loop.
 ; ============================================================================
@@ -102,13 +110,79 @@ tipsy_r14_irq:
 ;app_pre_draw_frame:
 ;    mov pc, lr
 
-; ============================================================================
-; App modules.
-; ============================================================================
+; Enters in IRQ mode.
+; Registers R0, R1, R11, R12 are stashed on the stack.
+app_vsync_callback:
+    str lr, [sp, #-4]!
 
-.include "src/app_vsync.asm"
-.include "src/app_audio.asm"
-.include "src/app_video.asm"
+    bl app_video_display_pending_bank
+
+    ; NB. Donut wants to set palette always.
+    ; Normally only set palette when there's a new bank.
+    ; Actually does it matter if we're ready from vidc_buffer[displayed_bank]?
+
+    bl app_video_set_palette
+
+    .if _DEMO_PART==_PART_DONUT
+    ; Custom screen split code for donut.
+
+    ; Set Vinit to const logo addr.
+    ldr r11, app_logo_phys
+    mov r0, r11, lsl #2
+    orr r0, r0, #MEMC_Vinit
+    str r0, [r0]
+
+    ; Set Vend to end of logo.
+    ldr r0, app_scroller_phys
+    sub r0, r0, #1
+    mov r0, r0, lsl #2
+    orr r0, r0, #MEMC_Vend
+    str r0, [r0]
+
+    ; Set Vstart to start of screen buffer.
+    adr r12, screen_addr_phys
+    ldr r1, displayed_bank
+    ldr r0, [r12, r1, lsl #2]       ; physical RAM address of pending bank
+    add r1, r0, r11                 ; size of donut area for future Vend
+
+    mov r0, r0, lsl #2
+    orr r0, r0, #MEMC_Vinit
+    orr r0, r0, #MEMC_Vstart^MEMC_Vinit
+    str r0, [r0]
+
+    ; Inside donut space (line 128) set Vend to end of screen buffer.
+    sub r0, r1, #1
+    mov r0, r0, lsl #2
+    orr r0, r0, #MEMC_Vend
+
+    ldr r12, raster_table_memc_p
+    str r0, [r12, #128*8]           ; line 128
+
+    ; Do scrolltext?!
+    ldr r0, app_ready
+    cmp r0, #0
+    beq .4
+
+    ; Switch to SVC mode with IRQs enabled.
+    str r14, tipsy_r14_irq
+	TEQP PC,#FIQ_Disable | ProcMode_Svc
+    mov r0, r0
+
+    stmfd sp!, {r2-r10,lr}
+    bl tipsy_scroller_tick
+    ; Write scroller to static buffer.
+    ldr r12, app_scroller_logical
+    bl tipsy_scroller_draw_fast
+    ldmfd sp!, {r2-r10,lr}
+
+    ; Back to IRQ mode
+	TEQP PC,#IRQ_Disable | FIQ_Disable | ProcMode_IRQ
+    mov r0, r0
+    ldr r14, tipsy_r14_irq
+    .4:
+    .endif
+
+    ldr pc, [sp], #4
 
 ; ============================================================================
 ; FX code modules.
@@ -123,31 +197,12 @@ tipsy_r14_irq:
 .include "src/rasters-donut.asm"
 .include "src/fx/scene-3d.asm"
 .include "src/fx/tipsy-scroller.asm"
+.include "lib/mesh.asm"
 .endif
 
 .if _DEMO_PART==_PART_SPACE
 .include "src/fx/rotate.asm"
 .include "src/fx/uv-table.asm"
 .include "src/fx/lut-scroller.asm"
-.endif
-
-; ============================================================================
-; Additional library code modules used by the FX sequence.
-; ============================================================================
-
-.include "lib/screen.asm"
-.if _DEMO_PART==_PART_DONUT
-.include "lib/mesh.asm"
-.endif
-.if _DEMO_PART==_PART_SPACE
 .include "lib/lz4-decode.asm"
-.endif
-
-; ============================================================================
-; ArchieKlang generated code.
-; TODO: Move to app_audio module?
-; ============================================================================
-
-.if AppConfig_UseArchieKlang
-.include "lib/archieklang.asm"
 .endif

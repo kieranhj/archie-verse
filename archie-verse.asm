@@ -99,7 +99,6 @@ main:
 	; Param R12=top of RAM used.
     bl app_init_audio
 
-    ; EARLY INIT - LOAD STUFF HERE!
     .if _DEBUG
     mov r0, #Debug_TopOfWimpSlot
     sub r0, r0, r12
@@ -107,24 +106,39 @@ main:
     str r0, debug_free_ram
     .endif
 
+	; ================================
+    ; EARLY INIT == LOAD STUFF HERE!
+	; ================================
+
+    ; Register debug vars etc.
+    .if _DEBUG
+    bl app_init_debug               ; exact debug equired is app dependent.
+    .endif
+
 	; Bootstrap the main sequence.
-    ; Does one tick of the script!
+    ; NB. Does one tick of the script!
     bl sequence_init
 
-	; LATE INITALISATION HERE!
+	; ================================
+	; LATE INITALISATION == PREPARE FIRST FRAME
+	; ================================
+    
 	bl get_next_bank_for_writing    ; NB. Replace with bl get_screen_addr to see font plotting.
 
     ; Can now write to the screen for final init.
-    ldr r12, screen_addr
     bl app_late_init
+
+    ; Kick off anything that happens just before start.
+    bl app_vsync_late_init
 
 	; Play music!
 	QTMSWI QTM_Start
 
-    ; Show whatever app_init set up as the first frame.
+    ; Show whatever the app set up as the first frame.
     bl mark_write_bank_as_pending_display
 
     ; Reset vsync count.
+    ; TODO: Should this be mov r0, #0?
     ldr r0, vsync_count
     str r0, last_vsync
 
@@ -161,12 +175,14 @@ main_loop:
 	; ========================================================================
 
 	bl script_tick_all
+
     .if LibConfig_IncludeMathVar
     ; Tick after script as this is where vars will be added/removed.
     ldr r0, vsync_delta
-    bl math_var_tick                ; TODO: Here or app_tick or lib_tick?
+    bl math_var_tick                ; TODO: sequence_tick
     ; Tick before layers as this is where the vars will be used.
     .endif
+
 	bl fx_tick_layers
 
     ; Update frame counter.
@@ -228,26 +244,16 @@ main_loop_skip_tick:
     .endif
 
 	; ========================================================================
-	; VSYNC
+	; PREPARE TO DRAW NEXT FRAME
 	; ========================================================================
-
-	; This will block if there isn't a bank available to write to.
-    ; I.e. we're running too fast and our next buffer is the one being displayed.
-	; bl get_next_bank_for_writing
-
-	; Useful to determine frame rate for debug or frame-rate independent animation.
 
 	ldr r1, last_vsync
 	ldr r2, vsync_count
 	sub r0, r2, r1
 	str r2, last_vsync
-
-    ldr r1, reset_vsync_delta
-    cmp r1, #0
-    movne r0, #1
-    mov r1, #0
-    str r1, reset_vsync_delta
 	str r0, vsync_delta
+
+	; R0 = vsync delta since last frame.
 
     .if _DEBUG
     ldr r1, vsyncs_missed
@@ -256,8 +262,8 @@ main_loop_skip_tick:
     str r1, vsyncs_missed
     .endif
 
-	; R0 = vsync delta since last frame.
 	.if _CHECK_FRAME_DROP
+    ; TODO: Tidy this up - what's actually useful here?
     .if 0
 	; This flashes if vsync IRQ has no pending buffer to display.
 	ldr r2, last_dropped_frame
@@ -285,7 +291,6 @@ main_loop_skip_tick:
 
 	; show debug
 	.if _DEBUG
-    ldr r12, screen_addr
     bl debug_plot_vars
 	.endif
 
@@ -303,10 +308,8 @@ main_loop_skip_tick:
 	bcc main_loop                   ; exit if Escape is pressed
 
 exit:
-    .if _DEMO_PART==_PART_DONUT
-    mov r0, #0
-    str r0, app_ready
-    .endif
+    ; App custom exit.
+    bl app_exit
 
     ; Release all interupt handling.
     bl app_vsync_exit
@@ -323,15 +326,7 @@ exit:
 	swi OS_Release
     .endif
 
-	; Display whichever bank we've just written to
-	mov r0, #OSByte_WriteDisplayBank
-	ldr r1, write_bank
-	swi OS_Byte
-
-	; and write to it
-	mov r0, #OSByte_WriteVduBank
-	ldr r1, write_bank
-	swi OS_Byte
+    bl app_video_exit
 
 	; Flush keyboard buffer.
 	mov r0, #15
@@ -422,17 +417,11 @@ callers_stack_p:
     .long 0
 .endif
 
-screen_addr_input:
-	.long VD_ScreenStart, -1
-
 last_vsync:
 	.long 0
 
 vsync_delta:
 	.long 0
-
-reset_vsync_delta:
-    .long 0
 
 .if _DEBUG
 vsyncs_missed:
@@ -467,105 +456,6 @@ music_pos:
     .long 0
 .endif
 
-mark_write_bank_as_pending_display:
-	; Mark write bank as pending display.
-	ldr r1, write_bank
-
-	; What happens if there is already a pending bank?
-	; At the moment we block but could also overwrite
-	; the pending buffer with the newer one to catch up.
-	; TODO: A proper fifo queue for display buffers.
-.1:
-	ldr r0, pending_bank
-	cmp r0, #0
-	bne .1
-	str r1, pending_bank
-
-    ; If there is a new palette for this frame then stash it ready
-    ; for sending to the VIDC on the next vsync.
-
-    ldr r2, vidc_buffers_p
-    add r2, r2, r1, lsl #6              ; 64 bytes per bank
-
-    ldr r3, palette_array_p
-    cmp r3, #0
-    moveq r0, #-1                       ; no palette to set.
-    streq r0, [r2]
-    beq .2
-
-    ; TODO: Could think about a palette dirty flag? Although overhead lower now.
-
-    ; Copy 16 words of VIDC register data.
-    ldmia r3!, {r4-r11}
-    stmia r2!, {r4-r11}
-    ldmia r3!, {r4-r11}
-    stmia r2!, {r4-r11}
-
-.2:
-	; Show pending bank at next vsync.
-    .if !AppConfig_UseMemcBanks
-	MOV r0, #OSByte_WriteDisplayBank
-	swi OS_Byte
-    .endif
-;	mov pc, lr
-; FALL THROUGH!
-
-get_next_bank_for_writing:
-	; Increment to next bank for writing
-	ldr r1, write_bank
-	add r1, r1, #1
-	cmp r1, #VideoConfig_ScreenBanks
-	movgt r1, #1
-
-	; Block here if trying to write to displayed bank.
-    .if VideoConfig_ScreenBanks > 1
-	.1:
-	ldr r0, displayed_bank
-	cmp r1, r0
-	beq .1
-    .endif
-
-	str r1, write_bank
-
-	; Now set the screen bank to write to
-.if !AppConfig_UseMemcBanks
-	mov r0, #OSByte_WriteVduBank
-	swi OS_Byte
-.endif
-; FALL THROUGH!
-
-get_screen_addr:
-.if AppConfig_UseMemcBanks
-    adr r0, screen_addr_logical
-    ldr r1, write_bank
-    ldr r0, [r0, r1, lsl #2]
-    str r0, screen_addr
-.else
-	; Back buffer address for writing bank stored at screen_addr
-	adrl r0, screen_addr_input
-	adrl r1, screen_addr
-	swi OS_ReadVduVariables
-.endif
-    mov pc, lr
-
-.if AppConfig_UseMemcBanks
-screen_addr_logical:
-    .long 0
-    .set BankNo, 0
-    .rept VideoConfig_ScreenBanks
-    .long MEMC_PhysRam - TotalScreenSize + Screen_Bytes * BankNo
-    .set BankNo, BankNo+1
-    .endr
-
-screen_addr_phys:
-    .long 0
-    .set BankNo, 0
-    .rept VideoConfig_ScreenBanks
-    .long BankNo*Screen_Bytes >> 4
-    .set BankNo, BankNo+1
-    .endr
-.endif
-
 .if _DEBUG
 error_handler:
 	STMDB sp!, {r0-r2, lr}
@@ -580,9 +470,7 @@ error_handler:
 	SWI OS_Release
 
 	; Write & display current screen bank.
-	MOV r0, #OSByte_WriteDisplayBank
-	LDR r1, write_bank
-	SWI OS_Byte
+    bl app_video_exit
 
 	; Do these help?
 ;	QTMSWI QTM_Stop
@@ -595,30 +483,8 @@ error_handler:
 ; Core code modules
 ; ============================================================================
 
-screen_addr:
-	.long 0			    ; ptr to the current VIDC screen bank being written to.
-
-init_screen_addr:
-    .long 0             ; ptr to the screen displayed during [long] init.
-
-; TODO: Make these bytes?
-displayed_bank:
-	.long 0				; VIDC sreen bank being displayed
-
-write_bank:
-	.long 0				; VIDC screen bank being written to
-
-pending_bank:
-	.long 0				; VIDC screen to be displayed next
-
 vsync_count:
 	.long 0				; current vsync count from start of exe.
-
-palette_array_p:
-    .long 0             ; pointer to the palette array for this frame.
-
-vidc_buffers_p:
-    .long vidc_buffers_no_adr - 64
 
 .if _DEBUG
 debug_main_loop_pause:
@@ -653,7 +519,18 @@ debug_free_ram:
 .if AppConfig_UseSyncTracks
 .include "src/sync.asm"
 .endif
+
+; ============================================================================
+; App modules.
+; TOOD: Rename as main modules?
+; ============================================================================
+
+.include "src/app_vsync.asm"
+.include "src/app_audio.asm"
+.include "src/app_video.asm"
+
 .include "src/app.asm"
+.include "lib/screen.asm"
 .include "lib/lib_code.asm"
 
 ; ============================================================================

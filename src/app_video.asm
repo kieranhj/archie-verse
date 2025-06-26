@@ -1,7 +1,30 @@
 ; ============================================================================
 ; App video module.
-; Hack as necessary per prod?
+; Ideally don't want this file hackable.
+; TODO: Rename to main_video or something?
 ; ============================================================================
+
+screen_addr:
+	.long 0			    ; ptr to the current VIDC screen bank being written to.
+
+; TODO: Make these bytes?
+displayed_bank:
+	.long 0				; VIDC sreen bank being displayed
+
+write_bank:
+	.long 0				; VIDC screen bank being written to
+
+pending_bank:
+	.long 0				; VIDC screen to be displayed next
+
+palette_array_p:
+    .long 0             ; pointer to the palette array for this frame.
+
+vidc_buffers_p:
+    .long vidc_buffers_no_adr - 64
+
+screen_addr_input:
+	.long VD_ScreenStart, -1
 
 ; ============================================================================
 ; App video code.
@@ -67,8 +90,6 @@ app_init_video:
 
     ; Get address of the displayed bank.
     bl get_screen_addr
-    ldr r0, screen_addr
-    str r0, init_screen_addr
 
     ; No flashing colours (FFS).
     mov r0, #9
@@ -82,7 +103,6 @@ app_init_video:
 
     ldr pc, [sp], #4
 
-; TODO: Junk this for non_DEBUG?
 error_noscreenmem:
 	.long 0
 	.byte "Cannot allocate screen memory!"
@@ -92,3 +112,194 @@ error_noscreenmem:
 black_palette_p:
     .long seq_palette_all_black
 
+; ============================================================================
+
+app_video_exit:
+	; Display whichever bank we've just written to
+	mov r0, #OSByte_WriteDisplayBank
+	ldr r1, write_bank
+	swi OS_Byte
+
+	; and write to it
+	mov r0, #OSByte_WriteVduBank
+	ldr r1, write_bank
+	swi OS_Byte
+
+    mov pc, lr
+
+; ============================================================================
+
+; TODO: Rename these.
+mark_write_bank_as_pending_display:
+	; Mark write bank as pending display.
+	ldr r1, write_bank
+
+	; What happens if there is already a pending bank?
+	; At the moment we block but could also overwrite
+	; the pending buffer with the newer one to catch up.
+	; TODO: A proper fifo queue for display buffers.
+.1:
+	ldr r0, pending_bank
+	cmp r0, #0
+	bne .1
+	str r1, pending_bank
+
+    ; If there is a new palette for this frame then stash it ready
+    ; for sending to the VIDC on the next vsync.
+
+    ldr r2, vidc_buffers_p
+    add r2, r2, r1, lsl #6              ; 64 bytes per bank
+
+    ldr r3, palette_array_p
+    cmp r3, #0
+    moveq r0, #-1                       ; no palette to set.
+    streq r0, [r2]
+    beq .2
+
+    ; TODO: Could think about a palette dirty flag? Although overhead lower now.
+
+    ; Copy 16 words of VIDC register data.
+    ldmia r3!, {r4-r11}
+    stmia r2!, {r4-r11}
+    ldmia r3!, {r4-r11}
+    stmia r2!, {r4-r11}
+
+.2:
+	; Show pending bank at next vsync.
+    .if !AppConfig_UseMemcBanks
+	MOV r0, #OSByte_WriteDisplayBank
+	swi OS_Byte
+    .endif
+;	mov pc, lr
+; FALL THROUGH!
+
+get_next_bank_for_writing:
+	; Increment to next bank for writing
+	ldr r1, write_bank
+	add r1, r1, #1
+	cmp r1, #VideoConfig_ScreenBanks
+	movgt r1, #1
+
+	; Block here if trying to write to displayed bank.
+    .if VideoConfig_ScreenBanks > 1
+	.1:
+	ldr r0, displayed_bank
+	cmp r1, r0
+	beq .1
+    .endif
+
+	str r1, write_bank
+
+	; Now set the screen bank to write to
+.if !AppConfig_UseMemcBanks
+	mov r0, #OSByte_WriteVduBank
+	swi OS_Byte
+.endif
+; FALL THROUGH!
+
+get_screen_addr:
+.if AppConfig_UseMemcBanks
+    adr r0, screen_addr_logical
+    ldr r1, write_bank
+    ldr r0, [r0, r1, lsl #2]
+    str r0, screen_addr
+.else
+	; Back buffer address for writing bank stored at screen_addr
+	adrl r0, screen_addr_input
+	adrl r1, screen_addr
+	swi OS_ReadVduVariables
+.endif
+    mov pc, lr
+
+.if AppConfig_UseMemcBanks
+screen_addr_logical:
+    .long 0
+    .set BankNo, 0
+    .rept VideoConfig_ScreenBanks
+    .long MEMC_PhysRam - TotalScreenSize + Screen_Bytes * BankNo
+    .set BankNo, BankNo+1
+    .endr
+
+screen_addr_phys:
+    .long 0
+    .set BankNo, 0
+    .rept VideoConfig_ScreenBanks
+    .long BankNo*Screen_Bytes >> 4
+    .set BankNo, BankNo+1
+    .endr
+.endif
+
+; ============================================================================
+
+; Entered in IRQ mode.
+; OK to use R0,R1,R11,R12 which are stashed on the stack.
+; Enters with R0=vsync_count
+app_video_display_pending_bank:
+	; Pending bank will now be displayed.
+	ldr r1, pending_bank
+	cmp r1, #0
+	.if _CHECK_FRAME_DROP
+	streq r0, last_dropped_frame
+	.endif
+	beq .2
+
+    ; Set MEMC Vinit here if we're managing screen buffers manually.
+    .if AppConfig_UseMemcBanks
+    adr r12, screen_addr_phys
+    ldr r0, [r12, r1, lsl #2]       ; physical RAM address of pending bank
+    mov r0, r0, lsl #2
+    orr r0, r0, #MEMC_Vinit
+
+    mov r11, pc                     ; Save processor mode.
+    orr r12, r11, #ProcMode_Svc
+    teqp r12, #0                    ; Set Supervisor mode.
+    mov r0, r0
+    str r0, [r0]                    ; Set MEMC register Vinit
+
+    teqp r11, #0                    ; Restore previous processor mode.
+    mov r0, r0
+    .endif
+
+    str r1, displayed_bank
+
+	; Clear pending bank.
+	mov r0, #0
+	str r0, pending_bank
+
+    ; Done pending bank.
+.2:
+    mov pc, lr
+
+
+; Entered in IRQ mode.
+; OK to use R0,R1,R11,R12 which are stashed on the stack.
+app_video_set_palette:
+    mov r11, pc                     ; Save processor mode.
+    orr r12, r11, #ProcMode_Svc
+    teqp r12, #0                    ; Set Supervisor mode.
+    mov r0, r0
+    str r11, [sp, #-4]!
+
+    ; Set palette for bank to be displayed.
+	mov r11, #VIDC_Write
+    ldr r12, vidc_buffers_p
+    ldr r1, displayed_bank
+    cmp r1, #0                      ; avoid idiocy but make this better.
+    beq .11
+    add r12, r12, r1, lsl #6        ; 64 bytes per bank.
+    mov r1, #16
+.1:
+    ldr r0, [r12], #4
+    cmp r0, #-1
+    beq .11
+    str r0, [r11]                   ; VIDC_Write
+    subs r1, r1, #1
+    bne .1
+.11:
+    ldr r11, [sp], #4
+
+    teqp r11, #0                    ; Restore previous processor mode.
+    mov r0, r0
+    mov pc, lr
+
+; ============================================================================

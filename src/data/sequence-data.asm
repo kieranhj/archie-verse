@@ -236,8 +236,6 @@ seq_space_part:
     write_fp    uv_table_fp_u,        0.0
     write_fp    uv_table_fp_v,        0.0
 
-;    write_addr  reset_vsync_delta,    1
-
     wait_secs   2.0
 
     math_make_var uv_table_fp_v,      0.0, 384.0, math_clamp, 0.0, 1.0/(2*384)    ; v=i/200
@@ -265,8 +263,6 @@ seq_space_part:
     math_make_var seq_dv, 1.0, 3.0, math_clamp, 0.0, 1.0/(SpaceScene_Medium*50.0)
     math_add_vars uv_table_fp_v, seq_dv, 1.0, uv_table_fp_v       ; v'=1.0+1.0*v
 
-;    write_addr  reset_vsync_delta,    1
-
     wait_secs   SpaceScene_Medium
 
     gradient_fade_down_over_secs      gradient_ship,  1.0
@@ -289,8 +285,6 @@ seq_space_part:
 
     write_fp    uv_table_fp_u,        0.0
     math_link_vars uv_table_fp_v,     1.0, 1.0, uv_table_fp_v   ; v'=1.0+1.0*v
-
-;    write_addr  reset_vsync_delta,    1
 
     wait_secs   SpaceScene_Medium
 
@@ -315,8 +309,6 @@ seq_space_warp:
     write_fp    uv_table_fp_u,        0.0
     write_fp    seq_dv,               1.0
     math_add_vars uv_table_fp_v, seq_dv, 1.0, uv_table_fp_v       ; v'=1.0+1.0*v
-
-;    write_addr  reset_vsync_delta,    1
 
     ; Gets faster over time.
     math_make_var seq_dv, 1.0, 9.0, math_clamp, 0.0, 1.0/(4.0*50.0)
@@ -346,8 +338,6 @@ seq_space_black_hole:
     write_fp    uv_table_fp_u,        0.0
     math_link_vars uv_table_fp_v,     1.0, 1.0, uv_table_fp_v   ; v'=1.0+1.0*v
 
-;    write_addr  reset_vsync_delta,    1
-
     wait        50*(SpaceScene_Medium-SpaceScene_Flash)
     gosub       seq_space_do_flash
 
@@ -369,8 +359,6 @@ seq_space_black_hole:
 
     write_fp    uv_table_fp_u,        0.0
     math_link_vars uv_table_fp_v,     1.0, 1.0, uv_table_fp_v   ; v'=1.0+1.0*v
-
-;    write_addr  reset_vsync_delta,    1
 
     wait_secs   SpaceScene_Short
 
@@ -394,8 +382,6 @@ seq_space_tunnel:
 
     write_fp    uv_table_fp_u,        0.0
     math_link_vars uv_table_fp_v,     1.0, 1.0, uv_table_fp_v   ; v'=1.0+1.0*v
-
-;    write_addr  reset_vsync_delta,    1
 
     wait        50*(2*4.48+0.96)         ; second pattern
 ;    gosub       seq_space_do_flash
@@ -428,8 +414,6 @@ seq_space_tunnel:
     math_make_var uv_table_fp_u,      0.0, 1.0, 0, 0.0, -1.0
     math_make_var uv_table_fp_v,      0.0, 1.0, 0, 0.0, 1.0
 
-;    write_addr  reset_vsync_delta,    1
-
     wait_secs   SpaceScene_Medium
 
     gradient_fade_down_over_secs      gradient_wormhole,  SpaceScene_FadeDown
@@ -456,8 +440,6 @@ seq_space_torus:
 
     math_make_var uv_table_fp_u,      0.0, -1.0, 0, 0.0, 1.0
     math_make_var uv_table_fp_v,      0.0, 1.0, 0, 0.0, 1.0
-
-;    write_addr  reset_vsync_delta,    1
 
     wait_secs   SpaceScene_Medium
 
@@ -488,8 +470,6 @@ seq_space_rotate:
 ;    write_fp rotate_tl_x,      -64-80
 ;    write_fp rotate_tl_y,      -64-64
 
-;    write_addr  reset_vsync_delta,    1
-    
     wait_secs   SpaceScene_Medium
 
     ; Spinning
@@ -520,8 +500,6 @@ seq_space_spin:
 
     write_fp    uv_table_fp_u,        0.0
     math_link_vars uv_table_fp_v,     2.0, 1.0, uv_table_fp_v   ; v'=1.0+1.0*v
-
-;    write_addr  reset_vsync_delta,    1
 
     wait_secs   SpaceScene_Medium
 
@@ -558,8 +536,6 @@ seq_space_spin:
     math_make_var seq_panic_speed,   3.0, 1.0, math_sin, 0.0,  1.0/200.0
     math_add_vars uv_table_fp_v,     seq_panic_speed, 1.0, uv_table_fp_v   ; v'=speed+1.0*v
 
-;    write_addr  reset_vsync_delta,    1
-
     wait_secs   SpaceScene_Medium
 
     math_make_var seq_palette_blend,    0.0, -15.0, math_clamp, 0.0,  1.0/(SpaceScene_FadeDown*50.0)
@@ -590,8 +566,6 @@ seq_space_spin:
     math_add_vars uv_table_fp_v, seq_dv, 1.0, uv_table_fp_v       ; v'=1.0+1.0*v
     math_make_var seq_dv, 2.0, -2.0, math_clamp, 0.0, 1.0/(SpaceScene_Short*50.0)
 
-;    write_addr  reset_vsync_delta,    1
-
     wait_secs   SpaceScene_Short
 
     gradient_fade_down_over_secs      gradient_tunnel,  SpaceScene_FadeDown
@@ -614,8 +588,6 @@ seq_space_spin:
 
     write_fp    uv_table_fp_u,        0.0
     math_link_vars uv_table_fp_v,     4.0, 1.0, uv_table_fp_v   ; v'=2.0+1.0*v
-
-;    write_addr  reset_vsync_delta,    1
 
     wait        50*(2*4.48)         ; second pattern
 ;    gosub       seq_space_do_flash
@@ -653,8 +625,6 @@ seq_space_greets:
     write_fp    uv_table_fp_u,        0.0
     write_fp    seq_dv,               2.0
     math_add_vars uv_table_fp_v, seq_dv, 1.0, uv_table_fp_v       ; v'=1.0+1.0*v
-
-;    write_addr  reset_vsync_delta,    1
 
 .if ShortGreets
     wait_secs   1.0
@@ -695,8 +665,6 @@ seq_space_monolith:
     math_add_vars uv_table_fp_v, seq_dv, 1.0, uv_table_fp_v       ; v'=1.0+1.0*v
     math_make_var seq_dv, 0.9, -0.4, math_cos, 0.0, 1.0/(6.0*50.0)
 
-;    write_addr  reset_vsync_delta,    1
-
     wait        50*(4.48)         ; second pattern
 ;    gosub       seq_space_do_flash
     math_make_var seq_palette_blend,   0.0, 15.0, math_clamp, 0.0,  1.0/16.0
@@ -722,8 +690,6 @@ seq_space_monolith:
     write_addr  uv_table_map_p,       uv_table_data_no_adr
     call_1      uv_table_init_shader, UV_Table_TexDim_128_64
     call_2      uv_texture_unlz4,     uv_ship_texture_no_adr,   8192
-
-;    write_addr  reset_vsync_delta,    1
 
     write_fp    uv_table_fp_u,        0.0
     math_link_vars uv_table_fp_v,     1.0, 1.0, uv_table_fp_v   ; v'=0.25+1.0*v
@@ -766,8 +732,6 @@ seq_space_relax:
     ; Scroll V with wrapping.
     write_fp    uv_table_fp_u,        0.0
     math_make_var uv_table_fp_v,      0.0, 128.0, math_modfp, 0.0, 1.0/(256)    ; v=i/200
-
-;    write_addr  reset_vsync_delta,    1
 
     wait        256
 

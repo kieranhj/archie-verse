@@ -144,6 +144,8 @@ debug_plot_vars:
 
 	str lr, [sp, #-4]!
 
+    ldr r12, screen_addr
+
 	SET_BORDER 0xfff		; white = debug
 
     bl debug_cursor_home

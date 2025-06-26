@@ -12,11 +12,6 @@ sequence_init:
     mov r0, #0
     str r0, frame_counter
 
-    ; Register debug vars etc.
-    .if _DEBUG
-    bl app_init_debug               ; exact debug equired is app dependent.
-    .endif
-
     ; Install sync editor.
     .if AppConfig_UseSyncTracks
     bl sync_init

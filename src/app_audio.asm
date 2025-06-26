@@ -1,6 +1,7 @@
 ; ============================================================================
 ; App audio module.
-; Hack as necessary per prod?
+; Ideally don't want this file hackable.
+; Rename to main_audio or something?
 ; ============================================================================
 
 .if AppConfig_UseQtmEmbedded
@@ -92,5 +93,14 @@ app_init_audio:
 	QTMSWI QTM_Load
 
     mov pc, lr
+
+; ============================================================================
+; ArchieKlang generated code.
+; TODO: Move to app_audio module?
+; ============================================================================
+
+.if AppConfig_UseArchieKlang
+.include "lib/archieklang.asm"
+.endif
 
 ; ============================================================================
