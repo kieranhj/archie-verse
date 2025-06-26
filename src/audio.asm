@@ -35,7 +35,7 @@ music_sample_speed:
     .long 0
 
 ; R12=top of RAM used.
-app_init_audio:
+audio_init:
 
 .if AppConfig_DynamicSampleSpeed
 	; Count how long the init takes as a very rough estimate of CPU speed.
@@ -93,6 +93,17 @@ app_init_audio:
 	QTMSWI QTM_Load
 
     mov pc, lr
+
+audio_exit:
+	; Disable music
+	mov r0, #0
+	QTMSWI QTM_Clear
+
+.if AppConfig_UseQtmEmbedded
+    ldr pc, QtmEmbedded_Exit
+.else
+    mov pc, lr
+.endif
 
 ; ============================================================================
 ; ArchieKlang generated code.

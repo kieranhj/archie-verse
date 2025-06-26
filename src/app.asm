@@ -7,6 +7,33 @@
 .equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
 
 ; ============================================================================
+; App specific variables and tables.
+; ============================================================================
+
+.if _DEMO_PART==_PART_DONUT
+app_logo_p:
+    .long three_logo_no_adr ; src ptr
+    .long 0                 ; offset
+    .long 56*Screen_Stride  ; length
+    .long MEMC_PhysRam - TotalScreenSize + 192*Screen_Stride ; logical 
+
+app_logo_phys:
+    .long 192*Screen_Stride >> 4                             ; physical
+
+app_scroller_phys:
+    .long 248*Screen_Stride >> 4                             ; physical
+
+app_scroller_logical:
+    .long MEMC_PhysRam - TotalScreenSize + 248*Screen_Stride ; logical 
+
+app_ready:
+    .long 0
+
+tipsy_r14_irq:
+    .long 0
+.endif
+
+; ============================================================================
 ; App debug code.
 ; ============================================================================
 
@@ -66,30 +93,6 @@ app_late_init:
     .endif
 
     ldr pc, [sp], #4
-; TODO: Make this more generic or include in sequence?
-
-.if _DEMO_PART==_PART_DONUT
-app_logo_p:
-    .long three_logo_no_adr ; src ptr
-    .long 0                 ; offset
-    .long 56*Screen_Stride  ; length
-    .long MEMC_PhysRam - TotalScreenSize + 192*Screen_Stride ; logical 
-
-app_logo_phys:
-    .long 192*Screen_Stride >> 4                             ; physical
-
-app_scroller_phys:
-    .long 248*Screen_Stride >> 4                             ; physical
-
-app_scroller_logical:
-    .long MEMC_PhysRam - TotalScreenSize + 248*Screen_Stride ; logical 
-
-app_ready:
-    .long 0
-
-tipsy_r14_irq:
-    .long 0
-.endif
 
 app_exit:
     .if _DEMO_PART==_PART_DONUT
@@ -110,18 +113,25 @@ app_exit:
 ;app_pre_draw_frame:
 ;    mov pc, lr
 
-; Enters in IRQ mode.
-; Registers R0, R1, R11, R12 are stashed on the stack.
+; ============================================================================
+; App vsync callback.
+; Do any app specific logic in here.
+; Up to the app to call the screen bank swap and any palette logic.
+; ============================================================================
+
+; Entered in IRQ mode.
+; Registers R0, R1, R11, R12 are stashed on the stack and free to use.
+; They do not need to be restored before exiting.
 app_vsync_callback:
     str lr, [sp, #-4]!
 
-    bl app_video_display_pending_bank
+    bl video_display_pending_bank
 
     ; NB. Donut wants to set palette always.
     ; Normally only set palette when there's a new bank.
     ; Actually does it matter if we're ready from vidc_buffer[displayed_bank]?
 
-    bl app_video_set_palette
+    bl video_set_display_bank_palette
 
     .if _DEMO_PART==_PART_DONUT
     ; Custom screen split code for donut.

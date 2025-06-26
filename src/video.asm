@@ -31,7 +31,7 @@ screen_addr_input:
 ; ============================================================================
 
 ; R12=top of RAM used.
-app_init_video:
+video_init:
     str lr, [sp, #-4]!
 
 	; Set screen MODE & disable cursor
@@ -40,11 +40,10 @@ app_init_video:
     swi OS_RemoveCursors
 
     ; Blank our palette for MODE switch glitch? 
-    ldr r0, black_palette_p
-    str r0, palette_array_p
     ; TODO: Check whether the one-frame default palette glitch comes back
     ;       Might need to tell RISCOS about the palette in the first N vsyncs after MODE cange.
-    
+    ; TODO: Clear screen RAM first before MODE change...
+
     .if !AppConfig_ReturnMainToCaller   ; assume caller handles this for us.
 	; Set screen size for number of buffers
 	MOV r0, #DynArea_Screen
@@ -89,7 +88,7 @@ app_init_video:
     str r1, displayed_bank
 
     ; Get address of the displayed bank.
-    bl get_screen_addr
+    bl video_get_screen_addr
 
     ; No flashing colours (FFS).
     mov r0, #9
@@ -109,12 +108,9 @@ error_noscreenmem:
 	.p2align 2
 	.long 0
 
-black_palette_p:
-    .long seq_palette_all_black
-
 ; ============================================================================
 
-app_video_exit:
+video_exit:
 	; Display whichever bank we've just written to
 	mov r0, #OSByte_WriteDisplayBank
 	ldr r1, write_bank
@@ -130,7 +126,7 @@ app_video_exit:
 ; ============================================================================
 
 ; TODO: Rename these.
-mark_write_bank_as_pending_display:
+video_mark_screen_as_pending_display:
 	; Mark write bank as pending display.
 	ldr r1, write_bank
 
@@ -173,7 +169,7 @@ mark_write_bank_as_pending_display:
 ;	mov pc, lr
 ; FALL THROUGH!
 
-get_next_bank_for_writing:
+video_get_next_screen:
 	; Increment to next bank for writing
 	ldr r1, write_bank
 	add r1, r1, #1
@@ -197,7 +193,7 @@ get_next_bank_for_writing:
 .endif
 ; FALL THROUGH!
 
-get_screen_addr:
+video_get_screen_addr:
 .if AppConfig_UseMemcBanks
     adr r0, screen_addr_logical
     ldr r1, write_bank
@@ -234,7 +230,7 @@ screen_addr_phys:
 ; Entered in IRQ mode.
 ; OK to use R0,R1,R11,R12 which are stashed on the stack.
 ; Enters with R0=vsync_count
-app_video_display_pending_bank:
+video_display_pending_bank:
 	; Pending bank will now be displayed.
 	ldr r1, pending_bank
 	cmp r1, #0
@@ -273,7 +269,7 @@ app_video_display_pending_bank:
 
 ; Entered in IRQ mode.
 ; OK to use R0,R1,R11,R12 which are stashed on the stack.
-app_video_set_palette:
+video_set_display_bank_palette:
     mov r11, pc                     ; Save processor mode.
     orr r12, r11, #ProcMode_Svc
     teqp r12, #0                    ; Set Supervisor mode.

@@ -15,7 +15,7 @@
 .equ AppConfig_UseQtmEmbedded,          0
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
 .equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 1)       ; desktop by default TOOD: Should be an exe config?
-.equ AppConfig_UseMemcBanks,            1       ; not currently compatible with IrqHandler.
+.equ AppConfig_UseMemcBanks,            1
 
 .equ AppVsyncHandler_Events,            0
 .equ AppVsyncHandler_Irq,               1

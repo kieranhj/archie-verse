@@ -81,7 +81,7 @@ main:
     .endif
 
     ; Set up interrupt code.
-    bl app_vsync_init
+    bl vsync_init
 
     ; Generate sample data first?
     .if AppConfig_UseArchieKlang
@@ -93,11 +93,11 @@ main:
 	; Returns R12=top of RAM used.
 
     ; Allocate and clear screen buffers etc.
-    bl app_init_video
+    bl video_init
 
     ; Initialise the music player etc.
 	; Param R12=top of RAM used.
-    bl app_init_audio
+    bl audio_init
 
     .if _DEBUG
     mov r0, #Debug_TopOfWimpSlot
@@ -123,19 +123,21 @@ main:
 	; LATE INITALISATION == PREPARE FIRST FRAME
 	; ================================
     
-	bl get_next_bank_for_writing    ; NB. Replace with bl get_screen_addr to see font plotting.
+	bl video_get_next_screen    ; NB. Replace with bl video_get_screen_addr to see font plotting.
+
+    ; TODO: Move sequence_init here and replace app_late_init?
 
     ; Can now write to the screen for final init.
     bl app_late_init
 
     ; Kick off anything that happens just before start.
-    bl app_vsync_late_init
+    bl vsync_late_init
 
 	; Play music!
 	QTMSWI QTM_Start
 
     ; Show whatever the app set up as the first frame.
-    bl mark_write_bank_as_pending_display
+    bl video_mark_screen_as_pending_display
 
     ; Reset vsync count.
     ; TODO: Should this be mov r0, #0?
@@ -149,7 +151,7 @@ main_loop:
 	; ========================================================================
 
     .if _DEBUG
-    bl app_vsync_scankeys               ; NOP w/out RasterMan
+    bl vsync_scankeyboard               ; NOP w/out RasterMan
     bl debug_do_key_callbacks
 
     ldrb r0, debug_restart_flag
@@ -297,14 +299,14 @@ main_loop_skip_tick:
 	; Swap screens!
     ; NB. This blocks if there is already a bank pending display.
     ;     This also now fetches the next bank to write to.
-	bl mark_write_bank_as_pending_display
+	bl video_mark_screen_as_pending_display
 
     ldr r1, end_the_demo
     cmp r1, #0
     bne exit
 
 	; repeat!
-    bl app_vsync_checkescape
+    bl vsync_check_escape
 	bcc main_loop                   ; exit if Escape is pressed
 
 exit:
@@ -312,11 +314,11 @@ exit:
     bl app_exit
 
     ; Release all interupt handling.
-    bl app_vsync_exit
+    bl vsync_exit
 
-	; Disable music
-	mov r0, #0
-	QTMSWI QTM_Clear
+    bl audio_exit
+
+    bl video_exit
 
     .if _DEBUG
 	; Release our error handler
@@ -326,18 +328,10 @@ exit:
 	swi OS_Release
     .endif
 
-    bl app_video_exit
-
 	; Flush keyboard buffer.
 	mov r0, #15
 	mov r1, #1
 	swi OS_Byte
-
-.if AppConfig_UseQtmEmbedded
-    adr lr, .1
-    ldr pc, QtmEmbedded_Exit
-    .1:
-.endif
 
     ; Goodbye.
     .if AppConfig_ReturnMainToCaller
@@ -461,19 +455,19 @@ error_handler:
 	STMDB sp!, {r0-r2, lr}
 
     ; Release an interrupt handlers.
-    bl app_vsync_exit
+    bl vsync_exit
+
+	; Write & display current screen bank.
+    bl video_exit
+
+    ; Stop QTM.
+    bl audio_exit
 
 	; Release error handler.
 	MOV r0, #ErrorV
 	ADR r1, error_handler
 	MOV r2, #0
 	SWI OS_Release
-
-	; Write & display current screen bank.
-    bl app_video_exit
-
-	; Do these help?
-;	QTMSWI QTM_Stop
 
 	LDMIA sp!, {r0-r2, lr}
 	MOVS pc, lr
@@ -526,8 +520,8 @@ debug_free_ram:
 ; ============================================================================
 
 .include "src/app_vsync.asm"
-.include "src/app_audio.asm"
-.include "src/app_video.asm"
+.include "src/audio.asm"
+.include "src/video.asm"
 
 .include "src/app.asm"
 .include "lib/screen.asm"
