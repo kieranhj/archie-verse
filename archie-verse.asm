@@ -15,7 +15,7 @@
 .endif
 
 .ifndef _DEMO_PART
-.equ _DEMO_PART,                _PART_DONUT       ; 0=donut, 1=tables, 2=test
+.equ _DEMO_PART,                _PART_SPACE       ; 0=donut, 1=tables, 2=test
 .endif
 
 .ifndef _DEBUG

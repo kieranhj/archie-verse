@@ -34,6 +34,7 @@ screen_cls_from_line:
 
     stmia r12!, {r0-r5}             ; 24 bytes
     add pc, pc, #223*4              ; skip 15 + (787-578) = 224 instructions
+    ; TODO: Watch out if this is more than one instruction! Replace with ADR!
 .endif
 
 ; ====================================

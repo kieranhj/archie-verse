@@ -70,67 +70,55 @@ error_memcopysize:
 	.long 0
 .endif
 
-; TODO: Switch these around so we don't need the stack.
-;       Copy the left over bytes first.
-;       Then jump into the unrolled code with all registers.
-;       And mov pc, lr at the end.
-; TODO: Why can't we also use R2 for 44 bytes per instruction?
-; TODO: And use R14 and pull the return off the stack? for 48 bytes?
-
 ; R0=src
 ; R1=dst
 mem_copy_2K_fast:
     str lr, [sp, #-4]!
-    adr lr, .1
-    add pc, pc, #732*4              ; jump 359*2+15=733 instructions
-    .1:                             ; return
-    ldmia r0!, {r3-r8}              ; 24 bytes
-    stmia r1!, {r3-r8}
-    ldr pc, [sp], #4
-; ====================================
-; NB. Code must be in this order or add pc instruction needs altering above!
-; ====================================
+    ldmia r0!, {r2-r9}              ; 32 bytes
+    stmia r1!, {r2-r9}
+                                    ; + 42*48=2048 bytes
+
+    ; Skip 341-42 = 299 copy pairs to leave 42 copies.
+    adr lr, mem_copy_unrolled_code+299*8
+    mov pc, lr                      ; safer to use ADR than ADD!
 
 ; R0=src
 ; R1=dst
 mem_copy_4K_fast:
     str lr, [sp, #-4]!
-    adr lr, .1
-    add pc, pc, #624*4              ; jump 308*2+9=625 instructions
-    .1:                             ; return
-    ldmia r0!, {r3-r10}             ; 32 bytes
-    stmia r1!, {r3-r10}
-    ldr pc, [sp], #4
-; ====================================
-; NB. Code must be in this order or add pc instruction needs altering above!
-; ====================================
+    ldmia r0!, {r2-r5}              ; 16 bytes
+    stmia r1!, {r2-r5}
+                                    ; + 85*48=4096 bytes
+
+    ; Skip 341-85 = 256 copy pairs to leave 85 copies.
+    adr lr, mem_copy_unrolled_code+256*8
+    mov pc, lr                      ; safer to use ADR than ADD!
 
 ; R0=src
 ; R1=dst
 mem_copy_8K_fast:
     str lr, [sp, #-4]!
-    adr lr, .1
-    add pc, pc, #412*4              ; jump 205*2+3=413 instructions
-    .1:                             ; return
-    ldmia r0!, {r3-r4}              ; 8 bytes
-    stmia r1!, {r3-r4}
-    ldr pc, [sp], #4
-; ====================================
-; NB. Code must be in this order or add pc instruction needs altering above!
-; ====================================
+    ldmia r0!, {r2-r9}              ; 32 bytes
+    stmia r1!, {r2-r9}
+                                    ; + 170*48=8192 bytes
+
+    ; Skip 341-170 = 171 copy pairs to leave 170 copies
+    adr lr, mem_copy_unrolled_code+171*8
+    mov pc, lr                      ; safer to use ADR than ADD!
 
 ; R0=src
 ; R1=dst
 mem_copy_16K_fast:
-    .rept 409                       ; 409*40=16360 bytes
-    ldmia r0!, {r3-r12}             ; 40 bytes
-    stmia r1!, {r3-r12}
-    .endr                           ; 25c*40=1000c
-    ldmia r0!, {r3-r8}              ; 24 bytes
-    stmia r1!, {r3-r8}
-    mov pc, lr
-; ====================================
-; NB. Code must be in this order or add pc instruction needs altering above!
-; ====================================
+    str lr, [sp, #-4]!
+    ldmia r0!, {r2-r5}              ; 16 bytes
+    stmia r1!, {r2-r5}
+
+mem_copy_unrolled_code:
+    .rept 341                       ; + 341*48=16368 bytes
+    ldmia r0!, {r2-r12,r14}         ; 48 bytes
+    stmia r1!, {r2-r12,r14}
+    .endr                           ; = 16384 bytes = 16K
+
+    ldr pc, [sp], #4
 
 ; ============================================================================
