@@ -110,8 +110,8 @@
 .equ Screen_Height,                     256
 .endif
 
-; Clear screen (clipping)               ; TODO: This is ick.
-.if _DEMO_PART==_PART_DONUT             ; donut
+; Clear screen (clipping)
+.if _DEMO_PART==_PART_DONUT             ; clear donut window only
 .equ Cls_FirstLine,                     2               ; inclusive
 .equ Cls_LastLine,                      189             ; inclusive
 .else

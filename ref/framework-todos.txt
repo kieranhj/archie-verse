@@ -6,8 +6,11 @@ Contains all accumulated libraries and code from previous prods.
 NEXT STEPS
 ~~~
 - Submit a clean-ish branch to a separate repo for the Megademo source. - DONE (MINUS README)
-- Tidy up app.asm with three parts to verify APIs?
+- Tidy up app.asm with three parts to verify APIs? - DONE
 - Sort out palette nonsense whilst it's fresh? - DONE!
+- Remove Megademo hacks:
+    - Determine screen RAM allocation and page size runtime if needed.
+    - Sort out CLS vs polygon clipping code. - DONE (ENOUGH)
 - Strip back to a single effect and merge back into main.
 - ProTracker processor Python script.
     https://www.stef.be/bassoontracker/docs/ProtrackerCommandReference.pdf
@@ -15,22 +18,32 @@ NEXT STEPS
     Have a watcher script so when Dave saves the MOD file it automatically splits it
     into a 4ch MOD and the events file, copies this into the Arculator hostfs folder.
     Then just need to press a key to reload and restart the sequence.
+    = MOD file analyser to configure code / script (pattern length table)
 - Build something simple in ArchieSDK to assess prototyping/scripting potential.
-
+    Or GCCSDK that Sarah was using?
+- MODE 13 palette tool
+    Get the Javascript page hosted on github.io!
+    Add ability to save the palette as a PNG.
+    Add ability to export asm file with VIDC defs.
+    Add presets for RGB332 RGB233 RGB323 RISCOS etc.
 
 
 Framework TODOs as of 18/6/25 (post-NOVA):
 ~~~
-- Separate tick/draw order from being tied together. <=== THIS
+- Separate tick/draw order from being tied together. ==> DO IT WHEN YOU NEED IT
     - Strict draw order in layers.
     - Are there any dependencies between tick?
       => Could be if moving objects in a scene then doing collisions, say.
     - Tick just means 'call this function every frame without fail'
       Could be implemented using script_fork!! (Don't do this!)
+    - Add tick fn with priority? => then have to remember to remove it...
+      Advantage of layer for tick is that the layers get replaced.
+    - Add a generic tick list? => Are these before or after the layers?!
+      Generic tick list w/ priority where <100 means before layers >=100 after?
+
 - Improve build using Tom's Python scripts and makefile-foo.
 - Move png2arc to Python 3. ==> Use Gemini!
-- Spit out palettes as asm data from png2arc script, not just binary blobs.
-- MOD file analyser to configure code / script.
+- Spit out palettes as asm data from png2arc script, not just binary blobs. - DONE
 - Move scripting to use seconds throughout? (Still using mix of frames and vsyncs.)
     => See below.
 - Automatic clearing of BSS by loader?
@@ -42,28 +55,24 @@ Framework TODOs as of 18/6/25 (post-NOVA):
     Propose to settle on VIDC reg format? - DONE
 
 - Disentangle app.asm, which got very messy:
-    - Better API/seperate module for handling audio.
-    - Better API/separate module for handling video.
-    - Vsync code needs a complete rethink.
+    - Better API/seperate module for handling audio. - DONE
+    - Better API/separate module for handling video. - DONE
+    - Vsync code needs a complete rethink. - DONE
 
 - Deprecate unused configs to simplify code:
-    - AppConfig_LoadModFromFile - always going to bake this in?
-    - AppConfig_DynamicSampleSpeed - put this in an audio module?
-    - AppConfig_UseArchieKlang - put this in an audio modue?
+    - AppConfig_LoadModFromFile - always going to bake this in? - NOT IN DEBUG?
+    - AppConfig_DynamicSampleSpeed - put this in an audio module? - NO
+    - AppConfig_UseArchieKlang - put this in an audio modue? - DONE
 
 - Sort out messiest configs (cross multiple files):
-    - AppConfig_InstallIrqHandler - touches main, incompatible with RM.
-    - AppConfig_UseRasterMan - touches main, incompatible with IRQ handler.
-    - AppConfig_UseMemcBanks - touches main, keep for compatibility testing!
-
-- Remove Megademo hacks:
-    - Determine screen RAM allocation and page size runtime if needed.
-    - Sort out CLS vs polygon clipping code.
+    - AppConfig_InstallIrqHandler - touches main, incompatible with RM. - DONE
+    - AppConfig_UseRasterMan - touches main, incompatible with IRQ handler. - DONE
+    - AppConfig_UseMemcBanks - touches main, keep for compatibility testing! - DONE
 
 - Do we still care about AppConfig_UseSyncTracks?
     Replace with MOD event system and C code?
 
-- Move screen buffer handling code to app_video module.
+- Move screen buffer handling code to app_video module. - DONE
 
 
 ---

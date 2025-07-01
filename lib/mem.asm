@@ -51,7 +51,7 @@ mem_copy_fast:
     cmp r2, #2048
     beq mem_copy_2K_fast
     cmp r2, #4096
-    beq mem_copy_2K_fast
+    beq mem_copy_4K_fast
     cmp r2, #8192
     beq mem_copy_8K_fast
     cmp r2, #16384
@@ -70,6 +70,13 @@ error_memcopysize:
 	.long 0
 .endif
 
+; TODO: Switch these around so we don't need the stack.
+;       Copy the left over bytes first.
+;       Then jump into the unrolled code with all registers.
+;       And mov pc, lr at the end.
+; TODO: Why can't we also use R2 for 44 bytes per instruction?
+; TODO: And use R14 and pull the return off the stack? for 48 bytes?
+
 ; R0=src
 ; R1=dst
 mem_copy_2K_fast:
@@ -80,7 +87,9 @@ mem_copy_2K_fast:
     ldmia r0!, {r3-r8}              ; 24 bytes
     stmia r1!, {r3-r8}
     ldr pc, [sp], #4
+; ====================================
 ; NB. Code must be in this order or add pc instruction needs altering above!
+; ====================================
 
 ; R0=src
 ; R1=dst
@@ -92,7 +101,9 @@ mem_copy_4K_fast:
     ldmia r0!, {r3-r10}             ; 32 bytes
     stmia r1!, {r3-r10}
     ldr pc, [sp], #4
+; ====================================
 ; NB. Code must be in this order or add pc instruction needs altering above!
+; ====================================
 
 ; R0=src
 ; R1=dst
@@ -104,7 +115,9 @@ mem_copy_8K_fast:
     ldmia r0!, {r3-r4}              ; 8 bytes
     stmia r1!, {r3-r4}
     ldr pc, [sp], #4
+; ====================================
 ; NB. Code must be in this order or add pc instruction needs altering above!
+; ====================================
 
 ; R0=src
 ; R1=dst
@@ -116,6 +129,8 @@ mem_copy_16K_fast:
     ldmia r0!, {r3-r8}              ; 24 bytes
     stmia r1!, {r3-r8}
     mov pc, lr
+; ====================================
 ; NB. Code must be in this order or add pc instruction needs altering above!
+; ====================================
 
 ; ============================================================================

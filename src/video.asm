@@ -274,6 +274,8 @@ video_set_display_bank_palette:
     orr r12, r11, #ProcMode_Svc
     teqp r12, #0                    ; Set Supervisor mode.
     mov r0, r0
+
+.if 0
     str r11, [sp, #-4]!
 
     ; Set palette for bank to be displayed.
@@ -293,6 +295,45 @@ video_set_display_bank_palette:
     bne .1
 .11:
     ldr r11, [sp], #4
+.else
+    stmfd sp!, {r2-r8}
+
+    ldr r12, vidc_buffers_p
+    ldr r1, displayed_bank
+    cmp r1, #0                      ; avoid idiocy but make this better.
+    beq .11
+    add r12, r12, r1, lsl #6        ; 64 bytes per bank.
+
+    ldmia r12!, {r0-r7}
+    cmp r0, #-1
+    beq .11
+
+    ; Blat 16 palette regs to VIDC.
+    mov r8, #VIDC_Write
+
+    str r0, [r8]                    ; VIDC_Write
+    str r1, [r8]                    ; VIDC_Write
+    str r2, [r8]                    ; VIDC_Write
+    str r3, [r8]                    ; VIDC_Write
+    str r4, [r8]                    ; VIDC_Write
+    str r5, [r8]                    ; VIDC_Write
+    str r6, [r8]                    ; VIDC_Write
+    str r7, [r8]                    ; VIDC_Write
+
+    ldmia r12!, {r0-r7}
+
+    str r0, [r8]                    ; VIDC_Write
+    str r1, [r8]                    ; VIDC_Write
+    str r2, [r8]                    ; VIDC_Write
+    str r3, [r8]                    ; VIDC_Write
+    str r4, [r8]                    ; VIDC_Write
+    str r5, [r8]                    ; VIDC_Write
+    str r6, [r8]                    ; VIDC_Write
+    str r7, [r8]                    ; VIDC_Write
+
+.11:
+    ldmfd sp!, {r2-r8}
+.endif
 
     teqp r11, #0                    ; Restore previous processor mode.
     mov r0, r0

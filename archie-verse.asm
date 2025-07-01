@@ -524,7 +524,6 @@ debug_free_ram:
 .include "src/video.asm"
 
 .include "src/app.asm"
-.include "lib/screen.asm"
 .include "lib/lib_code.asm"
 
 ; ============================================================================

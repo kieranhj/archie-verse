@@ -201,6 +201,7 @@ app_vsync_callback:
 .if _DEMO_PART==_PART_TEST
 .include "src/fx/sine-scroller.asm"
 .include "src/rasters.asm"
+.include "lib/screen.asm"
 .endif
 
 .if _DEMO_PART==_PART_DONUT
@@ -208,6 +209,7 @@ app_vsync_callback:
 .include "src/fx/scene-3d.asm"
 .include "src/fx/tipsy-scroller.asm"
 .include "lib/mesh.asm"
+.include "lib/screen.asm"
 .endif
 
 .if _DEMO_PART==_PART_SPACE

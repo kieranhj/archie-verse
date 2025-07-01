@@ -2,24 +2,23 @@
 ; Screen routines, clear, copy, etc.
 ; ============================================================================
 
-.if 1
+.if Cls_Bytes != Screen_Bytes
+; For custom CLS from line N to line M.
+; Calculate write address.
+; Calculate size in bytes.
+; Write left over bytes.
+; Jump into unrolled code for large block.
 screen_cls_from_line:
-    mov r0, #Cls_FirstLine
-    add r12, r12, r0, lsl #7
-    add r12, r12, r0, lsl #5
-    .if Screen_Mode != 9
-    .err "Expected Screen_Mode to be 12!"
+    .if Cls_Bytes != 30080
+    .err "Expected Screen_Mode == 30080!"
     .endif
-.endif
 
-; R12 = screen address
-; trashes r0-r9
-screen_cls:
-    mov r0, #0
+    add r12, r12, #Cls_FirstLine*Screen_Stride
 
-; TODO: Make unrolled cls fn from code at init. (Actually Shrinkler works better!)
-; R0 = word to fill screen.
-screen_cls_with_word:
+    ; 30080 bytes = 578 * 52 bytes + 24 bytes
+
+    ; NB. Looks bad but Shrinkler will eat this.
+    str lr, [sp, #-4]!
 	mov r1, r0
 	mov r2, r0
 	mov r3, r0
@@ -31,16 +30,57 @@ screen_cls_with_word:
 	mov r9, r0
 	mov r10, r0
 	mov r11, r0
-    .rept Cls_Bytes / 48
-	stmia r12!, {r0-r11}
+    mov r14, r0
+
+    stmia r12!, {r0-r5}             ; 24 bytes
+    add pc, pc, #223*4              ; skip 15 + (787-578) = 224 instructions
+.endif
+
+; ====================================
+; NB. Code must be in this order or add pc instruction needs altering above!
+; ====================================
+
+; A full MODE 9 screen is 160*256=40960 bytes.
+; At 13 registers per write = 52 bytes per instruction.
+; 
+; 787 STM writes = 787 * (3 + 1.25*13) = 787 * 19.25c = 15149.75c
+; To write 40924 bytes + 36 bytes left over = 40960
+;
+; R12 = screen address
+; trashes R0-R11, R14
+screen_cls:
+    mov r0, #0
+
+; NB. Shrinkler compresses this code better than generating it at runtime.
+; R0 = word to fill screen.
+screen_cls_with_word:
+    str lr, [sp, #-4]!
+	mov r1, r0
+	mov r2, r0
+	mov r3, r0
+	mov r4, r0
+	mov r5, r0
+	mov r6, r0
+	mov r7, r0
+	mov r8, r0
+	mov r9, r0
+	mov r10, r0
+	mov r11, r0
+    mov r14, r0
+    .if Screen_Bytes != 40960
+    .err "Expected ScreenMode == 9!"
+    .endif
+	stmia r12!, {r0-r8}                 ; 36 bytes
+
+; ====================================
+; NB. Code must be in this order or add pc instruction needs altering above!
+; ====================================
+
+screen_cls_unrolled_stores:
+    .rept Screen_Bytes / 52             ; 787 * 52 bytes
+	stmia r12!, {r0-r11,r14}
     .endr
-    .if Cls_Bytes-48*(Cls_Bytes/48)==32
-	stmia r12!, {r0-r7}
-    .endif
-    .if Cls_Bytes-48*(Cls_Bytes/48)==16
-	stmia r12!, {r0-r3}
-    .endif
-	mov pc, lr
+    ldr pc, [sp], #4
 
 ; ============================================================================
 
