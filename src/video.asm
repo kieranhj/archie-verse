@@ -234,9 +234,6 @@ video_display_pending_bank:
 	; Pending bank will now be displayed.
 	ldr r1, pending_bank
 	cmp r1, #0
-	.if _CHECK_FRAME_DROP
-	streq r0, last_dropped_frame
-	.endif
 	beq .2
 
     ; Set MEMC Vinit here if we're managing screen buffers manually.

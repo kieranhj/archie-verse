@@ -1,10 +1,17 @@
 ; ============================================================================
 ; The actual sequence for the demo.
-; TODO: Should probably decide if frame_counter lives in here.
 ; ============================================================================
+
+frame_counter:
+    .long 0
+
+max_frames:
+    .long SeqConfig_MaxFrames
 
 sequence_program_p:
     .long seq_main_program
+
+; ============================================================================
 
 sequence_init:
     str lr, [sp, #-4]!
@@ -41,6 +48,48 @@ sequence_init:
     bl script_tick_all
 
     ldr pc, [sp], #4
+
+sequence_tick:
+    str lr, [sp, #-4]!
+
+    .if AppConfig_UseSyncTracks
+    bl sync_update_vars
+    .endif
+
+	bl script_tick_all
+
+    .if LibConfig_IncludeMathVar
+    ; Tick after script as this is where vars will be added/removed.
+    ldr r0, vsync_delta
+    bl math_var_tick
+    ; Tick before layers as this is where the vars will be used.
+    .endif
+
+	bl fx_tick_layers
+
+    ; Update frame counter.
+    ldr r0, frame_counter
+    ldr r1, max_frames
+    add r0, r0, #1
+    cmp r0, r1
+    .if SeqConfig_EnableLoop
+    movge r0, #0
+    str r0, frame_counter
+    .if _DEMO_PART != _PART_DONUT
+    blge sequence_init
+    .endif
+    .else
+    str r0, frame_counter
+    .endif
+
+    .if AppConfig_UseSyncTracks
+    ldr r0, frame_counter       ; TODO: frames vs syncs ==> secs!
+    bl sync_set_time
+    .endif
+
+    ldr pc, [sp], #4
+
+; ============================================================================
 
 .if _DEBUG
 filename:
@@ -104,3 +153,5 @@ debug_pattern_to_frame:
     frame_for_pattern 38
     frame_for_pattern 39
 .endif
+
+; ============================================================================

@@ -114,7 +114,7 @@ mem_copy_16K_fast:
     stmia r1!, {r2-r5}
 
 mem_copy_unrolled_code:
-    .rept 341                       ; + 341*48=16368 bytes
+    .rept 341                       ; + 341*48=1684 bytes
     ldmia r0!, {r2-r12,r14}         ; 48 bytes
     stmia r1!, {r2-r12,r14}
     .endr                           ; = 16384 bytes = 16K

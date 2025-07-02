@@ -9,7 +9,7 @@ NEXT STEPS
 - Tidy up app.asm with three parts to verify APIs? - DONE
 - Sort out palette nonsense whilst it's fresh? - DONE!
 - Remove Megademo hacks:
-    - Determine screen RAM allocation and page size runtime if needed.
+    - Determine screen RAM allocation and page size runtime if needed. - NOT YET
     - Sort out CLS vs polygon clipping code. - DONE (ENOUGH)
 - Strip back to a single effect and merge back into main.
 - ProTracker processor Python script.
@@ -97,7 +97,7 @@ App itself should have (optional) entry points:
 - Interrupt
 - Exit (Kill)
 
-Interrupt code should be move to own module.
+Interrupt code should be move to own module. - DONE
 
 
 ---

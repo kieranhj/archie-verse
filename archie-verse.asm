@@ -15,7 +15,7 @@
 .endif
 
 .ifndef _DEMO_PART
-.equ _DEMO_PART,                _PART_SPACE       ; 0=donut, 1=tables, 2=test
+.equ _DEMO_PART,                _PART_DONUT       ; 0=donut, 1=tables, 2=test
 .endif
 
 .ifndef _DEBUG
@@ -168,39 +168,12 @@ main_loop:
 	.3:
 	.endif
 
-    .if AppConfig_UseSyncTracks
-    bl sync_update_vars
-    .endif
-
 	; ========================================================================
 	; TICK
 	; ========================================================================
 
-	bl script_tick_all
-
-    .if LibConfig_IncludeMathVar
-    ; Tick after script as this is where vars will be added/removed.
-    ldr r0, vsync_delta
-    bl math_var_tick                ; TODO: sequence_tick
-    ; Tick before layers as this is where the vars will be used.
-    .endif
-
-	bl fx_tick_layers
-
-    ; Update frame counter.
-    ldr r0, frame_counter
-    ldr r1, max_frames
-    add r0, r0, #1
-    cmp r0, r1
-    .if SeqConfig_EnableLoop
-    movge r0, #0
-    str r0, frame_counter
-    .if _DEMO_PART != _PART_DONUT
-    blge sequence_init
-    .endif
-    .else
-    str r0, frame_counter
-    .endif
+    bl sequence_tick
+    ; Returns frame_counter in R0.
 
     .if _DEBUG
     ; Calculate frame rate = frames / second.
@@ -222,11 +195,6 @@ main_loop:
 
     str r2, debug_frame_rate
     .4:
-    .endif
-
-    .if AppConfig_UseSyncTracks
-    ldr r0, frame_counter       ; TODO: frames vs syncs ==> secs!
-    bl sync_set_time
     .endif
 
     .if _DEBUG
@@ -265,23 +233,10 @@ main_loop_skip_tick:
     .endif
 
 	.if _CHECK_FRAME_DROP
-    ; TODO: Tidy this up - what's actually useful here?
-    .if 0
-	; This flashes if vsync IRQ has no pending buffer to display.
-	ldr r2, last_dropped_frame
-	ldr r1, last_last_dropped_frame
-	cmp r2, r1
-	moveq r4, #0x000
-	movne r4, #0x00f
-	strne r2, last_last_dropped_frame
-	bl debug_set_border
-    .else
-    ldr r2, vsync_delta
-    cmp r2, #2
+    cmp r0, #1              ; 25Hz
     movgt r4, #0x00f
     movle r4, #0x000
 	bl debug_set_border
-    .endif
     .endif
 
 	; ========================================================================
@@ -427,20 +382,6 @@ vsyncs_since_last_count:
 debug_frame_rate:
     .long 0
 .endif
-
-.if _CHECK_FRAME_DROP
-last_dropped_frame:
-	.long 0
-
-last_last_dropped_frame:
-	.long 0
-.endif
-
-frame_counter:
-    .long 0
-
-max_frames:
-    .long SeqConfig_MaxFrames
 
 end_the_demo:
     .long 0
