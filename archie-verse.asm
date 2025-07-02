@@ -30,7 +30,7 @@
 .equ _LOG_SAMPLES,              (_SMALL_EXE && 0)
 
 .equ _DEBUG_RASTERS,            (_DEBUG && 1)
-.equ _CHECK_FRAME_DROP,         (!_DEBUG && 0)  ; only works for 50Hz
+.equ _CHECK_FRAME_DROP,         (!_DEBUG && 0)  ; need to check this is still fit for purpose.
 .equ _SYNC_EDITOR,              (_DEBUG && 0)   ; sync driven by external editor.
 
 .equ DebugDefault_PlayPause,    1		; play
@@ -52,7 +52,6 @@
 .include "lib/mesh.h.asm"
 .include "lib/script.h.asm"
 .include "lib/sequence.h.asm"
-; TODO: Put all these into a single lib header?
 
 ; ============================================================================
 ; Code Start
@@ -117,6 +116,7 @@ main:
 
 	; Bootstrap the main sequence.
     ; NB. Does one tick of the script!
+    ;     But doesn't tick the FX layers.
     bl sequence_init
 
 	; ================================

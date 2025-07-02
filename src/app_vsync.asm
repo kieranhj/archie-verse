@@ -51,10 +51,8 @@ vsync_init:
 
 vsync_late_init:
     .if AppVsync_UseRasterMan
-    ; TODO: Sort out the screen mode / QTM / RasterMan init timing.
-    ; From Steve: QTM's DMA routine needs to be enabled for a few VSyncs after the final mode 
-    ;             change before RM starts - hence need for QTM_SoundControl.
-    ; TODO: Does this mean QTM_Start has to run for a few frames?
+    ; Note from Steve: QTM's DMA routine needs to be enabled for a few VSyncs after the final mode 
+    ;                  change before RM starts - hence need for QTM_SoundControl.
 
     adr r0, vsync_do_callback
     swi RasterMan_Callback

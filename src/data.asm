@@ -10,14 +10,14 @@
 .if _DEMO_PART==_PART_TEST
 ; fx/sine-scroller.asm
 razor_font_no_adr:
-.incbin "build/razor-font.bin"              ; TODO: Remove if not used!
+.incbin "build/razor-font.bin"
 .endif
 
 ; ===========================================================================
 
 .if _DEMO_PART==_PART_DONUT
 ; fx/scene-3d.asm
-.include "src/data/three-dee/3d-meshes.asm" ; TODO: Remove what's not used!
+.include "src/data/three-dee/3d-meshes.asm"
 
 three_logo_no_adr:
 .incbin "build/three-logo.bin"

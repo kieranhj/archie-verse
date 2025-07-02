@@ -1,7 +1,6 @@
 ; ============================================================================
 ; App video module.
 ; Ideally don't want this file hackable.
-; TODO: Rename to main_video or something?
 ; ============================================================================
 
 screen_addr:

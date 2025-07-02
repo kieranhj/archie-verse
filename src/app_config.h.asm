@@ -39,8 +39,6 @@
 ; Sequence config.
 ; ============================================================================
 
-; TODO: Update for _DEMO_PARTs
-
 .if _DEMO_PART==_PART_DONUT
 .equ SeqConfig_EnableLoop,              1
 .equ SeqConfig_MaxPatterns,             20

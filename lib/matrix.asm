@@ -399,7 +399,7 @@ transform_3d_scene:
     .2:
     ; R0=ptr to matrix, R1=vector A, R2=vector B
     bl matrix_multiply_vector
-    ; TODO: Array version of this function.
+
     add r1, r1, #VECTOR3_SIZE
     add r2, r2, #VECTOR3_SIZE
     subs r10, r10, #1

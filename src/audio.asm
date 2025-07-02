@@ -107,7 +107,6 @@ audio_exit:
 
 ; ============================================================================
 ; ArchieKlang generated code.
-; TODO: Move to app_audio module?
 ; ============================================================================
 
 .if AppConfig_UseArchieKlang
