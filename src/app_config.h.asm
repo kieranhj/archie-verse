@@ -131,20 +131,26 @@
 .endif
 
 ; ============================================================================
-; QTM Embedded entry points.
+; Library config.
 ; ============================================================================
 
-.if AppConfig_UseQtmEmbedded
-.macro QTMSWI swi_no
-stmfd sp!, {r11,lr}
-mov r11, #\swi_no - QTM_SwiBase
-mov lr, pc
-ldr pc, QtmEmbedded_Swi
-ldmfd sp!, {r11,lr}
-.endm
+; All parts.
+.equ LibConfig_IncludeMem,              1
+.equ LibConfig_IncludeMathVar,          1
+.equ LibConfig_IncludeSine,             1
 
-.else
-.macro QTMSWI swi_no
-swi \swi_no
-.endm
+.if _DEMO_PART == _PART_DONUT
+.equ LibConfig_IncludeSqrt,             1
+.equ LibConfig_IncludeTriangle,         1
+.equ LibConfig_IncludeDivide,           1
+.equ LibConfig_IncludeVector,           1
+.equ LibConfig_IncludeMatrix,           1
+.endif
+
+.if _DEMO_PART == _PART_SPACE
+; No additional libs.
+.endif
+
+.IF _DEMO_PART == _PART_TEST
+; No additional libs.
 .endif

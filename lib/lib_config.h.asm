@@ -2,30 +2,73 @@
 ; Library module config header (include at start).
 ; ============================================================================
 
-; TODO: Allow configuration of more than one screen mode for code gen etc.?
-
+.ifndef LibConfig_ShowInitProgress
 .equ LibConfig_ShowInitProgress,        0
+.endif
 
-.equ LibConfig_IncludeMem,              1
-.equ LibConfig_IncludeSqrt,             _DEMO_PART==_PART_DONUT
+.ifndef LibConfig_IncludeMem
+.equ LibConfig_IncludeMem,              0
+.endif
+
+.ifndef LibConfig_IncludeSqrt
+.equ LibConfig_IncludeSqrt,             0
+.endif
+
+.ifndef LibConfig_IncludeLine
 .equ LibConfig_IncludeLine,             0
-.equ LibConfig_IncludeTriangle,         _DEMO_PART==_PART_DONUT
+.endif
+
+.ifndef LibConfig_IncludeTriangle
+.equ LibConfig_IncludeTriangle,         0
+.endif
+
+.ifndef LibConfig_IncludePolygon
 .equ LibConfig_IncludePolygon,          0
-.equ LibConfig_IncludeDivide,           _DEMO_PART==_PART_DONUT
-.equ LibConfig_IncludeVector,           _DEMO_PART==_PART_DONUT
-.equ LibConfig_IncludeMatrix,           _DEMO_PART==_PART_DONUT
+.endif
+
+.ifndef LibConfig_IncludeDivide
+.equ LibConfig_IncludeDivide,           0
+.endif
+
+.ifndef LibConfig_IncludeVector
+.equ LibConfig_IncludeVector,           0
+.endif
+
+.ifndef LibConfig_IncludeMatrix
+.equ LibConfig_IncludeMatrix,           0
+.endif
+
+.ifndef LibConfig_IncludeCircles
 .equ LibConfig_IncludeCircles,          0
+.endif
+
+.ifndef LibConfig_IncludeSprites
 .equ LibConfig_IncludeSprites,          0
-.equ LibConfig_IncludeMathVar,          1
+.endif
 
-.equ LibConfig_IncludeSine,             (LibConfig_IncludeMatrix || 1)
-.equ LibConfig_IncludeSpanGen,          (LibConfig_IncludeTriangle || LibConfig_IncludePolygon || LibConfig_IncludeCircles || 0)       ; Required for polygon & triangle & cirlces.
+.ifndef LibConfig_IncludeMathVar
+.equ LibConfig_IncludeMathVar,          0
+.endif
 
+.ifndef LibConfig_IncludeLineSegments
 .equ LibConfig_IncludeLineSegments,     0
+.endif
+
+.ifndef LibConfig_IncludeSine
+.equ LibConfig_IncludeSine,             (LibConfig_IncludeMatrix)
+.endif
+
+.ifndef LibConfig_IncludeSpanGen
+.equ LibConfig_IncludeSpanGen,          (LibConfig_IncludeTriangle || LibConfig_IncludePolygon || LibConfig_IncludeCircles)
+.endif
+
+.ifndef LibSqrt_IncludeRsqrt
+.equ LibSqrt_IncludeRsqrt,              (LibConfig_IncludeSqrt && 0)
+.endif
 
 ; ============================================================================
 
-.equ LibDivide_UseRecipTable,           (LibConfig_IncludeDivide && 1)
+; TODO: Allow configuration of more than one screen mode for code gen etc.?
 
 .equ LibSpanGen_MaxSpan,                Screen_Width
 .equ LibSpanGen_MultiWord,              4                                       ; Use 1, 2 or 4 words.
@@ -34,10 +77,9 @@
 .equ LibCircles_MaxCircles,             2                                       ; Max circles drawn in a frame (!)
 .equ LibCircles_DataWords,              4                                       ; {X centre, colour word, ptr to size table, line count}
 
-.equ LibSqrt_IncludeRsqrt,              (LibConfig_IncludeSqrt && 0)
-
 .equ LibSqrt_MakeSqrtTable,             (LibConfig_IncludeSqrt && _SMALL_EXE)
 .equ LibSine_MakeSinusTable,            (LibConfig_IncludeSine && _SMALL_EXE)
+.equ LibDivide_UseRecipTable,           (LibConfig_IncludeDivide && 1)
 
 .equ LibDivide_Reciprocal_t,            16           ; Table entries = 1<<t
 .equ LibDivide_Reciprocal_m,            9            ; Max value = 1<<m

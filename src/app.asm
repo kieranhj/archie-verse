@@ -201,7 +201,7 @@ app_vsync_callback:
 .if _DEMO_PART==_PART_TEST
 .include "src/fx/sine-scroller.asm"
 .include "src/rasters.asm"
-.include "lib/screen.asm"
+.include "lib/screen.asm"               ; typically this would always be included.
 .endif
 
 .if _DEMO_PART==_PART_DONUT

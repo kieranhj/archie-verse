@@ -95,3 +95,22 @@
     .p2align 2
     .long \addr
 .endm
+
+; ============================================================================
+; QTM Embedded entry points.
+; ============================================================================
+
+.if AppConfig_UseQtmEmbedded
+.macro QTMSWI swi_no
+stmfd sp!, {r11,lr}
+mov r11, #\swi_no - QTM_SwiBase
+mov lr, pc
+ldr pc, QtmEmbedded_Swi
+ldmfd sp!, {r11,lr}
+.endm
+
+.else
+.macro QTMSWI swi_no
+swi \swi_no
+.endm
+.endif
