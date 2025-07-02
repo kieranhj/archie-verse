@@ -134,7 +134,7 @@ vidc_buffers_no_adr:
 ; Per FX BSS.
 ; ============================================================================
 
-.if AppVsync_UseRasterMan   ; TODO: Shouldn't really use this def.
+.if AppConfig_UsingRasterMan
 .p2align 2
 .if _DEMO_PART==_PART_TEST
 vidc_table_1_no_adr:

@@ -11,7 +11,7 @@ NEXT STEPS
 - Remove Megademo hacks:
     - Determine screen RAM allocation and page size runtime if needed. - NOT YET
     - Sort out CLS vs polygon clipping code. - DONE (ENOUGH)
-- Strip back to a single effect and merge back into main.
+- Strip back to a single effect and merge back into main. - TEST?
 - ProTracker processor Python script.
     https://www.stef.be/bassoontracker/docs/ProtrackerCommandReference.pdf
     https://www.aes.id.au/modformat.html
@@ -20,7 +20,7 @@ NEXT STEPS
     Then just need to press a key to reload and restart the sequence.
     = MOD file analyser to configure code / script (pattern length table)
 - Build something simple in ArchieSDK to assess prototyping/scripting potential.
-    Or GCCSDK that Sarah was using?
+    Or GCCSDK that Sarah was using? https://www.riscos.info/index.php/GCCSDK
 - MODE 13 palette tool
     Get the Javascript page hosted on github.io!
     Add ability to save the palette as a PNG.
@@ -45,7 +45,7 @@ Framework TODOs as of 18/6/25 (post-NOVA):
 - Move png2arc to Python 3. ==> Use Gemini!
 - Spit out palettes as asm data from png2arc script, not just binary blobs. - DONE
 - Move scripting to use seconds throughout? (Still using mix of frames and vsyncs.)
-    => See below.
+    => STARTED. (See below.)
 - Automatic clearing of BSS by loader?
 
 - Sort out palette nonsense - three different formats in use... - DONE!

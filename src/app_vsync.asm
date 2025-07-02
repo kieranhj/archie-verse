@@ -6,7 +6,7 @@
 
 .equ AppVsync_UseEvents,        AppConfig_VsyncHandler==AppVsyncHandler_Events
 .equ AppVsync_UseIrq,           AppConfig_VsyncHandler==AppVsyncHandler_Irq
-.equ AppVsync_UseRasterMan,     AppConfig_VsyncHandler==AppVsyncHandler_RasterMan
+.equ AppVsync_UseRasterMan,     AppConfig_UsingRasterMan
 .equ AppVsync_KeyEvents,        !AppVsync_UseRasterMan
 
 ; ============================================================================

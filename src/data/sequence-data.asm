@@ -857,7 +857,7 @@ seq_test_part:
     ; NB. Use write_addr palette_array_p, seq_palette_red_additive if setting per frame.
 
     ; Sine scroller.
-    .if AppVsync_UseRasterMan       ; TODO: Shouldn't really use this def.
+    .if AppConfig_UsingRasterMan
     call_3      fx_set_layer_fns,   0, rasters_tick,               screen_cls
     .else
     call_3      fx_set_layer_fns,   0, 0,                          screen_cls

@@ -30,7 +30,7 @@
 .equ _LOG_SAMPLES,              (_SMALL_EXE && 0)
 
 .equ _DEBUG_RASTERS,            (_DEBUG && 1)
-.equ _CHECK_FRAME_DROP,         (!_DEBUG && 0)  ; need to check this is still fit for purpose.
+.equ _CHECK_FRAME_DROP,         (!_DEBUG && 0)  ; TODO: Check this is still fit for purpose.
 .equ _SYNC_EDITOR,              (_DEBUG && 0)   ; sync driven by external editor.
 
 .equ DebugDefault_PlayPause,    1		; play
@@ -299,10 +299,52 @@ exit:
     .endif
 
 ; ============================================================================
+; System stuff.
+; ============================================================================
+
+stack_p:
+	.long stack_base_no_adr
+
+.if AppConfig_ReturnMainToCaller
+callers_stack_p:
+    .long 0
+.endif
+
+vsync_count:
+	.long 0				; current vsync count from start of exe.
+
+last_vsync:
+	.long 0
+
+vsync_delta:
+	.long 0
+
+; ============================================================================
 ; Debug helpers.
 ; ============================================================================
 
 .if _DEBUG
+error_handler:
+	STMDB sp!, {r0-r2, lr}
+
+    ; Release an interrupt handlers.
+    bl vsync_exit
+
+	; Write & display current screen bank.
+    bl video_exit
+
+    ; Stop QTM.
+    bl audio_exit
+
+	; Release error handler.
+	MOV r0, #ErrorV
+	ADR r1, error_handler
+	MOV r2, #0
+	SWI OS_Release
+
+	LDMIA sp!, {r0-r2, lr}
+	MOVS pc, lr
+
 debug_toggle_main_loop_pause:
 	ldrb r0, debug_main_loop_pause
 	eor r0, r0, #1
@@ -355,22 +397,8 @@ debug_skip_to_next_pattern:
 .endif
 
 ; ============================================================================
-; System stuff.
+; Debug stuff.
 ; ============================================================================
-
-stack_p:
-	.long stack_base_no_adr
-
-.if AppConfig_ReturnMainToCaller
-callers_stack_p:
-    .long 0
-.endif
-
-last_vsync:
-	.long 0
-
-vsync_delta:
-	.long 0
 
 .if _DEBUG
 vsyncs_missed:
@@ -381,47 +409,10 @@ vsyncs_since_last_count:
 
 debug_frame_rate:
     .long 0
-.endif
 
-end_the_demo:
-    .long 0
-
-.if _DEBUG
 music_pos:
     .long 0
-.endif
 
-.if _DEBUG
-error_handler:
-	STMDB sp!, {r0-r2, lr}
-
-    ; Release an interrupt handlers.
-    bl vsync_exit
-
-	; Write & display current screen bank.
-    bl video_exit
-
-    ; Stop QTM.
-    bl audio_exit
-
-	; Release error handler.
-	MOV r0, #ErrorV
-	ADR r1, error_handler
-	MOV r2, #0
-	SWI OS_Release
-
-	LDMIA sp!, {r0-r2, lr}
-	MOVS pc, lr
-.endif
-
-; ============================================================================
-; Core code modules
-; ============================================================================
-
-vsync_count:
-	.long 0				; current vsync count from start of exe.
-
-.if _DEBUG
 debug_main_loop_pause:
 	.byte DebugDefault_PlayPause
 
@@ -444,7 +435,7 @@ debug_free_ram:
 .endif
 
 ; ============================================================================
-; Support library code modules used by the FX.
+; Support library code modules used by the core app.
 ; ============================================================================
 
 .include "lib/debug.asm"
@@ -457,13 +448,11 @@ debug_free_ram:
 
 ; ============================================================================
 ; App modules.
-; TOOD: Rename as main modules?
 ; ============================================================================
 
 .include "src/app_vsync.asm"
 .include "src/audio.asm"
 .include "src/video.asm"
-
 .include "src/app.asm"
 .include "lib/lib_code.asm"
 

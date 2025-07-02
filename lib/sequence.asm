@@ -8,6 +8,9 @@ frame_counter:
 max_frames:
     .long SeqConfig_MaxFrames
 
+end_the_demo:
+    .long 0
+
 sequence_program_p:
     .long seq_main_program
 
@@ -75,11 +78,12 @@ sequence_tick:
     .if SeqConfig_EnableLoop
     movge r0, #0
     str r0, frame_counter
-    .if _DEMO_PART != _PART_DONUT
+    .if SeqConfig_InitOnLoop
     blge sequence_init
     .endif
     .else
     str r0, frame_counter
+    strge r0, end_the_demo
     .endif
 
     .if AppConfig_UseSyncTracks

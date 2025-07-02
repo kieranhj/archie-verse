@@ -27,6 +27,8 @@
 .equ AppConfig_VsyncHandler,            AppVsyncHandler_RasterMan
 .endif
 
+.equ AppConfig_UsingRasterMan,          AppConfig_VsyncHandler==AppVsyncHandler_RasterMan
+
 ; ============================================================================
 ; Machine config.
 ; TODO: This should really be dynamic and determined at runtime.
@@ -40,7 +42,8 @@
 ; ============================================================================
 
 .if _DEMO_PART==_PART_DONUT
-.equ SeqConfig_EnableLoop,              1
+.equ SeqConfig_EnableLoop,              (AppConfig_UsingRasterMan || 1) ; RM version of QTM always loops
+.equ SeqConfig_InitOnLoop,              0
 .equ SeqConfig_MaxPatterns,             20
 
 .equ SeqConfig_ProTracker_Tempo,        125         ; Default = 125.
@@ -52,7 +55,8 @@
 
 .equ SeqConfig_MaxFrames,               SeqConfig_MaxPatterns*SeqConfig_PatternLength_Frames
 .else
-.equ SeqConfig_EnableLoop,              0
+.equ SeqConfig_EnableLoop,              (AppConfig_UsingRasterMan || 0) ; RM version of QTM always loops
+.equ SeqConfig_InitOnLoop,              1
 .equ SeqConfig_MaxPatterns,             45
 
 .equ SeqConfig_ProTracker_Tempo,        143         ; Default = 125.

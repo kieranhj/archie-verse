@@ -73,6 +73,14 @@ audio_init:
     mov r1, #AudioConfig_StereoPos_Ch4
     QTMSWI QTM_Stereo
 
+    ; NOTE: Music looping flag is ignored if using the RasterMan version of QTM.
+    ; From Steve: The stop code has to call a bunch of SWIs, and it cannot do that
+    ;             from the RasterMan driven IRQ (or it would hang RasterMan), so it
+    ;             skips the stop code and allows the track to loop.
+    ;             Solution (as long as you *know* that RM will *not* be running at
+    ;             the point the track ends)... Add a QTM MusicInterrupt and when you
+    ;             receive the Song ended (0) then switch to SVC mode and issue QTM_Pause,
+    ;             to stop the track.
     mov r0, #0b0010
     .if SeqConfig_EnableLoop
     mov r1, #0b0000
