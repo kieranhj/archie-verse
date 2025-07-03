@@ -1,6 +1,6 @@
 # modparse.py
 # Parse Amiga MOD files for processing.
-# Eventually to split 8ch MODs into 4ch MOD + 4 event tracks.
+# Splits 8ch MODs into 4ch MOD + 4 event tracks.
 
 import argparse
 import sys
@@ -97,7 +97,9 @@ class ModParser:
         print(f"Read {f.tell()} bytes total.")
 
     # Write out MOD file - should be byte-for-byte identical.
-    def WriteMod(self, mod_file):
+    def WriteMod(self, mod_file, ch_mask):
+
+        print(f"Writing MOD file '{mod_file.name}.")
         mod_file.write(self._title.ljust(20, '\x00').encode('ascii'))
 
         for sample in self._samples:
@@ -114,27 +116,76 @@ class ModParser:
         for p in self._sequence:
             mod_file.write(p.to_bytes(1, 'big'))
 
-        if self._num_samples !=15 :
-            mod_file.write(self._mod_type.encode('ascii'))
+        if self._num_samples !=15:
+            if ch_mask != 0xff:
+                num_channels=ch_mask.bit_count()
+                print(f"Channel mask: {ch_mask:08b} ({num_channels} channels)")
+                if num_channels==4:
+                    mod_file.write("M.K.".encode('ascii'))
+                else:
+                    mod_file.write(str(num_channels).encode('ascii'))
+                    mod_file.write("CHN".encode('ascii'))
+            else:
+                mod_file.write(self._mod_type.encode('ascii'))
 
         for pattern in self._patterns:
             for row in pattern:
+                n=1
                 for note in row:
-                    word1=note['period']|(note['sample']&0xf0)<<8
-                    word2=note['effect']|(note['sample']&0x0f)<<12
-                    mod_file.write(word1.to_bytes(2, 'big'))
-                    mod_file.write(word2.to_bytes(2, 'big'))
+                    if ch_mask & n:
+                        word1=note['period']|(note['sample']&0xf0)<<8
+                        word2=note['effect']|(note['sample']&0x0f)<<12
+                        mod_file.write(word1.to_bytes(2, 'big'))
+                        mod_file.write(word2.to_bytes(2, 'big'))
+                    n<<=1
         
         for data in self._sample_data:
             mod_file.write(data)
+
+    def WriteEvents(self, ef, ev_mask):
+        print(f"Writing event file '{ef.name}'.")
+        num_channels=ev_mask.bit_count()
+        print(f"Event mask: {ev_mask:08b} ({num_channels} event channels)")
+        event_rows=0
+        num_events=0      
+        for s in range(0,self._sequence_len):
+            pattern=self._patterns[self._sequence[s]]
+            for row in pattern:
+                events=[]
+                n=1
+                for note in row:
+                    if ev_mask & n:
+                        event=note['effect']
+                        if event !=0: 
+                            events.append(event)
+                    n<<=1
+                
+                if events:
+                    r=pattern.index(row)
+
+                    if g_verbose:
+                        print(f"pos=({s},{r} events={events})")
+                    packed=s|r<<8
+                    shift=16
+                    for event in events:
+                        packed|=event<<shift
+                        shift+=12
+                    ef.write(packed.to_bytes(8,'little'))
+                    event_rows+=1
+                    num_events+=len(events)
         
+        print(f"Found {event_rows} rows containing {num_events} events total.")
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("input", help="MOD file")
     parser.add_argument("-o", "--output", metavar="<output>", help="Write MOD to <output> file")
+    parser.add_argument("-e", "--events", metavar="<output>", help="Write effects out as an event file to <output> file")
     parser.add_argument("-v", "--verify", action="store_true", help="Verify output file matches input file")
     parser.add_argument("-l", "--loud", action="store_true", help="Print all the debugs")
+    parser.add_argument("--channel-mask", type=str, default=0xff, help="Channel mask to write out.")
+    parser.add_argument("--event-mask", type=str, default=0xff, help="Event mask to write out.")
     args = parser.parse_args()
 
     global g_verbose
@@ -149,19 +200,36 @@ if __name__ == '__main__':
     mod_file=open(src, 'rb')
 
     parser=ModParser(mod_file)
-    print(f"Parsing MOD file '{src}'.")
+    print(f"Parsing MOD file '{mod_file.name}'.")
+    print(f"---")
     parser.Parse()
+    print(f"---")
+    mod_file.close()
 
     if args.output:
         out_file=open(args.output, 'wb')
-        parser.WriteMod(out_file)
-        print(f"Wrote {out_file.tell()} bytes to file '{args.output}'.")
+        parser.WriteMod(out_file, int(args.channel_mask,16))
+        print(f"Wrote {out_file.tell()} bytes to file '{out_file.name}'.")
+        print(f"---")
         out_file.close()
 
-    mod_file.close()
+    if args.events:
+        events_file=open(args.events, 'wb')
+        parser.WriteEvents(events_file, int(args.event_mask,16))
+        print(f"Wrote {events_file.tell()} bytes to file '{events_file.name}'.")
+        print(f"---")
+        events_file.close()
 
     if args.verify:
         if filecmp.cmp(args.input, args.output, shallow=False) is not True:
             print(f"Verification failed: '{args.input}' and '{args.output}' do not match.")
         else:
             print(f"Verified mod files '{args.input}' and '{args.output}' are identical.")
+        print(f"---")
+
+
+# Interesting options:
+#  - Write out pattern data per channel, not interleaved (swizzle)
+#     (apparently compresses better according to Hoffman).
+#  - Write out sample data as deltas (may compress better).
+#  - Optimise? (Remove duplicate patterns etc.)

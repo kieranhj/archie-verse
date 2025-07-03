@@ -163,6 +163,18 @@ Arkos supports 4 commands per row per channel anyway.
 We'd probably have to have 4 extra channels.
 Just make these silent? And start using the note altering commands 1xx - 8xx
 
+Each command is 12-bits.
+Assume four channels = 48 bits.
+Need row, pos pair for the event = 16 bits (actually 7+6 but whatevs).
+Equals 64 bits per event.
+Let's say:
+[0] = seq#                  
+[1] = row#                  
+[2][3] = bbbb AAAA aaaa aaaa
+[4][5] = cccc cccc BBBB bbbb
+[6][7] = DDDD dddd dddd CCCC
+
+
 
 NOTES TO SELF:
 ~~~
