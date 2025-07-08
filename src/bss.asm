@@ -6,15 +6,13 @@
 
 ; ============================================================================
 
-.if _DEMO_PART==_PART_TEST
 ; fx/sine-scroller.asm
 sine_wave_table_no_adr:
     .skip SineScroller_TableSize*4
-.endif
 
 ; ============================================================================
 
-.if _DEMO_PART==_PART_DONUT
+.if 0
 
 ; ====================================
 ; TORUS WITH REGULAR DRAW ORDER
@@ -89,7 +87,7 @@ futz_table_no_adr:
 
 ; ============================================================================
 
-.if _DEMO_PART==_PART_SPACE
+.if 0
 uv_table_unrolled_code_no_adr:
     .skip UV_Table_CodeSize
 uv_table_code_max_no_adr:
@@ -136,13 +134,8 @@ vidc_buffers_no_adr:
 
 .if AppConfig_UsingRasterMan
 .p2align 2
-.if _DEMO_PART==_PART_TEST
-vidc_table_1_no_adr:
-	.skip 256*4*4*2     ; 4 regs per scanline.
-.else
 vidc_table_1_no_adr:
 	.skip 256*4*4       ; 4 regs per scanline.
-.endif
 
 memc_table_no_adr:
     .skip 256*2*4       ; 2 regs per scaline.

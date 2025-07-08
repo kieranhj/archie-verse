@@ -109,7 +109,10 @@ error_noscreenmem:
 
 ; ============================================================================
 
+; NB. This may be entered in Supervisor mode if an error is raised.
 video_exit:
+    str lr, [sp, #-4]!
+
 	; Display whichever bank we've just written to
 	mov r0, #OSByte_WriteDisplayBank
 	ldr r1, write_bank
@@ -120,7 +123,7 @@ video_exit:
 	ldr r1, write_bank
 	swi OS_Byte
 
-    mov pc, lr
+    ldr pc, [sp], #4
 
 ; ============================================================================
 

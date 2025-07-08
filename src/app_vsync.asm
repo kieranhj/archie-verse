@@ -64,6 +64,7 @@ vsync_late_init:
     .endif
     mov pc, lr
 
+; NB. This may be entered in Supervisor mode if an error is raised.
 vsync_exit:
     str lr, [sp, #-4]!
 

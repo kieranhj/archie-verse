@@ -8,6 +8,9 @@ frame_counter:
 max_frames:
     .long SeqConfig_MaxFrames
 
+music_pos:
+    .long 0
+
 end_the_demo:
     .long 0
 
@@ -55,10 +58,24 @@ sequence_init:
 sequence_tick:
     str lr, [sp, #-4]!
 
+    mov r0, #-1
+    mov r1, #-1
+    QTMSWI QTM_Pos          ; read position.
+
+    strb r1, music_pos+0    ; row
+    strb r0, music_pos+1    ; pattern
+
     .if AppConfig_UseSyncTracks
+    ; Update in-memory variables from external track.
     bl sync_update_vars
     .endif
 
+    .if AppConfig_UseEvents
+    ; Call fns. from external events track.
+    bl events_tick
+    .endif
+
+    ; Update the script.
 	bl script_tick_all
 
     .if LibConfig_IncludeMathVar
@@ -68,9 +85,11 @@ sequence_tick:
     ; Tick before layers as this is where the vars will be used.
     .endif
 
+    ; Tick the FX modules.
 	bl fx_tick_layers
 
     ; Update frame counter.
+    ; TODO: Should this come after draw?
     ldr r0, frame_counter
     ldr r1, max_frames
     add r0, r0, #1

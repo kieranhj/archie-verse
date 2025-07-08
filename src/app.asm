@@ -10,29 +10,6 @@
 ; App specific variables and tables.
 ; ============================================================================
 
-.if _DEMO_PART==_PART_DONUT
-app_logo_p:
-    .long three_logo_no_adr ; src ptr
-    .long 0                 ; offset
-    .long 56*Screen_Stride  ; length
-    .long MEMC_PhysRam - TotalScreenSize + 192*Screen_Stride ; logical 
-
-app_logo_phys:
-    .long 192*Screen_Stride >> 4                             ; physical
-
-app_scroller_phys:
-    .long 248*Screen_Stride >> 4                             ; physical
-
-app_scroller_logical:
-    .long MEMC_PhysRam - TotalScreenSize + 248*Screen_Stride ; logical 
-
-app_ready:
-    .long 0
-
-tipsy_r14_irq:
-    .long 0
-.endif
-
 ; ============================================================================
 ; App debug code.
 ; ============================================================================
@@ -43,19 +20,11 @@ app_init_debug:
 
     bl debug_init
 
-    ; DEBUG_REGISTER_VAR debug_rm_key
-    DEBUG_REGISTER_VAR_EX debug_frame_rate, debug_plot_addr_as_dec4
+;    DEBUG_REGISTER_VAR_EX debug_frame_rate, debug_plot_addr_as_dec4
     DEBUG_REGISTER_VAR_EX vsync_delta, debug_plot_addr_as_dec4
     DEBUG_REGISTER_VAR music_pos
-    DEBUG_REGISTER_VAR frame_counter
-    .if _DEMO_PART==_PART_DONUT
-;    DEBUG_REGISTER_VAR scene3d_stats_quads_plotted
-    .endif
-;    DEBUG_REGISTER_VAR music_pos
-    DEBUG_REGISTER_VAR_EX debug_free_ram, debug_plot_addr_as_dec4
-    .if _DEMO_PART==_PART_SPACE
-;    DEBUG_REGISTER_VAR_EX uv_table_code_size, debug_plot_addr_as_dec4
-    .endif
+;    DEBUG_REGISTER_VAR frame_counter
+;    DEBUG_REGISTER_VAR_EX debug_free_ram, debug_plot_addr_as_dec4
 
     DEBUG_REGISTER_KEY          RMKey_Space,      debug_toggle_main_loop_pause,  0
     DEBUG_REGISTER_KEY_WITH_VAR RMKey_A,          debug_set_byte_true,           debug_restart_flag
@@ -78,27 +47,9 @@ app_late_init:
 
     ldr r12, screen_addr
 
-    ; Custom init for Donut.
-
-    .if _DEMO_PART==_PART_DONUT
-    ; Copy logo to static buffer.
-    adr r0, app_logo_p
-    ldmia r0, {r0-r3}
-    mov r1, r3                  ; logical addr
-    mov r2, r2, lsr #2          ; #words
-    bl mem_copy_words
-
-    mov r0, #1
-    str r0, app_ready
-    .endif
-
     ldr pc, [sp], #4
 
 app_exit:
-    .if _DEMO_PART==_PART_DONUT
-    mov r0, #0
-    str r0, app_ready
-    .endif
     mov pc, lr
 
 ; ============================================================================
@@ -133,7 +84,7 @@ app_vsync_callback:
 
     bl video_set_display_bank_palette
 
-    .if _DEMO_PART==_PART_DONUT
+    .if 0
     ; Custom screen split code for donut.
 
     ; Set Vinit to const logo addr.
@@ -198,23 +149,5 @@ app_vsync_callback:
 ; FX code modules.
 ; ============================================================================
 
-.if _DEMO_PART==_PART_TEST
-.include "src/fx/sine-scroller.asm"
-.include "src/rasters.asm"
-.include "lib/screen.asm"               ; typically this would always be included.
-.endif
-
-.if _DEMO_PART==_PART_DONUT
-.include "src/rasters-donut.asm"
-.include "src/fx/scene-3d.asm"
-.include "src/fx/tipsy-scroller.asm"
-.include "lib/mesh.asm"
 .include "lib/screen.asm"
-.endif
-
-.if _DEMO_PART==_PART_SPACE
-.include "src/fx/rotate.asm"
-.include "src/fx/uv-table.asm"
-.include "src/fx/lut-scroller.asm"
-.include "lib/lz4-decode.asm"
-.endif
+.include "src/fx/sine-scroller.asm"

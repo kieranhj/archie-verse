@@ -28,6 +28,7 @@ endif
 
 SPLITMOD=./bin/SplitMod.exe
 AKP2ARC=./bin/akp2arc.py
+MODPARSE=./bin/modparse.py
 PNG2ARC=./bin/png2arc.py
 PNG2ARC_FONT=./bin/png2arc_font.py
 PNG2ARC_SPRITE=./bin/png2arc_sprite.py
@@ -65,17 +66,7 @@ build:
 # ASSET LIST
 ##########################################################################
 
-./build/assets.txt: build ./build/music.mod ./build/razor-font.bin ./build/tunnel_uv.lz4 \
-	./build/phong128.bin ./build/itm128.bin ./build/temp-logo.bin ./build/fine-font.bin \
-	./build/paul1_uv.lz4 ./build/paul2_uv.lz4 ./build/paul3_uv.lz4  ./build/paul4_uv.lz4 \
-	./build/paul5_uv.lz4 ./build/Fire2.bin ./build/ShipIndex.lz4 ./build/bgtest4.bin \
-	./build/paul6_uv.lz4 ./build/paul7_uv.lz4 ./build/FlameIndex.lz4 ./build/CloudIndex.lz4 \
-	./build/DiskIndex.lz4 ./build/paul8_uv.lz4 ./build/paul9_uv.lz4 ./build/RocketIndex.lz4 \
-	./build/paul10_uv.lz4 ./build/SpaceIndex.lz4 ./build/paul11_uv.lz4 ./build/paul12_uv.lz4 \
-	./build/ApolloIndex.lz4 ./build/paul13_uv.lz4 ./build/WarpIndex.lz4 ./build/paul14_uv.lz4 \
-	./build/GreetsIndex.lz4 ./build/nasa-font.lz4 ./build/paul16_uv.lz4 ./build/paul17_uv.lz4 \
-	./build/three-logo.bin ./build/donut-font.bin ./build/paul15_uv.lz4 ./build/AstroIndex.lz4 \
-	./build/ApolloIndex_384.lz4 ./build/SpaceIndex_512.lz4
+./build/assets.txt: build ./build/music.mod ./build/razor-font.bin ./build/events.bin
 	echo done > $@
 
 ##########################################################################
@@ -307,8 +298,10 @@ clean:
 ./build/music.mod.trk: ./build/music.mod
 	$(SPLITMOD) $(subst /,\\,$+)
 
-./build/music.mod: ./data/music/django/maze-funky-delicious.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+./build/events.bin: ./build/music.mod
+
+./build/music.mod: ./data/music/megademo/ne7-hammer_on.mod $(MODPARSE)
+	$(PYTHON3) $(MODPARSE) -o $@ -e ./build/events.bin --channel-mask 0x0f --event-mask 0x0f $<
 
 ##########################################################################
 # RISCOS ASSETS

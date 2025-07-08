@@ -3,30 +3,22 @@
 ; Configuration that is specific to a (final) production.
 ; ============================================================================
 
-.if _DEMO_PART==_PART_DONUT
-.equ AppConfig_StackSize,               4096    ; when transforming lots of verts!
-.else
 .equ AppConfig_StackSize,               1024
-.endif
 
-.equ AppConfig_LoadModFromFile,         0
 .equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 0)   ; Because table gen takes time at boot...
-.equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
-.equ AppConfig_UseQtmEmbedded,          0
-.equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
+.equ AppConfig_LoadModFromFile,         0
 .equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 1)       ; desktop by default TOOD: Should be an exe config?
+.equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
+.equ AppConfig_UseEvents,               1
 .equ AppConfig_UseMemcBanks,            1
+.equ AppConfig_UseQtmEmbedded,          0
+.equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 
 .equ AppVsyncHandler_Events,            0
 .equ AppVsyncHandler_Irq,               1
 .equ AppVsyncHandler_RasterMan,         2
 
-.if _DEMO_PART=_PART_SPACE
 .equ AppConfig_VsyncHandler,            AppVsyncHandler_Events
-.else
-.equ AppConfig_VsyncHandler,            AppVsyncHandler_RasterMan
-.endif
-
 .equ AppConfig_UsingRasterMan,          AppConfig_VsyncHandler==AppVsyncHandler_RasterMan
 
 ; ============================================================================
@@ -41,9 +33,8 @@
 ; Sequence config.
 ; ============================================================================
 
-.if _DEMO_PART==_PART_DONUT
 .equ SeqConfig_EnableLoop,              (AppConfig_UsingRasterMan || 1) ; RM version of QTM always loops
-.equ SeqConfig_InitOnLoop,              0
+.equ SeqConfig_InitOnLoop,              1
 .equ SeqConfig_MaxPatterns,             20
 
 .equ SeqConfig_ProTracker_Tempo,        125         ; Default = 125.
@@ -54,20 +45,6 @@
 .equ SeqConfig_PatternLength_Frames,    SeqConfig_PatternLength_Secs*50.0
 
 .equ SeqConfig_MaxFrames,               SeqConfig_MaxPatterns*SeqConfig_PatternLength_Frames
-.else
-.equ SeqConfig_EnableLoop,              (AppConfig_UsingRasterMan || 0) ; RM version of QTM always loops
-.equ SeqConfig_InitOnLoop,              1
-.equ SeqConfig_MaxPatterns,             45
-
-.equ SeqConfig_ProTracker_Tempo,        143         ; Default = 125.
-.equ SeqConfig_ProTracker_TicksPerRow,  4           ; House tune is actually 3 :)
-
-.equ SeqConfig_PatternLength_Rows,      64
-.equ SeqConfig_PatternLength_Secs,      (2.5*SeqConfig_ProTracker_TicksPerRow*SeqConfig_PatternLength_Rows)/SeqConfig_ProTracker_Tempo
-.equ SeqConfig_PatternLength_Frames,    SeqConfig_PatternLength_Secs*50.0
-
-.equ SeqConfig_MaxFrames,               SeqConfig_MaxPatterns*SeqConfig_PatternLength_Frames
-.endif
 
 ; ============================================================================
 ; Audio config.
@@ -113,13 +90,8 @@
 .endif
 
 ; Clear screen (clipping)
-.if _DEMO_PART==_PART_DONUT             ; clear donut window only
-.equ Cls_FirstLine,                     2               ; inclusive
-.equ Cls_LastLine,                      189             ; inclusive
-.else
 .equ Cls_FirstLine,                     0               ; inclusive
 .equ Cls_LastLine,                      Screen_Height-1 ; inclusive
-.endif
 
 ; Derived values.
 .equ Screen_Stride,                     Screen_Width/Screen_PixelsPerByte
@@ -142,19 +114,3 @@
 .equ LibConfig_IncludeMem,              1
 .equ LibConfig_IncludeMathVar,          1
 .equ LibConfig_IncludeSine,             1
-
-.if _DEMO_PART == _PART_DONUT
-.equ LibConfig_IncludeSqrt,             1
-.equ LibConfig_IncludeTriangle,         1
-.equ LibConfig_IncludeDivide,           1
-.equ LibConfig_IncludeVector,           1
-.equ LibConfig_IncludeMatrix,           1
-.endif
-
-.if _DEMO_PART == _PART_SPACE
-; No additional libs.
-.endif
-
-.IF _DEMO_PART == _PART_TEST
-; No additional libs.
-.endif

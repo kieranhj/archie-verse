@@ -2,20 +2,12 @@
 ; Archie-Verse: a Acorn Archimedes demo/trackmo framework.
 ; ============================================================================
 
-.equ _PART_DONUT,               0
-.equ _PART_SPACE,               1
-.equ _PART_TEST,                2
-
 ; ============================================================================
 ; Defines for a specific build.
 ; ============================================================================
 
 .ifndef _WIMP_SLOT
 .equ _WIMP_SLOT,                1250*1024
-.endif
-
-.ifndef _DEMO_PART
-.equ _DEMO_PART,                _PART_DONUT       ; 0=donut, 1=tables, 2=test
 .endif
 
 .ifndef _DEBUG
@@ -197,15 +189,6 @@ main_loop:
     .4:
     .endif
 
-    .if _DEBUG
-    mov r0, #-1
-    mov r1, #-1
-    QTMSWI QTM_Pos         ; read position.
-
-    strb r1, music_pos+0
-    strb r0, music_pos+1
-    .endif
-
 main_loop_skip_tick:
 
     .if _DEBUG
@@ -327,7 +310,7 @@ vsync_delta:
 error_handler:
 	STMDB sp!, {r0-r2, lr}
 
-    ; Release an interrupt handlers.
+    ; Release any interrupt handlers.
     bl vsync_exit
 
 	; Write & display current screen bank.
@@ -410,9 +393,6 @@ vsyncs_since_last_count:
 debug_frame_rate:
     .long 0
 
-music_pos:
-    .long 0
-
 debug_main_loop_pause:
 	.byte DebugDefault_PlayPause
 
@@ -442,6 +422,9 @@ debug_free_ram:
 .include "lib/fx.asm"
 .include "lib/script.asm"
 .include "lib/sequence.asm"
+.if AppConfig_UseEvents
+.include "lib/events.asm"
+.endif
 .if AppConfig_UseSyncTracks
 .include "src/sync.asm"
 .endif

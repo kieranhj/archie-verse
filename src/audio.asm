@@ -102,15 +102,19 @@ audio_init:
 
     mov pc, lr
 
+; NB. This may be entered in Supervisor mode if an error is raised.
 audio_exit:
+    str lr, [sp, #-4]!
+
 	; Disable music
 	mov r0, #0
 	QTMSWI QTM_Clear
 
 .if AppConfig_UseQtmEmbedded
+    ldr lr, [sp], #4
     ldr pc, QtmEmbedded_Exit
 .else
-    mov pc, lr
+    ldr pc, [sp], #4
 .endif
 
 ; ============================================================================

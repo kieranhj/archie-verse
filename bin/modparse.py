@@ -150,6 +150,7 @@ class ModParser:
         num_events=0      
         for s in range(0,self._sequence_len):
             pattern=self._patterns[self._sequence[s]]
+            r=0
             for row in pattern:
                 events=[]
                 n=1
@@ -161,20 +162,28 @@ class ModParser:
                     n<<=1
                 
                 if events:
-                    r=pattern.index(row)
-
                     if g_verbose:
                         print(f"pos=({s},{r} events={events})")
-                    packed=s|r<<8
+
+                    packed=s<<8|r
                     shift=16
                     for event in events:
-                        packed|=event<<shift
+                        code=(event&0xf00)>>8
+                        data=event&0x0ff
+                        packed|=(code|data<<4)<<shift
                         shift+=12
                     ef.write(packed.to_bytes(8,'little'))
                     event_rows+=1
                     num_events+=len(events)
-        
-        print(f"Found {event_rows} rows containing {num_events} events total.")
+
+                r+=1
+
+        if event_rows>0:
+            packed=0xffff       # EOF marker
+            ef.write(packed.to_bytes(8,'little'))
+            print(f"Found {event_rows} rows containing {num_events} events total.")
+        else:
+            print(f"No events found!")    
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ NEXT STEPS
 - Remove Megademo hacks:
     - Determine screen RAM allocation and page size runtime if needed. - NOT YET
     - Sort out CLS vs polygon clipping code. - DONE (ENOUGH)
-- Strip back to a single effect and merge back into main. - TEST?
+- Strip back to a single effect and merge back into main. - DONE (BUT ALL PARTS)
 - ProTracker processor Python script.
     https://www.stef.be/bassoontracker/docs/ProtrackerCommandReference.pdf
     https://www.aes.id.au/modformat.html
@@ -174,15 +174,35 @@ Let's say:
 [4][5] = cccc cccc BBBB bbbb
 [6][7] = DDDD dddd dddd CCCC
 
+
 TODO:
 ~~~
-- Library module to parse and fire events based on the packed data format
-- Create a new exe to start iterating the demo on
-- Initial an effect just switches a static screen
+- Library module to parse and fire events based on the packed data format - DONE
+- Create a new exe to start iterating the demo on - DONE
+- Initial effect just switches a static screen on event #
 - Event and MOD file loading in on sequence restart
 - Batch file watcher
 - Instructions for Dave
 
+
+Background Tasks
+~~~
+Using RasterMan v0.38+
+To activate the minimal-overhead setting you need to do the following:
+
+(1) Set up RM and QTM (RM version) as normal, and before RM_Initialise, use SWI RM_Configure to define the number of VIDC and MEMC changes per interrupt and number of scanlines between interrupts.
+(2) Initialise RM and any VSync callback code you need
+(3) When you reach the point that you want to switch RM into minimal state, first issue RM_Wait, then immediately after, issue RM_Configure with R0=0, R1=0 and R2=-1 (don't issue RM_Release)
+(4) RM will continue to own FIQs and continue to service sound DMA requests, QTM interrupts and a keyboard scan each VSync, it *should* do the switch seamlessly, and continue issuing the VSync callback.
+(5) When you are ready to switch scanline interrupts back on, awaing issue RM_Wait followed by the appropriate RM_Configure to set up the changes you need.
+(6) Only issue RM_Release to fully disable RM and hand back control to RISC OS
+
+That should all work, although I've not tested the stability of the VSync callback during this process - but it *should* be fine.
+
+For the 50Hz scroller, if you're worried about overrunning the available time, you could store entry R14_IRQ locally (not using IRQ stack) switch over to SVC mode and then re-enable IRQs.
+I think that will be ok with RM and would allow your scroller code to continue to execute as screen redraw and RM IRQs begin. You just need to ensure you complete before redraw gets to the scroller...
+although, at the extreme, you could test/set a re-entrancy semaphore flag when your scroller code is called and immediately exit if already running. That would allow you to take as long as you like,
+dropping to 25Hz if you don't complete in time.
 
 
 NOTES TO SELF:
