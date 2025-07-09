@@ -18,7 +18,7 @@ NEXT STEPS
     Have a watcher script so when Dave saves the MOD file it automatically splits it
     into a 4ch MOD and the events file, copies this into the Arculator hostfs folder.
     Then just need to press a key to reload and restart the sequence.
-    = MOD file analyser to configure code / script (pattern length table)
+    = MOD file analyser to configure code / script (pattern length table) 
 - Build something simple in ArchieSDK to assess prototyping/scripting potential.
     Or GCCSDK that Sarah was using? https://www.riscos.info/index.php/GCCSDK
 - MODE 13 palette tool
@@ -180,9 +180,15 @@ TODO:
 - Library module to parse and fire events based on the packed data format - DONE
 - Create a new exe to start iterating the demo on - DONE
 - Initial effect just switches a static screen on event #
-- Event and MOD file loading in on sequence restart
-- Batch file watcher
+- Event and MOD file loading in on sequence restart - DONE
+- Batch file watcher - DONE
 - Instructions for Dave
+    - Some commands might be problematic due to interpretation in OpenMPT.
+        Bxx = position jump (jump to sequence no. xx)
+        Dxx = pattern break (start next pattern at row xx)
+        E6x = pattern loop
+        EEx = pattern delay
+        Fxx = speed
 
 
 Background Tasks

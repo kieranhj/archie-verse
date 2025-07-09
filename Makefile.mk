@@ -35,7 +35,7 @@ PNG2ARC_SPRITE=./bin/png2arc_sprite.py
 PNG2ARC_DEPS:=./bin/png2arc.py ./bin/arc.py ./bin/png2arc_font.py ./bin/png2arc_sprite.py
 UV_TABLE=./bin/uv-table-conv.py
 UV_SHADER=./bin/uv-shader-conv.py
-FOLDER=!Verse
+FOLDER=!Acid
 HOSTFS=../arculator/hostfs
 # TODO: Need a copy command that copes with forward slash directory separator. (Maybe MSYS cp?)
 
