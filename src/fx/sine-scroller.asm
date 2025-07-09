@@ -40,6 +40,9 @@ sine_scroller_wave_base_p:
 sine_scroller_init:
     str lr, [sp, #-4]!
 
+    ldr r0, sine_scroller_text_base_p
+    str r0, sine_scroller_text_p
+
     ; Make an interesting sine wave pattern or someting.
 
     ldr r8, sine_scroller_wave_base_p

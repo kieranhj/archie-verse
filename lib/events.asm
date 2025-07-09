@@ -5,6 +5,7 @@
 ; ============================================================================
 
 .equ Events_MaxCodes,       16
+.equ Events_MaxSize,        128*64*8    ; Max 128 patterns in a sequence * 64 rows * 8 bytes per row
 
 ; Event 0 isn't used.
 ; Event 15 is probably problematic (ProTracker set tempo command).
@@ -25,6 +26,12 @@ events_last_p:
     .long 0
 .endif
 
+.if _DYNAMIC_RELOAD
+events_filename:
+	.byte "<Obey$Dir>.Events",0
+	.p2align 2
+.endif
+
 ; TODO: Add test callback fn. that just stores the event code & data.
 
 ; Each event row is 64 bits.
@@ -42,6 +49,31 @@ events_init:
 
     str r0, events_base_p
     str r0, events_p
+
+    .if _DYNAMIC_RELOAD
+    ; Get file size.
+    mov r0, #5
+	adr r1, events_filename
+    swi OS_File
+    cmp r0, #1
+    adrne r0, erreventsnotfound
+    swine OS_GenerateError  ; file not found.
+
+    ; R4=file length.
+    add r4, r4, #3
+    bic r4, r4, #0b11       ; round up to 4 bytes
+
+    cmp r4, #Events_MaxSize
+    adrgt r0, erreventstoobig
+    swigt OS_GenerateError
+
+	; Load file.
+	mov r0, #0xff
+	adr r1, events_filename
+    ldr r2, events_base_p
+    mov r3, #0
+	swi OS_File
+    .endif
 
     ; These use 'bl'. I always forget this...
     DEBUG_REGISTER_VAR events_last_events+0
@@ -209,6 +241,18 @@ erreventsbehind:
 errnoeventfn:
     .long 0
 	.byte "No event callback fn for code."
+	.align 4
+	.long 0
+
+erreventsnotfound:
+    .long 0
+	.byte "Events file not found."
+	.align 4
+	.long 0
+
+erreventstoobig:
+    .long 0
+	.byte "Events file too large."
 	.align 4
 	.long 0
 

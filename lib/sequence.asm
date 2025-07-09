@@ -22,8 +22,16 @@ sequence_program_p:
 sequence_init:
     str lr, [sp, #-4]!
 
+    ; Reset frame count.
     mov r0, #0
     str r0, frame_counter
+
+    ; Reset music pos.
+    mov r0, #-1
+    mov r1, #-1
+    QTMSWI QTM_Pos          ; read position.
+    strb r1, music_pos+0    ; row
+    strb r0, music_pos+1    ; pattern
 
     ; Install sync editor.
     .if AppConfig_UseSyncTracks

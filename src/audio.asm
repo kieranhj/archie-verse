@@ -24,11 +24,14 @@ QtmEmbedded_Exit:
 
 .if AppConfig_LoadModFromFile
 music_filename:
-	.byte "<Demo$Dir>.Music",0
+	.byte "<Obey$Dir>.Music",0
 	.p2align 2
+
+music_mod_p:
+    .long 0
 .else
 music_mod_p:
-	.long music_mod_no_adr		; 14
+	.long music_mod_no_adr
 .endif
 
 music_sample_speed:
@@ -90,17 +93,55 @@ audio_init:
     QTMSWI QTM_MusicOptions
 
 	; Load the music.
+
     .if AppConfig_LoadModFromFile
-    adr r0, music_filename
-    mov r1, r12             ; HIMEM.
-    .err "TODO: Return top of RAM in R12 after MOD load."
-    .else
+    ; Get file size.
+    mov r0, #5
+	adr r1, music_filename
+    swi OS_File
+    cmp r0, #1
+    swine OS_Exit           ; file not found.
+    ; R4=file length.
+    add r4, r4, #3
+    bic r4, r4, #0b11       ; round up to 4 bytes
+
+	; Load file.
+	mov r0, #0xff
+    mov r2, r12             ; Load to HIMEM.
+    str r2, music_mod_p
+    add r12, r12, r4        ; New HIMEM.
+	adr r1, music_filename
+    mov r3, #0
+	swi OS_File
+    .endif
+
 	mov r0, #0              ; load from address, don't copy to RMA.
     ldr r1, music_mod_p
-    .endif
 	QTMSWI QTM_Load
 
     mov pc, lr
+
+.if _DYNAMIC_RELOAD
+audio_reload:
+.if AppConfig_LoadModFromFile
+	; Reset QTM sound system
+	mov r0, #0
+	QTMSWI QTM_Clear
+
+	; Re load file.
+	mov r0, #0xff
+	adr r1, music_filename
+    ldr r2, music_mod_p
+    mov r3, #0
+	swi OS_File
+    ; TODO: Check for file errors?
+
+	mov r0, #0              ; load from address, don't copy to RMA.
+    ldr r1, music_mod_p
+	QTMSWI QTM_Load
+.endif
+    mov pc, lr
+.endif
 
 ; NB. This may be entered in Supervisor mode if an error is raised.
 audio_exit:

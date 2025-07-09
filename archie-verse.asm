@@ -23,9 +23,10 @@
 
 .equ _DEBUG_RASTERS,            (_DEBUG && 1)
 .equ _CHECK_FRAME_DROP,         (!_DEBUG && 0)  ; TODO: Check this is still fit for purpose.
-.equ _SYNC_EDITOR,              (_DEBUG && 0)   ; sync driven by external editor.
+; TODO: Revisit _SYNC_EDIT for LuaPod or Rocket driven variables.
+.equ _DYNAMIC_RELOAD,           (_DEBUG && 1)
 
-.equ DebugDefault_PlayPause,    1		; play
+.equ DebugDefault_PlayOrPause,  1		; play
 .equ DebugDefault_ShowRasters,  0
 .equ DebugDefault_ShowVars,     1		; slow
 
@@ -150,7 +151,7 @@ main_loop:
     cmp r0, #0
     blne debug_restart_sequence
 
-	ldrb r0, debug_main_loop_pause
+	ldrb r0, debug_main_loop_play
 	cmp r0, #0
 	bne .3
 
@@ -329,15 +330,15 @@ error_handler:
 	MOVS pc, lr
 
 debug_toggle_main_loop_pause:
-	ldrb r0, debug_main_loop_pause
+	ldrb r0, debug_main_loop_play
 	eor r0, r0, #1
-	strb r0, debug_main_loop_pause
+	strb r0, debug_main_loop_play
 
     ; Toggle music.
     cmp r0, #0
 .if AppConfig_UseQtmEmbedded
     stmfd sp!, {r11,lr}
-    moveq r11, #QTM_Pause-QTM_SwiBase			    ; pause
+    moveq r11, #QTM_Pause-QTM_SwiBase			  ; pause
     movne r11, #QTM_Start-QTM_SwiBase             ; play
     mov lr, pc
     ldr pc, QtmEmbedded_Swi
@@ -354,14 +355,30 @@ debug_toggle_main_loop_pause:
     .endif
 
 debug_restart_sequence:
-    ; Start music again.
+    str lr, [sp, #-4]!
+
+    ; Ack the restart
     mov r0, #0
     strb r0, debug_restart_flag
     mov r1, #0
-	QTMSWI QTM_Pos
+    QTMSWI QTM_Pos
+    ; TODO: Should we call QTM_Stop instead?
 
-    ; Start script again.
-    b sequence_init
+    .if _DYNAMIC_RELOAD
+    ; Reload the music (if required).
+    bl audio_reload
+
+    ; This stops the music - need to pause if we were playing!
+    ldrb r0, debug_main_loop_play
+    cmp r0, #1
+    bleq debug_toggle_main_loop_pause
+    .endif
+
+    ; Reinit the script etc.
+    bl sequence_init
+
+    ; Wait for the user to press play on continue.
+    ldr pc, [sp], #4
 
 debug_skip_to_next_pattern:
     mov r0, #-1
@@ -393,8 +410,8 @@ vsyncs_since_last_count:
 debug_frame_rate:
     .long 0
 
-debug_main_loop_pause:
-	.byte DebugDefault_PlayPause
+debug_main_loop_play:
+	.byte DebugDefault_PlayOrPause
 
 debug_main_loop_step:
 	.byte 0
@@ -418,6 +435,8 @@ debug_free_ram:
 ; Support library code modules used by the core app.
 ; ============================================================================
 
+.include "src/app_vsync.asm"
+
 .include "lib/debug.asm"
 .include "lib/fx.asm"
 .include "lib/script.asm"
@@ -433,7 +452,6 @@ debug_free_ram:
 ; App modules.
 ; ============================================================================
 
-.include "src/app_vsync.asm"
 .include "src/audio.asm"
 .include "src/video.asm"
 .include "src/app.asm"

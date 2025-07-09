@@ -57,7 +57,10 @@ $(FOLDER): build ./build/archie-verse.bin ./build/!run.txt ./build/icon.bin
 	$(COPY) ".\data\riscos\RasterM38,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
+	$(COPY) ".\build\music.mod" "$(FOLDER)\Music,001"
+	$(COPY) ".\build\events.bin" "$(FOLDER)\Events,ffd"
 	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ffd"
+# TODO: Don't need all these files for a Release build.
 
 build:
 	$(MKDIR_P) "./build"

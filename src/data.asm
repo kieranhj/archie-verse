@@ -46,13 +46,18 @@ seq_main_program:
 
 .p2align 2
 events_data_no_adr:
+.if _DYNAMIC_RELOAD
+.skip Events_MaxSize
+.else
 .incbin "build/events.bin"
+.endif
 
 ; ============================================================================
 ; Music MOD (MUST BE LAST in DATA SEGMENT).
 ; ============================================================================
 
 .if AppConfig_UseArchieKlang
+
 External_Samples_no_adr:
 .incbin "data/akp/Rhino2.mod.raw"
 .p2align 2
@@ -67,13 +72,14 @@ music_mod_no_adr:
 .p2align 2
 music_mod_no_adr:
 .if _LOG_SAMPLES
+; TODO: Move conversion to Log samples into Makefile.
 .incbin "data/music/particles_15.002"
 .else
-
 .incbin "build/music.mod"
+.endif
 
 .endif
-.endif
+
 .endif
 
 ; ============================================================================
