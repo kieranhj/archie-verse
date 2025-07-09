@@ -75,6 +75,14 @@ events_init:
 	swi OS_File
     .endif
 
+    .if _DEBUG
+    mov r0, #0
+    str r0, events_last_events+0
+    str r0, events_last_events+4
+    str r0, events_last_events+8
+    str r0, events_last_events+12
+    .endif
+
     ; These use 'bl'. I always forget this...
     DEBUG_REGISTER_VAR events_last_events+0
     DEBUG_REGISTER_VAR events_last_events+4

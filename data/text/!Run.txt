@@ -10,13 +10,12 @@ RMLOAD <Obey$Dir>.MemAlloc { > null: }
 RMLOAD <Obey$Dir>.QTM149rm48 { > null: }
 RMLOAD <Obey$Dir>.RasterM38 { > null: }
 |
-ScreenSize 384K
+ScreenSize 128K
 FontSize 0K
 SpriteSize 0K
 wimpslot -min 1250K
 |
-Load <Obey$Dir>.!RunImage 10000
-Go 10000
+Run <Obey$Dir>.!RunImage 10000
 |
 RMKILL RasterMan
 RMKILL QTMTracker

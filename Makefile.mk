@@ -59,7 +59,7 @@ $(FOLDER): build ./build/archie-verse.bin ./build/!run.txt ./build/icon.bin
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
 	$(COPY) ".\build\music.mod" "$(FOLDER)\Music,001"
 	$(COPY) ".\build\events.bin" "$(FOLDER)\Events,ffd"
-	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ffd"
+	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ff8"
 # TODO: Don't need all these files for a Release build.
 
 build:
@@ -76,8 +76,8 @@ build:
 # CODE
 ##########################################################################
 
-./build/archie-verse.bin: build ./build/archie-verse.o link_script3.txt
-	$(VLINK) -T link_script3.txt -b rawbin1 -o $@ build/archie-verse.o -Mbuild/linker.txt
+./build/archie-verse.bin: build ./build/archie-verse.o link_script.txt
+	$(VLINK) -T link_script.txt -b rawbin1 -o $@ build/archie-verse.o -Mbuild/linker.txt
 
 .PHONY:./build/archie-verse.o	# always build as we don't have submodule dependencies...
 ./build/archie-verse.o: build archie-verse.asm ./build/assets.txt
