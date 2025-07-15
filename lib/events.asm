@@ -272,4 +272,7 @@ events_test_fn:
     str r0, [r2], #4
     str r2, events_last_p
     mov pc, lr
+.else
+events_test_fn:
+    mov pc, lr
 .endif

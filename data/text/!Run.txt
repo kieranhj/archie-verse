@@ -15,7 +15,7 @@ FontSize 0K
 SpriteSize 0K
 wimpslot -min 1250K
 |
-Run <Obey$Dir>.!RunImage 10000
+Run <Obey$Dir>.!RunImage
 |
 RMKILL RasterMan
 RMKILL QTMTracker

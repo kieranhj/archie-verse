@@ -303,8 +303,8 @@ clean:
 
 ./build/events.bin: ./build/music.mod
 
-./build/music.mod: ./data/music/megademo/ne7-hammer_on.mod $(MODPARSE)
-	$(PYTHON3) $(MODPARSE) -o $@ -e ./build/events.bin --channel-mask 0x0f --event-mask 0x0f $<
+./build/music.mod: ./data/music/House_8ch_with_events.mod $(MODPARSE)
+	$(PYTHON3) $(MODPARSE) -o $@ -e ./build/events.bin --channel-mask 0x0f --event-mask 0xf0 $<
 
 ##########################################################################
 # RISCOS ASSETS

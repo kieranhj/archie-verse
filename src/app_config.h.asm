@@ -6,8 +6,8 @@
 .equ AppConfig_StackSize,               1024
 
 .equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 0)   ; Because table gen takes time at boot...
-.equ AppConfig_LoadModFromFile,         1
-.equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 1)       ; desktop by default TOOD: Should be an exe config?
+.equ AppConfig_LoadModFromFile,         (_DEBUG && 1)
+.equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 0)       ; desktop by default TOOD: Should be an exe config?
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
 .equ AppConfig_UseEvents,               1
 .equ AppConfig_UseMemcBanks,            1

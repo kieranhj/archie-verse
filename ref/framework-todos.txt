@@ -182,6 +182,7 @@ TODO:
 - Initial effect just switches a static screen on event #
 - Event and MOD file loading in on sequence restart - DONE
 - Batch file watcher - DONE
+- Create an 8 channel example MOD from Dave's old house MOD
 - Instructions for Dave
     - Some commands might be problematic due to interpretation in OpenMPT.
         Bxx = position jump (jump to sequence no. xx)
@@ -189,6 +190,10 @@ TODO:
         E6x = pattern loop
         EEx = pattern delay
         Fxx = speed
+
+- Things to think about
+    - Generic asset loading / decompressing system
+    - Preload/prepare function same as last time
 
 
 Background Tasks

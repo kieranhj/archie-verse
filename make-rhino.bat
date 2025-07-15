@@ -13,7 +13,7 @@ echo ---
 echo Splitting MOD into MUSIC and EVENTS...
 echo ---
 
-python bin\modparse.py -o music.mod -e events.bin --channel-mask 0x0f --event-mask 0x0f "%1"
+python bin\modparse.py -o music.mod -e events.bin --channel-mask 0x0f --event-mask 0xf0 "%1"
 
 if %ERRORLEVEL% neq 0 (
 	echo Failed to parse MOD!
