@@ -12,8 +12,6 @@ sine_wave_table_no_adr:
 
 ; ============================================================================
 
-.if 0
-
 ; ====================================
 ; TORUS WITH REGULAR DRAW ORDER
 ; ====================================
@@ -77,31 +75,6 @@ transformed_verts_no_adr:
 
 projected_verts_no_adr:
     .skip OBJ_MAX_VERTS * VECTOR2_SIZE
-
-.if LibTriangle_EnableFutz
-futz_table_no_adr:
-    .skip 512*4
-.endif
-
-.endif
-
-; ============================================================================
-
-.if 0
-uv_table_unrolled_code_no_adr:
-    .skip UV_Table_CodeSize
-uv_table_code_max_no_adr:
-
-; Sometimes steal space from the code buffer for additional textures. :)
-
-uv_table_data_no_adr:
-uv_texture_data_no_adr:
-    .skip UV_Table_Size*3
-
-.if UV_Texture_MaxSize*2 > UV_Table_Size*3
-    .err "Not enough space for UV texture!"
-.endif
-.endif
 
 ; ============================================================================
 

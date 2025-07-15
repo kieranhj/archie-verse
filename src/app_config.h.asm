@@ -3,7 +3,7 @@
 ; Configuration that is specific to a (final) production.
 ; ============================================================================
 
-.equ AppConfig_StackSize,               1024
+.equ AppConfig_StackSize,               4096
 
 .equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 0)   ; Because table gen takes time at boot...
 .equ AppConfig_LoadModFromFile,         (_DEBUG && 1)
@@ -114,3 +114,8 @@
 .equ LibConfig_IncludeMem,              1
 .equ LibConfig_IncludeMathVar,          1
 .equ LibConfig_IncludeSine,             1
+.equ LibConfig_IncludeVector,           1
+.equ LibConfig_IncludeMatrix,           1
+.equ LibConfig_IncludeTriangle,         1
+.equ LibConfig_IncludeDivide,           1
+.equ LibConfig_IncludeSqrt,             1

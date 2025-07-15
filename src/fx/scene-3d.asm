@@ -27,9 +27,10 @@
 ; Therefore we multiply all projected coordinates by the screen width/2
 ; in order to map the viewport onto the entire screen.
 
+; TODO: Define these somewhere else?
 .equ VIEWPORT_SCALE,            (Screen_Width /2) * PRECISION_MULTIPLIER
-.equ VIEWPORT_CENTRE_X,         160 * PRECISION_MULTIPLIER
-.equ VIEWPORT_CENTRE_Y,         96 * PRECISION_MULTIPLIER
+.equ VIEWPORT_CENTRE_X,         (Screen_Width /2) * PRECISION_MULTIPLIER
+.equ VIEWPORT_CENTRE_Y,         (Screen_Height /2) * PRECISION_MULTIPLIER
 
 ; ============================================================================
 ; Scene data.

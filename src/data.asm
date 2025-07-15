@@ -7,6 +7,9 @@
 
 ; ===========================================================================
 
+; fx/scene-3d.asm
+.include "src/data/three-dee/3d-meshes.asm" ; TODO: Remove what's not used!
+
 ; fx/sine-scroller.asm
 razor_font_no_adr:
 .incbin "build/razor-font.bin"

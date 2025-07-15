@@ -12,7 +12,6 @@ seq_acid_demo:
 
     ; Init FX modules.
     call_1      events_init,        events_data_no_adr  
-    call_0      sine_scroller_init
 
     ; Event handlers.
     call_2      events_set_fns,     0, events_test_fn
@@ -32,9 +31,29 @@ seq_acid_demo:
     call_2      events_set_fns,     14, events_test_fn
     call_2      events_set_fns,     15, events_test_fn
 
-    ; FX Layers
-    call_3      fx_set_layer_fns,   0, 0,                   screen_cls
-    call_3      fx_set_layer_fns,   1, sine_scroller_tick,  sine_scroller_draw
+    ; Init 3D scene.
+    ;                               RingRadius          CircleRadius        RingSegments   CircleSegments  MeshPtr                      Flags
+    call_0      scene3d_init
+    call_6      mesh_make_torus,    32.0*MATHS_CONST_1, 16.0*MATHS_CONST_1, 12,            8,              mesh_header_torus,           0x0 ; not flat inner
+    call_6      mesh_make_torus,    32.0*MATHS_CONST_1, 16.0*MATHS_CONST_1, 12,            8,              mesh_header_torus_flipped,   0x2 ; flipped
+
+    ; Setup FX Layers.
+    call_3      fx_set_layer_fns,   0, scene3d_rotate_entity,           screen_cls
+    call_3      fx_set_layer_fns,   1, scene3d_bodge_torus_draw_order,  0                 ; Must come before transform.
+    call_3      fx_set_layer_fns,   2, scene3d_transform_entity,        scene3d_draw_entity_as_solid_quads
+    call_3      fx_set_layer_fns,   3, 0,                               0
+
+    ; Palette.
+    write_addr  palette_array_p,    seq_palette_red_additive
+
+    ; Entity transform.
+    write_vec3  torus_entity+Entity_Pos,    0.0, 0.0, 0.0
+    write_vec3  torus_entity+Entity_Rot,    0.0, 0.0, 0.0
+    write_fp    torus_entity+Entity_Scale,  1.0
+    write_vec3  object_rot_speed,           1.0, 0.0, 2.0
+
+    ; Scene setup.
+    write_vec3  light_direction,            0.577, 0.577, -0.577
 
     end_script
 
