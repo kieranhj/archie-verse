@@ -14,22 +14,7 @@ seq_acid_demo:
     call_1      events_init,        events_data_no_adr  
 
     ; Event handlers.
-    call_2      events_set_fns,     0, events_test_fn
-    call_2      events_set_fns,     1, events_test_fn
-    call_2      events_set_fns,     2, events_test_fn
-    call_2      events_set_fns,     3, events_test_fn
-    call_2      events_set_fns,     4, events_test_fn
-    call_2      events_set_fns,     5, events_test_fn
-    call_2      events_set_fns,     6, events_test_fn
-    call_2      events_set_fns,     7, events_test_fn
-    call_2      events_set_fns,     8, events_test_fn
-    call_2      events_set_fns,     9, events_test_fn
-    call_2      events_set_fns,     10, events_test_fn
-    call_2      events_set_fns,     11, events_test_fn
-    call_2      events_set_fns,     12, events_test_fn
-    call_2      events_set_fns,     13, events_test_fn
-    call_2      events_set_fns,     14, events_test_fn
-    call_2      events_set_fns,     15, events_test_fn
+    call_2      events_set_fns,     2, acid_event_set_palette
 
     ; Init 3D scene.
     ;                               RingRadius          CircleRadius        RingSegments   CircleSegments  MeshPtr                      Flags
@@ -84,6 +69,17 @@ seq_test_fade_down_loop:
 ; ============================================================================
 ; Sequence specific data.
 ; ============================================================================
+
+.equ AcidPalettes_MAX, 7
+
+acid_palettes_table_no_adr:
+    .long seq_palette_red_additive
+    .long seq_palette_red_yellow
+    .long seq_palette_green_white_ramp
+    .long seq_palette_red_magenta_ramp
+    .long seq_palette_blue_cyan_ramp
+    .long seq_palette_grey
+    .long gradient_default
 
 ; ============================================================================
 ; Colour palettes.

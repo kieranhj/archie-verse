@@ -5,7 +5,9 @@
 ; ============================================================================
 
 .equ Events_MaxCodes,       16
-.equ Events_MaxSize,        128*64*8    ; Max 128 patterns in a sequence * 64 rows * 8 bytes per row
+.equ Events_MaxSize,        128*64*8        ; Max 128 patterns in a sequence * 64 rows * 8 bytes per row
+.equ Events_LogLast,        (_DEBUG && 1)
+.equ Events_Strict,         (_DEBUG && 0)   ; error if data is bad (otherwise ignore)
 
 ; Event 0 isn't used.
 ; Event 15 is probably problematic (ProTracker set tempo command).
@@ -31,8 +33,6 @@ events_filename:
 	.byte "<Obey$Dir>.Events",0
 	.p2align 2
 .endif
-
-; TODO: Add test callback fn. that just stores the event code & data.
 
 ; Each event row is 64 bits.
 ;  [0]    = seq#                  
@@ -161,16 +161,7 @@ events_tick:
     ; R7 = dddd dddd DDDD cccc cccc CCCC bbbb bbbb
 
     stmfd sp!, {r6,r7}
-    adr r11, event_triggers
-    adr lr, .1
-    ldr r2, [r11, r1, lsl #2]
-    .if _DEBUG
-    cmp r2, #0
-    adreq r0, errnoeventfn
-    swieq OS_GenerateError
-    .endif
-    mov pc, r2
-    .1:
+    bl events_call_fn
     ldmfd sp!, {r6,r7}
 
     ; R6 = BBBB
@@ -184,16 +175,7 @@ events_tick:
     ; R7 = dddd dddd DDDD cccc cccc CCCC
 
     str r7, [sp, #-4]!
-    adr r11, event_triggers
-    adr lr, .2
-    ldr r2, [r11, r1, lsl #2]
-    .if _DEBUG
-    cmp r2, #0
-    adreq r0, errnoeventfn
-    swieq OS_GenerateError
-    .endif
-    mov pc, r2
-    .2:
+    bl events_call_fn
     ldr r7, [sp], #4
 
     ; R7 = dddd dddd DDDD cccc cccc CCCC
@@ -207,16 +189,7 @@ events_tick:
     ; R7 = dddd dddd DDDD
 
     str r7, [sp, #-4]!
-    adr r11, event_triggers
-    adr lr, .3
-    ldr r2, [r11, r1, lsl #2]
-    .if _DEBUG
-    cmp r2, #0
-    adreq r0, errnoeventfn
-    swieq OS_GenerateError
-    .endif
-    mov pc, r2
-    .3:
+    bl events_call_fn
     ldr r7, [sp], #4
 
     ; R7 = dddd dddd DDDD
@@ -226,18 +199,32 @@ events_tick:
     mov r7, r7, lsr #4
     and r0, r7, #0xff           ; R0=data dddd dddd
 
-    adr r11, event_triggers
-    adr lr, .4
-    ldr r2, [r11, r1, lsl #2]
-    .if _DEBUG
-    cmp r2, #0
-    adreq r0, errnoeventfn
-    swieq OS_GenerateError
-    .endif
-    mov pc, r2
-    .4:
+    bl events_call_fn
 
     ldr pc, [sp], #4
+
+; R0=event data
+; R1=event code
+events_call_fn:
+    .if Events_LogLast
+    orr r3, r0, r1, lsl #8
+    ldr r2, events_last_p
+    str r3, [r2], #4
+    str r2, events_last_p
+    .endif
+
+    adr r11, event_triggers
+    ldr r2, [r11, r1, lsl #2]
+    cmp r2, #0
+
+    .if Events_Strict
+    adreq r0, errnoeventfn
+    swieq OS_GenerateError
+    .else
+    moveq pc, lr
+    .endif
+
+    mov pc, r2
 
 .if _DEBUG
 erreventsbehind:
@@ -263,16 +250,4 @@ erreventstoobig:
 	.byte "Events file too large."
 	.align 4
 	.long 0
-
-; R0=data
-; R1=code
-events_test_fn:
-    orr r0, r0, r1, lsl #8
-    ldr r2, events_last_p
-    str r0, [r2], #4
-    str r2, events_last_p
-    mov pc, lr
-.else
-events_test_fn:
-    mov pc, lr
 .endif
