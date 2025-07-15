@@ -435,7 +435,7 @@ debug_free_ram:
 ; Support library code modules used by the core app.
 ; ============================================================================
 
-.include "src/app_vsync.asm"
+.include "src/vsync.asm"
 
 .include "lib/debug.asm"
 .include "lib/fx.asm"
