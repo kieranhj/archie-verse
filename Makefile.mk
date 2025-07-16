@@ -303,7 +303,7 @@ clean:
 
 ./build/events.bin: ./build/music.mod
 
-./build/music.mod: ./data/music/House_8ch_with_events.mod $(MODPARSE)
+./build/music.mod: ./data/music/Revision_house_07_events_8ch.mod $(MODPARSE)
 	$(PYTHON3) $(MODPARSE) -o $@ -e ./build/events.bin --channel-mask 0x0f --event-mask 0xf0 $<
 
 ##########################################################################

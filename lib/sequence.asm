@@ -131,6 +131,9 @@ filename:
 sequence_jump_to_pattern:
     str lr, [sp, #-4]!
 
+    ; Skip past events.
+    bl events_ffwd_to_pattern
+
     ; Update frame counter to match.
     adr r2, debug_pattern_to_frame
     ldr r2, [r2, r0, lsl #2]
@@ -138,7 +141,7 @@ sequence_jump_to_pattern:
 
     ldr pc, [sp], #4
 
-.macro frame_for_pattern pat, 
+.macro frame_for_pattern pat        ; TODO: Actual vsyncs.
     .long \pat*SeqConfig_PatternLength_Rows*SeqConfig_ProTracker_TicksPerRow*125.0/SeqConfig_ProTracker_Tempo
 .endm
 

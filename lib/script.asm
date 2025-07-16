@@ -37,7 +37,7 @@ script_tick_context:
     cmp r11, #0
     beq .4
 
-    ldr r1, vsync_delta
+    ldr r1, vsync_delta                 ; TODO: Pass this in.
     subs r11, r11, r1
     movlt r11, #0
     str r11, [r12, #ScriptContext_Wait]

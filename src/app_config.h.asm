@@ -35,10 +35,11 @@
 
 .equ SeqConfig_EnableLoop,              (AppConfig_UsingRasterMan || 1) ; RM version of QTM always loops
 .equ SeqConfig_InitOnLoop,              1
-.equ SeqConfig_MaxPatterns,             20
+.equ SeqConfig_MaxPatterns,             22
 
+; TODO: Get ProTracker info out of the MOD parser.
 .equ SeqConfig_ProTracker_Tempo,        125         ; Default = 125.
-.equ SeqConfig_ProTracker_TicksPerRow,  4
+.equ SeqConfig_ProTracker_TicksPerRow,  3
 
 .equ SeqConfig_PatternLength_Rows,      64
 .equ SeqConfig_PatternLength_Secs,      (2.5*SeqConfig_ProTracker_TicksPerRow*SeqConfig_PatternLength_Rows)/SeqConfig_ProTracker_Tempo

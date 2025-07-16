@@ -14,7 +14,9 @@ seq_acid_demo:
     call_1      events_init,        events_data_no_adr  
 
     ; Event handlers.
-    call_2      events_set_fns,     2, acid_event_set_palette
+    call_2      events_set_fns,     1, acid_event_set_palette
+    call_2      events_set_fns,     2, acid_event_set_scale
+    call_2      events_set_fns,     3, acid_event_set_lightdir
 
     ; Init 3D scene.
     ;                               RingRadius          CircleRadius        RingSegments   CircleSegments  MeshPtr                      Flags
@@ -24,9 +26,9 @@ seq_acid_demo:
 
     ; Setup FX Layers.
     call_3      fx_set_layer_fns,   0, scene3d_rotate_entity,           screen_cls
-    call_3      fx_set_layer_fns,   1, scene3d_bodge_torus_draw_order,  0                 ; Must come before transform.
-    call_3      fx_set_layer_fns,   2, scene3d_transform_entity,        scene3d_draw_entity_as_solid_quads
-    call_3      fx_set_layer_fns,   3, 0,                               0
+    call_3      fx_set_layer_fns,   1, acid_events_entity_tick,         0
+    call_3      fx_set_layer_fns,   2, scene3d_bodge_torus_draw_order,  0                 ; Must come before transform.
+    call_3      fx_set_layer_fns,   3, scene3d_transform_entity,        scene3d_draw_entity_as_solid_quads
 
     ; Palette.
     write_addr  palette_array_p,    seq_palette_red_additive
@@ -35,7 +37,7 @@ seq_acid_demo:
     write_vec3  torus_entity+Entity_Pos,    0.0, 0.0, 0.0
     write_vec3  torus_entity+Entity_Rot,    0.0, 0.0, 0.0
     write_fp    torus_entity+Entity_Scale,  1.0
-    write_vec3  object_rot_speed,           1.0, 0.0, 2.0
+    write_vec3  object_rot_speed,           0.5, 0.0, 1.0
 
     ; Scene setup.
     write_vec3  light_direction,            0.577, 0.577, -0.577
@@ -80,6 +82,17 @@ acid_palettes_table_no_adr:
     .long seq_palette_blue_cyan_ramp
     .long seq_palette_grey
     .long gradient_default
+
+.equ AcidLights_MAX, 7
+
+acid_lights_table_no_adr:
+    VECTOR3 0.577, 0.577, -0.577
+    VECTOR3 1.0, 0.0, 0.0
+    VECTOR3 -1.0, 0.0, 0.0
+    VECTOR3 0.0, 1.0, 0.0
+    VECTOR3 0.0, -1.0, 0.0
+    VECTOR3 -0.577, -0.577, 0.577
+    VECTOR3 0.0, 0.0, -1.0
 
 ; ============================================================================
 ; Colour palettes.

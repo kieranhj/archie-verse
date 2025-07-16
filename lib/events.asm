@@ -101,6 +101,40 @@ events_set_fns:
 ; TODO: Or just use macro?
 
 
+.if _DEBUG
+; R0=pattern no. [must preserve]
+; TODO: Call events when ffwd or not?
+events_ffwd_to_pattern:
+    ; Check we have events data.
+    ldr r10, events_p
+    cmp r10, #0
+    moveq pc, lr
+
+    ; Target pattern.
+    mov r9, r0, lsl #8      ; 0xPP00
+
+.1:
+    ; Read current event data
+    ldr r6, [r10]
+    bic r8, r6, #0xff000000
+    bic r8, r8, #0x00ff0000
+    ; Left with  0x0000pprr
+
+    ; EOF
+    cmp r8, #0xff00
+    movge pc, lr
+
+    ; If music hasn't reached our event yet, then skip.
+    cmp r8, r9
+    addlt r10, r10, #8
+    blt .1
+
+    ; Ready for next event tick.
+    str r10, events_p
+    mov pc, lr
+.endif
+
+
 ; Call all fns on this music row with data.
 events_tick:
     ; Check we have events data.
@@ -114,6 +148,7 @@ events_tick:
     .endif
 
     ; Read current music position.
+    ; TODO: Pass this in?
     ldr r9, music_pos       ; 0xpprr
 
     ; Read current event data
