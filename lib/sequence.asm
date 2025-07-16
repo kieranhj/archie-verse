@@ -80,10 +80,12 @@ sequence_tick:
 
     .if AppConfig_UseEvents
     ; Call fns. from external events track.
+    ldr r0, music_pos
     bl events_tick
     .endif
 
     ; Update the script.
+    ldr r0, vsync_delta
 	bl script_tick_all
 
     .if LibConfig_IncludeMathVar

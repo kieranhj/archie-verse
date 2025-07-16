@@ -136,6 +136,7 @@ events_ffwd_to_pattern:
 
 
 ; Call all fns on this music row with data.
+; R0=music pos.
 events_tick:
     ; Check we have events data.
     ldr r10, events_p
@@ -143,13 +144,12 @@ events_tick:
     moveq pc, lr
 
     .if _DEBUG
-    adr r0, events_last_events
-    str r0, events_last_p
+    adr r1, events_last_events
+    str r1, events_last_p
     .endif
 
     ; Read current music position.
-    ; TODO: Pass this in?
-    ldr r9, music_pos       ; 0xpprr
+    mov r9, r0              ; 0xpprr
 
     ; Read current event data
     ldr r6, [r10], #4

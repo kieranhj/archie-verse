@@ -24,6 +24,9 @@ script_contexts:
     .skip Script_ContextSize*Script_MaxScripts
 script_contexts_end:
 
+script_vsync_delta:
+    .long 0
+
 ; R12=ptr to script context.
 script_tick_context:
     str lr, [sp, #-4]!
@@ -37,7 +40,7 @@ script_tick_context:
     cmp r11, #0
     beq .4
 
-    ldr r1, vsync_delta                 ; TODO: Pass this in.
+    ldr r1, script_vsync_delta
     subs r11, r11, r1
     movlt r11, #0
     str r11, [r12, #ScriptContext_Wait]
@@ -56,8 +59,11 @@ script_tick_context:
     ldr r12, [sp], #4
     b .2
 
+; R0=vsync delta
 script_tick_all:
     str lr, [sp, #-4]!
+
+    str r0, script_vsync_delta
 
     adr r12, script_contexts
 .1:
@@ -103,6 +109,7 @@ script_ffwd_to_frame:
 
     .1:
     str r9, [sp, #-4]!
+    mov r0, #1              ; assume vsync delta=1
     bl script_tick_all
     ldr r9, [sp], #4
     subs r9, r9, #1
