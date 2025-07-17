@@ -7,7 +7,7 @@ import png,argparse,math
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(bytes(data)) # Changed: write bytes directly
+            f.write(''.join([chr(x) for x in data]))
 
 ##########################################################################
 ##########################################################################
@@ -140,15 +140,14 @@ def main(options):
 
         png_result=png.Reader(filename=options.rgb_path).asRGBA8()
 
-        print('Image width: {0} height: {1}'.format(png_result[0],png_result[1])) # Changed: print is a function
-        print('Blue channel hit mask: 0x{0:02x}'.format(bm)) # Changed: print is a function
+        print 'Image width: {0} height: {1}'.format(png_result[0],png_result[1])
+        print 'Blue channel hit mask: 0x{0:02x}'.format(bm)
 
         for row in png_result[2]:
-            # In Python 3, map objects from .asRGBA8() might need to be converted to list for indexing
-            row_list = list(row) 
-            for i in range(0,len(row_list),8): # Changed: iterating over row_list
-                rgba0 = [row_list[i+0],row_list[i+1],row_list[i+2],row_list[i+3]]
-                rgba1 = [row_list[i+4],row_list[i+5],row_list[i+6],row_list[i+7]]
+
+            for i in range(0,len(row),8):
+                rgba0 = [row[i+0],row[i+1],row[i+2],row[i+3]]
+                rgba1 = [row[i+4],row[i+5],row[i+6],row[i+7]]
 
                 if bm != 0:
                     if rgba0[2] & bm == 0:        # no hits
@@ -187,7 +186,7 @@ def main(options):
     else:
         sw=options.sw or 160
         sh=options.sh or 128
-        print('Image width: {0} height: {1}'.format(sw,sh)) # Changed: print is a function
+        print 'Image width: {0} height: {1}'.format(sw,sh)
 
         func_name = options.func_name or 'fancy_func1'
         param1 = options.param1 or 1.0
@@ -204,9 +203,7 @@ def main(options):
                 x = -1.0 + 2.0*i/sw
                 y = -aspect + 2.0*aspect*float(j)/float(sh)
 
-                # eval in Python 3 requires functions to be globally accessible or passed in
-                # For this script, the functions are global, so this still works.
-                [u0, v0, w0] = globals()[func_name](x, y, param1, param2)
+                [u0, v0, w0] = eval(func_name)(x, y, param1, param2)
 
                 if w0 != 0:
                     pixel_data.append(int(256.0*u0) & 0xfe)       # u0
@@ -221,7 +218,7 @@ def main(options):
                 x = -1.0 + 2.0*(i+1)/sw
                 y = -aspect + 2.0*aspect*float(j)/float(sh)
 
-                [u1, v1, w1] = globals()[func_name](x, y, param1, param2)
+                [u1, v1, w1] = eval(func_name)(x, y, param1, param2)
 
                 if w1 != 0:
                     pixel_data.append(int(256.0*u1) & 0xfe)       # u1
@@ -234,7 +231,7 @@ def main(options):
                     pixel_data.append(1)       # v1
 
     if options.new:
-        print("Using new encoding scheme!") # Changed: print is a function
+        print "Using new encoding scheme!"
 
         u_data=[]
         v_data=[]
@@ -275,7 +272,7 @@ def main(options):
 
     #assert(len(pixel_data)==sw*sh*2)
     save_file(pixel_data,options.output_path)
-    print('Wrote {0} bytes Arc data.'.format(len(pixel_data))) # Changed: print is a function
+    print 'Wrote {0} bytes Arc data.'.format(len(pixel_data))
 
 
 ##########################################################################

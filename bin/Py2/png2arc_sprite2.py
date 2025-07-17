@@ -8,7 +8,7 @@ import struct
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(bytes(data)) # Changed for Python 3 byte handling
+            f.write(''.join([chr(x) for x in data]))
 
 ##########################################################################
 ##########################################################################
@@ -43,7 +43,7 @@ def to_box_row_palette_indices(boxed_row_flat_pixel, palette):
 def main(options):
     # Only support MODE 9 for now. MODE 13 coming later.
     if options.mode != 9:
-        print('FATAL: invalid mode: %d' % options.mode, file=sys.stderr) # Changed print statement
+        print>>sys.stderr,'FATAL: invalid mode: %d'%options.mode
         sys.exit(1)
 
     pixels_per_byte=2
@@ -60,13 +60,13 @@ def main(options):
 
     src_width=png_result[0]
     src_height=png_result[1]
-    print('Source image width: {0} height: {1}'.format(src_width,src_height)) # Changed print statement
+    print 'Source image width: {0} height: {1}'.format(src_width,src_height)
 
     palette = get_palette(png_result[2])
-    print('Found {0} palette entries.'.format(len(palette))) # Changed print statement
+    print 'Found {0} palette entries.'.format(len(palette))
     
     if len(palette) > 16:
-        print('FATAL: too many colours: %d' % len(palette), file=sys.stderr) # Changed print statement
+        print>>sys.stderr,'FATAL: too many colours: %d'%len(palette)
         sys.exit(1)
 
     # Sort palette by intensity.
@@ -85,14 +85,14 @@ def main(options):
     png_result=png.Reader(filename=options.input_path).asRGBA8()
     pixels = to_box_row_palette_indices(png_result[2], palette)
 
-    out_width=src_width//step_x # Changed to integer division
-    out_height=src_height//step_y # Changed to integer division
-    print('Output sprite width: {0} height: {1}'.format(out_width,out_height)) # Changed print statement
+    out_width=src_width/step_x
+    out_height=src_height/step_y
+    print 'Output sprite width: {0} height: {1}'.format(out_width,out_height)
 
     pixel_data=[]
     assert(len(pixels)==src_height)
     for y in range(0,src_height,step_y):
-        row=list(pixels[y]) # Ensure row is a list for consistent indexing
+        row=pixels[y]
         assert(len(row)==src_width)
         for x in range(0,src_width,pixels_per_byte*step_x):
             xs=[]
@@ -101,14 +101,14 @@ def main(options):
             assert len(xs)==pixels_per_byte
             pixel_data.append(pack(xs))
 
-    assert(len(pixel_data)==out_width*out_height//pixels_per_byte) # Changed to integer division
-    print('Converted {0} bytes Arc sprite data.'.format(len(pixel_data))) # Changed print statement
+    assert(len(pixel_data)==out_width*out_height/pixels_per_byte)
+    print 'Converted {0} bytes Arc sprite data.'.format(len(pixel_data))
 
     # Write sprite file.
     if options.output_path is not None:
         with open(options.output_path,'wb') as f:
             # TODO: Hardcoded for 32x16 sprite for now!!
-            width_in_words = out_width // (4 * pixels_per_byte) # Changed to integer division
+            width_in_words = out_width / (4 * pixels_per_byte)
             sprite_bytes = width_in_words * 4 * out_height
             palette_bytes = len(palette) * 8    # Two words per entry.
             file_cb_bytes = 16                  # Weirdly skips first word when saving...
@@ -124,7 +124,7 @@ def main(options):
             # Write Sprite.
             # Write sprite control block.
             f.write(struct.pack('L', sprite_cb_bytes + palette_bytes + sprite_bytes))   # Byte offset to next sprite.
-            f.write(struct.pack('12s', options.sprite_name.encode('ascii')))   # Sprite name padded with 0's.
+            f.write(struct.pack('12s', options.sprite_name))   # Sprite name padded with 0's.
             f.write(struct.pack('L', width_in_words - 1))       # Width in words -1.
             f.write(struct.pack('L', out_height - 1))           # Height in scanlines -1.
 
@@ -143,6 +143,7 @@ def main(options):
 
             # Write sprite data.
             f.write(bytearray(pixel_data))
+
 
 ##########################################################################
 ##########################################################################

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import argparse,sys,math
+import argparse,sys,math,arc
 
 ##########################################################################
 ##########################################################################
@@ -7,12 +7,10 @@ import argparse,sys,math
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(bytes(data)) # Changed: write bytes directly
+            f.write(''.join([chr(x) for x in data]))
 
 def word_to_bytes(value):
-    # Changed: use .to_bytes for more robust conversion and specifying byte order
-    # Assuming 4 bytes and little-endian, and signed for potential negative values
-    return list(value.to_bytes(4, byteorder='little', signed=True))
+    return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff]
 
 ##########################################################################
 ##########################################################################
@@ -20,21 +18,18 @@ def word_to_bytes(value):
 def main(options):
     data=[]
     for x in range(0, options.size):
-        # In Python 3, / performs float division, so explicit float conversion for `options.size` isn't strictly needed,
-        # but `x` should be a float for the calculation to be float-based from the start.
-        v = options.min + (options.max-options.min) * x / float(options.size) 
+        v = options.min + (options.max-options.min) * x / options.size
         value = math.sqrt(v)
 
         if options.recip is True:
             value = 1.0 / value
 
-        # print statement converted to Python 3 function call
-        # print('[x={0}] param={1} value={2} recip={3}'.format(x, v, value, options.recip)) 
+        # print '[{0}] param={1} value={2} {3}'.format(x, v,value, options.recip)
 
         data.extend(word_to_bytes(int(options.scale * value)))
 
     save_file(data,options.output_path)
-    print('Wrote {0} bytes Arc data.'.format(len(data))) # Changed: print is a function
+    print 'Wrote {0} bytes Arc data.'.format(len(data))
 
 
 ##########################################################################

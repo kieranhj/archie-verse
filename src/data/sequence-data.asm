@@ -12,6 +12,7 @@ seq_acid_demo:
 
     ; Init FX modules.
     call_1      events_init,        events_data_no_adr  
+    call_0      sine_scroller_init
 
     ; Event handlers.
     call_2      events_set_fns,     1, acid_event_set_palette
@@ -28,6 +29,7 @@ seq_acid_demo:
     call_3      fx_set_layer_fns,   0, scene3d_rotate_entity,           screen_cls
     call_3      fx_set_layer_fns,   1, acid_events_entity_tick,         0
     call_3      fx_set_layer_fns,   2, scene3d_bodge_torus_draw_order,  0                 ; Must come before transform.
+;   call_3      fx_set_layer_fns,   2, sine_scroller_tick,              sine_scroller_draw
     call_3      fx_set_layer_fns,   3, scene3d_transform_entity,        scene3d_draw_entity_as_solid_quads
 
     ; Palette.

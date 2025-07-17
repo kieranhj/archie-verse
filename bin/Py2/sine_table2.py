@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import argparse,sys,math
+import argparse,sys,math,arc
 
 ##########################################################################
 ##########################################################################
@@ -7,11 +7,10 @@ import argparse,sys,math
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(bytes(data)) # Changed: write bytes directly
+            f.write(''.join([chr(x) for x in data]))
 
 def word_to_bytes(value):
-    # Changed: use .to_bytes for more robust conversion and specifying byte order
-    return list(value.to_bytes(4, byteorder='little', signed=True))
+    return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff]
 
 ##########################################################################
 ##########################################################################
@@ -26,7 +25,7 @@ def main(options):
 
     assert(len(data)==options.size*4)
     save_file(data,options.output_path)
-    print('Wrote {0} bytes Arc data.'.format(len(data))) # Changed: print is a function
+    print 'Wrote {0} bytes Arc data.'.format(len(data))
 
 
 ##########################################################################

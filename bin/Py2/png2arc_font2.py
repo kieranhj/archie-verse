@@ -6,12 +6,12 @@ import png,argparse,sys,math,arc
 
 # Read 1 byte from our input file
 def get_byte(file):
-    return file.read(1)[0]
+    return ord(file.read(1))
 
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(bytes(data))
+            f.write(''.join([chr(x) for x in data]))
 
 ##########################################################################
 ##########################################################################
@@ -35,8 +35,8 @@ def find_closest_match(palette, rgb):
     closest_dist = 256*256
     for i in range(16):
         col = palette[i]
-        dist = (rgb[0]-col[0])*(rgb[0]-col[0]) \
-        + (rgb[1]-col[1])*(rgb[1]-col[2]) \
+        dist = (rgb[0]-col[0])*(rgb[0]-col[0])
+        + (rgb[1]-col[1])*(rgb[1]-col[2])
         + (rgb[2]-col[2])*( rgb[2]-col[2])
         if dist < closest_dist:
             closest_idx = i
@@ -67,7 +67,7 @@ def to_box_row_palette_indices(boxed_row_flat_pixel, palette, closest_match):
 def main(options):
     # Only support MODE 9 for now. MODE 13 coming later.
     if options.mode != 9:
-        print('FATAL: invalid mode: %d.' % options.mode, file=sys.stderr)
+        print>>sys.stderr,'FATAL: invalid mode: %d.'%options.mode
         sys.exit(1)
 
     pixels_per_byte=2
@@ -81,13 +81,13 @@ def main(options):
 
     src_width=png_result[0]
     src_height=png_result[1]
-    print('Source image width: {0} height: {1}.'.format(src_width,src_height))
+    print 'Source image width: {0} height: {1}.'.format(src_width,src_height)
 
     palette = get_palette(png_result[2])
-    print('Found {0} palette entries in source image.'.format(len(palette)))
+    print 'Found {0} palette entries in source image.'.format(len(palette))
     
     if len(palette) > 16:
-        print('FATAL: too many colours: %d.' % len(palette), file=sys.stderr)
+        print>>sys.stderr,'FATAL: too many colours: %d.'%len(palette)
         sys.exit(1)
 
     if options.use_palette is not None:
@@ -131,7 +131,7 @@ def main(options):
     pixels = to_box_row_palette_indices(png_result[2], palette, options.closest_match)
     assert(len(pixels)==src_height)
 
-    print('Glyph dimensions {0} x {1} pixels.'.format(options.glyph_dim[0], options.glyph_dim[1]))
+    print 'Glyph dimensions {0} x {1} pixels.'.format(options.glyph_dim[0], options.glyph_dim[1])
 
     glyphs_across=src_width/options.glyph_dim[0]
     glyphs_down=src_height/options.glyph_dim[1]
@@ -139,7 +139,7 @@ def main(options):
     # TODO: Warning/errors if not a multiple of src_width/src_height.
     # TODO: Handle if glyph width is not a clean multiple of words.
 
-    print('Max glyphs {0} x {1} = {2}.'.format(int(glyphs_across), int(glyphs_down), int(glyphs_across*glyphs_down)))
+    print 'Max glyphs {0} x {1} = {2}.'.format(glyphs_across, glyphs_down, glyphs_across*glyphs_down)
 
     pixel_data=[]
     num_glyphs=0
@@ -163,9 +163,9 @@ def main(options):
                     xt=0
                     for y in range(0,options.glyph_dim[1]):
                         if options.flip_y:
-                            row=list(pixels[glyph_top+options.glyph_dim[1]-1-y])
+                            row=pixels[glyph_top+options.glyph_dim[1]-1-y]
                         else:
-                            row=list(pixels[glyph_top+y])
+                            row=pixels[glyph_top+y]
                         assert(len(row)==src_width)
                         xs=[]
                         for p in range(0,int(pixels_per_byte*step_x)):
@@ -195,7 +195,7 @@ def main(options):
                 assert options.flip_y is False
                 assert options.prop_path is None
                 for y in range(0,options.glyph_dim[1]):
-                    row=list(pixels[glyph_top+y])
+                    row=pixels[glyph_top+y]
                     assert(len(row)==src_width)
                     for x in range(0,options.glyph_dim[0],pixels_per_byte):
                         xs=[]
@@ -209,28 +209,28 @@ def main(options):
             max_x+=2
             proportional_pairs.append([max(min_x,0), min(max_x,options.glyph_dim[0]-1)])
 
-    glyph_size=int(glyph_size + padding/num_glyphs) # Ensure integer division where appropriate
+    glyph_size+=padding/num_glyphs
 
     if options.map_to_ascii is not None:
         max_ascii=max([ord(x) for x in list(options.map_to_ascii)])
-        print('Remapping glyphs to ASCII order with max code {0}.'.format(max_ascii))
+        print 'Remapping glyphs to ASCII order with max code {0}.'.format(max_ascii)
         with open(options.output_path,'wb') as f:
-            for ascii_val in range(32,max_ascii+1): # Renamed 'ascii' to 'ascii_val' to avoid shadowing built-in
-                if chr(ascii_val) in options.map_to_ascii:
+            for ascii in range(32,max_ascii+1):
+                if chr(ascii) in options.map_to_ascii:
                     if options.loud:
-                        print('ASCII char {0} found in "{1}"'.format(ascii_val, options.map_to_ascii))
-                    pos=options.map_to_ascii.index(chr(ascii_val))
-                    f.write(bytes(pixel_data[pos*glyph_size:(pos+1)*glyph_size]))
+                        print 'ASCII char {0} found in "{1}"'.format(ascii, options.map_to_ascii)
+                    pos=options.map_to_ascii.index(chr(ascii))
+                    f.write(''.join([chr(x) for x in pixel_data[pos*glyph_size:(pos+1)*glyph_size]]))
                 else:
                     if options.loud:
-                        print('ASCII char {0} not found.'.format(ascii_val))
-                    f.write(bytes([0x00])*glyph_size) # Writing bytes
-            print('Wrote {0} glyphs at {1} bytes per glyph for a total of {2} bytes of Arc data includes {3} bytes padding per glyph.'.format(max_ascii-31, glyph_size, f.tell(), padding/num_glyphs))
+                        print 'ASCII char {0} not found.'.format(ascii)
+                    f.write(chr(0x00)*glyph_size)
+            print 'Wrote {0} glyphs at {1} bytes per glyph for a total of {2} bytes of Arc data includes {3} bytes padding per glyph.'.format(max_ascii-31, glyph_size, f.tell(), padding/num_glyphs)
 
     else:
         assert(len(pixel_data)==num_glyphs*glyph_size)
         save_file(pixel_data,options.output_path)
-        print('Wrote {0} glyphs at {1} bytes per glyph for a total of {2} bytes of Arc data includes {3} bytes padding.'.format(num_glyphs, glyph_size, len(pixel_data), padding))
+        print 'Wrote {0} glyphs at {1} bytes per glyph for a total of {2} bytes of Arc data includes {3} bytes padding.'.format(num_glyphs, glyph_size, len(pixel_data), padding)
 
     if options.prop_path is not None:
         # print(proportional_pairs)
@@ -246,13 +246,13 @@ def main(options):
             for i in range(0,3):
                 if (p[i] & 0x0f) != 0 and not warned:
                     if options.loud:
-                        print('Warning: lost precision for colour',p)
+                        print 'Warning: lost precision for colour',p
                     warned=True
                 pal_data.append(p[i] & 0xf0)
             pal_data.append(0)
         assert(len(pal_data)==4*len(palette))
         save_file(pal_data,options.palette_path)
-        print('Wrote {0} bytes palette data.'.format(len(pal_data)))
+        print 'Wrote {0} bytes palette data.'.format(len(pal_data))
 
             
 

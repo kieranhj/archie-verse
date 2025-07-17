@@ -104,11 +104,7 @@ def pack_1bpp(pixels):
 
 def load_png(path,
              mode,
-             print_warnings=True, # Added this as a default parameter for consistency
-             halve_width=False, # Added this as a default parameter, assuming it was meant to be passed in
-             transparent_rgb=None, # Added this as a default parameter, assuming it was meant to be passed in
-             transparent_physical_index=None, # Added this as a default parameter, assuming it was meant to be passed in
-             use_fixed_16=False): # Added this as a default parameter, assuming it was meant to be passed in
+             print_warnings=True):
     '''loads PATH, a PNG representing a ARC screen in mode MODE, returning
     a 2d array of BBC physical colour indexes for the caller to disentangle.
 
@@ -126,10 +122,9 @@ transparent.
 
     pixels=[]
     for row in png_result[2]:
-        row_list = list(row) # Changed: Convert row iterator to a list for indexing
         pixels.append([])
-        for x in range(0,len(row_list),4): # Changed: iterate over row_list
-            pixels[-1].append((row_list[x+0],row_list[x+1],row_list[x+2],row_list[x+3]))
+        for x in range(0,len(row),4):
+            pixels[-1].append((row[x+0],row[x+1],row[x+2],row[x+3]))
 
     if halve_width:
         good=True
@@ -137,7 +132,7 @@ transparent.
             row=[]
             for x in range(0,len(pixels[y]),4):
                 if pixels[y][x+0]!=pixels[y][x+1]:
-                    print('pixel at ({0},{1}) is different from pixel at ({2},{3})'.format(x+0,y,x+1,y), file=sys.stderr) # Changed: print is a function
+                    print>>sys.stderr,'pixel at (%d,%d) is different from pixel at (%d,%d)'%(x+0,y,x+1,y)
                     #good=False
 
                 row.append(pixels[y][x+0])
@@ -158,16 +153,16 @@ transparent.
                             p[2]==transparent_rgb[2]):
                 if transparent_physical_index is None:
                     if print_warnings:
-                        print('invalid transparency', file=sys.stderr) # Changed: print is a function
+                        print>>sys.stderr,'invalid transparency'
                     pidx=-1
                     #raise ValueError('invalid transparency')
                 else:
                     pidx=transparent_physical_index
             elif use_fixed_16:
-                pidx=find_closest_fixed(p) # This function (find_closest_fixed) is not defined in the provided code snippet
+                pidx=find_closest_fixed(p)
                 if pidx is None:
                     if print_warnings:
-                        print('failed to match fixed_16 for RGB ({0},{1},{2})'.format(p[0],p[1],p[2]), file=sys.stderr) # Changed: print is a function
+                        print>>sys.stderr,'failed to match fixed_16 for RGB (%d,%d,%d)'%(p[0],p[1],p[2])
                     pidx=0
 
             else:
@@ -175,7 +170,7 @@ transparent.
                     if p[i]!=0 and p[i]!=255:
                         p=find_closest_rgb(p)
                         if print_warnings:
-                            print('Non-BBC Micro colour {0} at ({1},{2}) - using {3}'.format(pixels[y][x],x,y,p), file=sys.stderr) # Changed: print is a function
+                            print>>sys.stderr,'Non-BBC Micro colour %s at (%d,%d) - using %s'%(pixels[y][x],x,y,p)
                         break
 
                 pidx=rgbs.index((p[0],p[1],p[2]))

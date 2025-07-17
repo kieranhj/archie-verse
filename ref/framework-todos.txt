@@ -42,7 +42,7 @@ Framework TODOs as of 18/6/25 (post-NOVA):
       Generic tick list w/ priority where <100 means before layers >=100 after?
 
 - Improve build using Tom's Python scripts and makefile-foo.
-- Move png2arc to Python 3. ==> Use Gemini!
+- Move png2arc to Python 3. ==> Use Gemini! DONE?
 - Spit out palettes as asm data from png2arc script, not just binary blobs. - DONE
 - Move scripting to use seconds throughout? (Still using mix of frames and vsyncs.)
     => STARTED. (See below.)
@@ -179,11 +179,12 @@ TODO:
 ~~~
 - Library module to parse and fire events based on the packed data format - DONE
 - Create a new exe to start iterating the demo on - DONE
-- Initial effect just switches a static screen on event #
+- Initial effect just switches a static screen on event # - DONE WITH DONUT
 - Event and MOD file loading in on sequence restart - DONE
 - Batch file watcher - DONE
-- Create an 8 channel example MOD from Dave's old house MOD
-- Instructions for Dave
+- Create an 8 channel example MOD from Dave's old house MOD - DONE
+- Restart from current pattern? ==> Reload + ffwd to pattern?
+- Package + Instructions for Dave
     - Some commands might be problematic due to interpretation in OpenMPT.
         Bxx = position jump (jump to sequence no. xx)
         Dxx = pattern break (start next pattern at row xx)

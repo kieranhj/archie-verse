@@ -7,7 +7,7 @@ import png,argparse,math
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(bytes(data)) # Changed: write bytes directly
+            f.write(''.join([chr(x) for x in data]))
 
 ##########################################################################
 ##########################################################################
@@ -25,13 +25,12 @@ def main(options):
 
     png_result=png.Reader(filename=options.rgb_path).asRGBA8()
 
-    print('Image width: {0} height: {1}'.format(png_result[0],png_result[1])) # Changed: print is a function
+    print 'Image width: {0} height: {1}'.format(png_result[0],png_result[1])
 
     for row in png_result[2]:
-        row_list = list(row) # Changed: Convert row iterator to a list
-        for i in range(0,len(row_list),8): # Changed: iterate over row_list
-            rgba0 = [row_list[i+0],row_list[i+1],row_list[i+2],row_list[i+3]]
-            rgba1 = [row_list[i+4],row_list[i+5],row_list[i+6],row_list[i+7]]
+        for i in range(0,len(row),8):
+            rgba0 = [row[i+0],row[i+1],row[i+2],row[i+3]]
+            rgba1 = [row[i+4],row[i+5],row[i+6],row[i+7]]
 
             u0=rgba0[0]
             v0=rgba0[1]
@@ -44,25 +43,23 @@ def main(options):
             v_data.append(v1)       # v1
 
             if not found_shader_data and (rgba0[2]!=0 or rgba1[2]!=0):
-                print('Found shader data in Blue channel.') # Changed: print is a function
+                print 'Found shader data in Blue channel.'
                 found_shader_data=True
 
     if found_shader_data:
-        # Re-read the PNG for the second pass (or store rows if memory permits)
-        png_result=png.Reader(filename=options.rgb_path).asRGBA8() 
+        png_result=png.Reader(filename=options.rgb_path).asRGBA8()
         blue_mask=False
         shift_warned=False
 
         for row in png_result[2]:
-            row_list = list(row) # Changed: Convert row iterator to a list
-            for i in range(0,len(row_list),8): # Changed: iterate over row_list
-                rgba0 = [row_list[i+0],row_list[i+1],row_list[i+2],row_list[i+3]]
-                rgba1 = [row_list[i+4],row_list[i+5],row_list[i+6],row_list[i+7]]
+            for i in range(0,len(row),8):
+                rgba0 = [row[i+0],row[i+1],row[i+2],row[i+3]]
+                rgba1 = [row[i+4],row[i+5],row[i+6],row[i+7]]
 
                 # Special case for Blue=0xff (blue mask = black):
 
                 if not blue_mask and (rgba0[2]==0xff or rgba1[2]==0xff):
-                    print('Found special case blue mask (deprecated).') # Changed: print is a function
+                    print 'Found special case blue mask (deprecated).'
                     blue_mask=True
 
                 if blue_mask:
@@ -85,10 +82,10 @@ def main(options):
                 # NB. Shift of zero (a=0) means 'just LUT' and expect add of zero (b=0).
 
                 if a0==0 and b0!=0:
-                    print('WARNING: Found B value that has add without shift (0x{0:02x})'.format(rgba0[2])) # Changed: print is a function
+                    print 'WARNING: Found B value that has add without shift (0x{0:02x})'.format(rgba0[2])
 
                 if a1==0 and b1!=0:
-                    print('WARNING: Found B value that has add without shift (0x{0:02x})'.format(rgba1[2])) # Changed: print is a function
+                    print 'WARNING: Found B value that has add without shift (0x{0:02x})'.format(rgba1[2])
 
                 # NB. Shift of a>=4 means 'const colour' and b is the colour.
 
@@ -99,20 +96,20 @@ def main(options):
                     a1=4
 
                 if a0>4 and not shift_warned:
-                    print('WARNING: Found B value that has unexpected shift (0x{0:02x})'.format(rgba0[2])) # Changed: print is a function
+                    print 'WARNING: Found B value that has unexpected shift (0x{0:02x})'.format(rgba0[2])
                     shift_warned=True
 
                 if a1>4 and not shift_warned:
-                    print('WARNING: Found B value that has unexpected shift (0x{0:02x})'.format(rgba1[2])) # Changed: print is a function
+                    print 'WARNING: Found B value that has unexpected shift (0x{0:02x})'.format(rgba1[2])
 
                 max0=(0xf>>a0)+b0
                 max1=(0xf>>a1)+b1
 
                 if max0>0xf:
-                    print('WARNING: Found B value that could overflow (0x{0:02x})'.format(rgba0[2])) # Changed: print is a function
+                    print 'WARNING: Found B value that could overflow (0x{0:02x})'.format(rgba0[2])
 
                 if max1>0xf:
-                    print('WARNING: Found B value that could overflow (0x{0:02x})'.format(rgba1[2])) # Changed: print is a function
+                    print 'WARNING: Found B value that could overflow (0x{0:02x})'.format(rgba1[2])
 
                 # NB. Sparse texture shift of +4 now done in runtime code gen.
 
@@ -124,7 +121,7 @@ def main(options):
     u_data.extend(shader_data)
 
     save_file(u_data,options.output_path)
-    print('Wrote {0} bytes Arc data.'.format(len(u_data))) # Changed: print is a function
+    print 'Wrote {0} bytes Arc data.'.format(len(u_data))
 
 
 ##########################################################################
@@ -140,4 +137,3 @@ if __name__=='__main__':
     parser.add_argument('rgb_path',metavar='FILE',help='use %(metavar)s RGB png as [u,v] map')
 
     main(parser.parse_args())
-    

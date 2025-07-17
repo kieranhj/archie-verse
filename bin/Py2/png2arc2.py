@@ -6,22 +6,19 @@ import png,argparse,sys,math,arc
 
 # Read 1 byte from our input file
 def get_byte(file):
-    # In Python 3, file.read(1) returns a bytes object, so ord() is still needed
-    return file.read(1)[0] # Changed: access the first byte of the bytes object
+    return ord(file.read(1))
 
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(bytes(data)) # Changed: write bytes directly from a list of integers
+            f.write(''.join([chr(x) for x in data]))
 
 ##########################################################################
 ##########################################################################
 
 def get_palette(boxed_row_flat_pixel, mask_rgba):
     palette = []
-    # In Python 3, iterators from png.Reader.asRGBA8() need to be converted to list for direct indexing
-    for row_iter in boxed_row_flat_pixel:
-        row = list(row_iter) # Changed: Convert row iterator to a list
+    for row in boxed_row_flat_pixel:
         for i in range(0,len(row),4):
             rgba = [row[i+0],row[i+1],row[i+2],row[i+3]]
 
@@ -37,7 +34,7 @@ def find_closest_match(palette, rgb):
     # Do this the lame non-Pythonic way. I'm sure this could be a single line blah blah.
     closest_idx = -1
     closest_dist = 256*256
-    for i in range(len(palette)): # Changed: Iterate up to the actual length of the palette
+    for i in range(16):
         col = palette[i]
         dist = (rgb[0]-col[0])*(rgb[0]-col[0]) + (rgb[1]-col[1])*(rgb[1]-col[1]) + (rgb[2]-col[2])*(rgb[2]-col[2])
         if dist < closest_dist:
@@ -46,35 +43,12 @@ def find_closest_match(palette, rgb):
 
     return closest_idx
 
-#def find_closest_match(palette, rgb):
-#    """
-#    Finds the index of the color in the palette that is closest to the given RGB color.
-#    Closeness is determined by the squared Euclidean distance.
-#
-#    Args:
-#        palette (list): A list of RGB color tuples or lists, e.g., [(r, g, b), ...].
-#        rgb (tuple): The target RGB color as a tuple or list, e.g., (r, g, b).
-#
-#    Returns:
-#        int: The index of the closest color in the palette.
-#    """
-    # Use enumerate to get both the index and the color from the palette.
-    # The key function calculates the squared Euclidean distance between the
-    # target RGB and each color in the palette.
-#    closest_idx, _ = min(
-#        enumerate(palette),
-#        key=lambda item: sum((c1 - c2)**2 for c1, c2 in zip(rgb, item[1]))
-#    )
-#    return closest_idx
-
 ##########################################################################
 ##########################################################################
 
 def to_box_row_palette_indices(boxed_row_flat_pixel, palette, mask_rgba):
     pidxs = []
-    # In Python 3, iterators from png.Reader.asRGBA8() need to be converted to list for direct indexing
-    for row_iter in boxed_row_flat_pixel:
-        row = list(row_iter) # Changed: Convert row iterator to a list
+    for row in boxed_row_flat_pixel:
         pidxs.append([])
         for i in range(0,len(row),4):
             rgba = [row[i+0],row[i+1],row[i+2],row[i+3]]
@@ -85,7 +59,7 @@ def to_box_row_palette_indices(boxed_row_flat_pixel, palette, mask_rgba):
                 # Probably unless zero?
                 try:
                     idx = len(palette) - palette[::-1].index(rgba) - 1
-                except ValueError: # Changed: catch ValueError specifically for .index()
+                except:
                     idx = find_closest_match(palette, rgba)
             pidxs[-1].append(idx)
 
@@ -93,9 +67,7 @@ def to_box_row_palette_indices(boxed_row_flat_pixel, palette, mask_rgba):
 
 def to_box_row_mask_pixels(boxed_row_flat_pixel, mask_rgba):
     midxs = []
-    # In Python 3, iterators from png.Reader.asRGBA8() need to be converted to list for direct indexing
-    for row_iter in boxed_row_flat_pixel:
-        row = list(row_iter) # Changed: Convert row iterator to a list
+    for row in boxed_row_flat_pixel:
         midxs.append([])
         for i in range(0,len(row),4):
             rgba = [row[i+0],row[i+1],row[i+2],row[i+3]]
@@ -112,7 +84,7 @@ def to_box_row_mask_pixels(boxed_row_flat_pixel, mask_rgba):
 def main(options):
     # Only support MODE 9 for now. MODE 13 coming later.
     if options.mode != 9 and options.mode != 4:
-        print('FATAL: invalid mode: {0}'.format(options.mode), file=sys.stderr) # Changed: print is a function
+        print>>sys.stderr,'FATAL: invalid mode: %d'%options.mode
         sys.exit(1)
 
     if options.mode == 4:
@@ -135,24 +107,19 @@ def main(options):
 
     src_width=png_result[0]
     src_height=png_result[1]
-    print('Source image width: {0} height: {1}'.format(src_width,src_height)) # Changed: print is a function
+    print 'Source image width: {0} height: {1}'.format(src_width,src_height)
 
     if options.mask_colour is not None:
         mask = [options.mask_colour >> 24, (options.mask_colour >> 16) & 0xff, (options.mask_colour >> 8) & 0xff, options.mask_colour & 0xff]
-        print('Using mask colour: {0}'.format(mask)) # Changed: print is a function
+        print 'Using mask colour: {0}'.format(mask)
     else:
         mask = None
 
-    # The png_result[2] (rows iterator) can only be consumed once.
-    # We need to convert it to a list if we want to iterate over it multiple times or pass it around.
-    # Let's convert it here once to avoid re-reading the file multiple times for palette and then pixels.
-    all_rows = list(png_result[2]) # Changed: Convert iterator to a list
-
-    palette = get_palette(all_rows, mask) # Changed: pass the list of rows
-    print('Found {0} palette entries.'.format(len(palette))) # Changed: print is a function
+    palette = get_palette(png_result[2], mask)
+    print 'Found {0} palette entries.'.format(len(palette))
     
     if len(palette) > 16:
-        print('FATAL: too many colours: {0}'.format(len(palette)), file=sys.stderr) # Changed: print is a function
+        print>>sys.stderr,'FATAL: too many colours: %d'%len(palette)
         sys.exit(1)
 
     if options.is_index:
@@ -162,14 +129,15 @@ def main(options):
 
     if options.use_palette is not None:
         # Open palette binary file.
-        with open(options.use_palette, 'rb') as palette_file: # Changed: use 'with' statement for file handling
-            palette=[]
-            for i in range(16):
-                r = get_byte(palette_file)
-                g = get_byte(palette_file)
-                b = get_byte(palette_file)
-                a = get_byte(palette_file)
-                palette.append([r, g, b, 255])
+        palette_file = open(options.use_palette, 'rb')
+
+        palette=[]
+        for i in range(16):
+            r = get_byte(palette_file)
+            g = get_byte(palette_file)
+            b = get_byte(palette_file)
+            a = get_byte(palette_file)
+            palette.append([r, g, b, 255])
     else:
         # Sort palette by intensity.
         palette.sort(key=lambda e: e[0]*e[0]+e[1]*e[1]+e[2]*e[2])
@@ -185,17 +153,15 @@ def main(options):
                     palette.append([255, 255, 255, 255])
 
     if options.loud:
-        print(palette) # Changed: print is a function
+        print(palette)
 
-    # Use the already converted `all_rows` list
-    pixels = to_box_row_palette_indices(all_rows, palette, mask) # Changed: pass the list of rows
+    # Reading the file again seems wrong?
+    png_result=png.Reader(filename=options.input_path).asRGBA8()
+    pixels = to_box_row_palette_indices(png_result[2], palette, mask)
 
-    out_width=src_width/step_x if step_x != 0 else src_width # Added check for division by zero
-    out_height=src_height/step_y if step_y != 0 else src_height # Added check for division by zero
-    # Ensure integer division for output dimensions, as they represent pixel counts
-    out_width = int(out_width) 
-    out_height = int(out_height)
-    print('Output image width: {0} height: {1}'.format(out_width,out_height)) # Changed: print is a function
+    out_width=src_width/step_x
+    out_height=src_height/step_y
+    print 'Output image width: {0} height: {1}'.format(out_width,out_height)
 
     pixel_data=[]
     assert(len(pixels)==src_height)
@@ -205,7 +171,7 @@ def main(options):
         for x in range(0,src_width,int(pixels_per_byte*step_x)):
             xs=[]
             if options.double_pixels:
-                for p in range(0,int(pixels_per_byte/2)): # Changed: ensure int for range
+                for p in range(0,pixels_per_byte/2):
                     xs.append(row[x+p])
                     if options.as_bytes:
                         xs.append(0)
@@ -219,23 +185,21 @@ def main(options):
 
     assert(len(pixel_data)==out_width*out_height/pixels_per_byte)
     save_file(pixel_data,options.output_path)
-    print('Wrote {0} bytes Arc data.'.format(len(pixel_data))) # Changed: print is a function
+    print 'Wrote {0} bytes Arc data.'.format(len(pixel_data))
 
     if options.mask_path is not None:
-        # Re-read the PNG or use the stored all_rows if the data structure allows it.
-        # For simplicity and to match original behavior of re-reading:
+        # Reading the file again seems wrong?
         png_result=png.Reader(filename=options.input_path).asRGBA8()
-        all_rows_mask = list(png_result[2]) # Changed: Convert iterator to a list
-        pixel_masks = to_box_row_mask_pixels(all_rows_mask, mask) # Changed: pass the list of rows
+        pixel_masks = to_box_row_mask_pixels(png_result[2], mask)
         mask_data=[]
         assert(len(pixel_masks)==src_height)
         for y in range(0,src_height,step_y):
             row=pixel_masks[y]
             assert(len(row)==src_width)
-            for x in range(0,src_width,int(pixels_per_byte*step_x)): # Changed: ensure int for range
+            for x in range(0,src_width,pixels_per_byte*step_x):
                 xs=[]
                 if options.double_pixels:
-                    for p in range(0,int(pixels_per_byte/2)): # Changed: ensure int for range
+                    for p in range(0,pixels_per_byte/2):
                         xs.append(row[x+p])
                         xs.append(row[x+p])
                 else:
@@ -246,24 +210,22 @@ def main(options):
 
         assert(len(mask_data)==out_width*out_height/pixels_per_byte)
         save_file(mask_data,options.mask_path)
-        print('Wrote {0} bytes MASK data.'.format(len(mask_data))) # Changed: print is a function
+        print 'Wrote {0} bytes MASK data.'.format(len(mask_data))
 
     if options.palette_path is not None:
         pal_data=[]
         for p in palette:
             warned=False
             for i in range(0,3):
-                # Integer division issue: in Python 2, 0x0f and 0xf0 were integers.
-                # Here, the bitwise operations are fine as integers.
                 if (p[i] & 0x0f) != 0 and not warned:
                     if options.loud:
-                        print('Warning: lost precision for colour',p) # Changed: print is a function
+                        print 'Warning: lost precision for colour',p
                     warned=True
                 pal_data.append(p[i] & 0xf0)
             pal_data.append(0)
         assert(len(pal_data)==4*len(palette))
         save_file(pal_data,options.palette_path)
-        print('Wrote {0} bytes palette data.'.format(len(pal_data))) # Changed: print is a function
+        print 'Wrote {0} bytes palette data.'.format(len(pal_data))
 
     if options.vidc_path is not None:
         pal_data=[]
@@ -275,13 +237,13 @@ def main(options):
                 for i in range(0,3):
                     if (p[i] & 0x0f) != 0 and not warned:
                         if options.loud:
-                            print('Warning: lost precision for colour',p) # Changed: print is a function
+                            print 'Warning: lost precision for colour',p
                         warned=True
-                reg=(r<<26)|(p[0]>>4)|(p[1]&0xf0)|((p[2]&0xf0)<<4) # Changed: Added parentheses for clarity in bitwise operations
+                reg=(r<<26)|p[0]>>4|p[1]&0xf0|(p[2]&0xf0)<<4
                 f.write('\t.long 0x{0:08x}\n'.format(reg))           
                 r+=1
 
-        print('Wrote palette data as VIDC regs to {0}.'.format(options.vidc_path)) # Changed: print is a function
+        print 'Wrote palette data as VIDC regs to {0}.'.format(options.vidc_path)
 
 
 ##########################################################################
