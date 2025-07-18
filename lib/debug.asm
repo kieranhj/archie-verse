@@ -270,6 +270,10 @@ debug_set_byte_true:
     strb r0, [r1]
     mov pc, lr
 
+debug_set_byte_two:
+    mov r0, #2
+    strb r0, [r1]
+    mov pc, lr
 
 debug_temp_string:
 	.skip Debug_TempLen

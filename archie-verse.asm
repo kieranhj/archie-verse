@@ -354,19 +354,13 @@ debug_toggle_main_loop_pause:
     mov pc, lr
     .endif
 
+; R0=restart flag
 debug_restart_sequence:
     str lr, [sp, #-4]!
 
-    ; Ack the restart
-    mov r0, #0
-    strb r0, debug_restart_flag
-    mov r1, #0
-    QTMSWI QTM_Pos
-    ; TODO: Should we call QTM_Stop instead?
-
     .if _DYNAMIC_RELOAD
     ; Reload the music (if required).
-    bl audio_reload
+    bl audio_reload         ; This resets music pos to 00:00
 
     ; This stops the music - need to pause if we were playing!
     ldrb r0, debug_main_loop_play
@@ -374,13 +368,35 @@ debug_restart_sequence:
     bleq debug_toggle_main_loop_pause
     .endif
 
+    ; Set the music pos.
+    mov r0, #0              ; assume pattern 0.
+
+    ldrb r1, debug_restart_flag
+    cmp r1, #1
+
+    ; Reset to current music position
+    ldrneb r0, music_pos+1  ; pattern
+    ; NB. This doesn't work as it skips any tempo commands in pat 0. :\
+
+    ; Ack the restart
+    mov r1, #0              ; set row to 0.
+    strb r1, debug_restart_flag
+    QTMSWI QTM_Pos
+
     ; Reinit the script etc.
-    bl sequence_init
+    bl sequence_init        ; reads QTM music pos.
+
+    ; R0=music pattern
+    ldrb r0, music_pos+1
+    cmp r0, #0
+    blne sequence_jump_to_pattern
 
     ; Wait for the user to press play on continue.
     ldr pc, [sp], #4
 
 debug_skip_to_next_pattern:
+    str lr, [sp, #-4]!
+
     mov r0, #-1
     mov r1, #-1
     QTMSWI QTM_Pos         ; read position.
@@ -389,11 +405,13 @@ debug_skip_to_next_pattern:
     cmp r0, #SeqConfig_MaxPatterns
     movge pc, lr
 
+    ; Reads current position and jumps forward to pattern R0.
     bl sequence_jump_to_pattern
 
     mov r1, #0
-    QTMSWI QTM_Pos         ; set position.
-    mov pc, lr
+    QTMSWI QTM_Pos         ; set music position.
+
+    ldr pc, [sp], #4
 .endif
 
 ; ============================================================================

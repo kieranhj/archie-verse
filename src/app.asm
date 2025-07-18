@@ -33,6 +33,9 @@ app_init_debug:
     DEBUG_REGISTER_KEY_WITH_VAR RMKey_R,          debug_toggle_byte,             debug_show_rasters
     DEBUG_REGISTER_KEY          RMKey_ArrowRight, debug_skip_to_next_pattern,    0
 
+; Doesn't work as we'll skip the tempo commands in pattern 0. :\
+;    DEBUG_REGISTER_KEY_WITH_VAR RMKey_ArrowUp,    debug_set_byte_two,            debug_restart_flag
+
 ;    DEBUG_REGISTER_VAR math_var_active_count
     ldr pc, [sp], #4
 .endif

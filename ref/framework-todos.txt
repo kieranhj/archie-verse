@@ -184,13 +184,20 @@ TODO:
 - Batch file watcher - DONE
 - Create an 8 channel example MOD from Dave's old house MOD - DONE
 - Restart from current pattern? ==> Reload + ffwd to pattern?
-- Package + Instructions for Dave
+- Package + Instructions for Dave - DONE FIRST PASS
     - Some commands might be problematic due to interpretation in OpenMPT.
         Bxx = position jump (jump to sequence no. xx)
         Dxx = pattern break (start next pattern at row xx)
         E6x = pattern loop
         EEx = pattern delay
         Fxx = speed
+- Create a batch file that makes a new package for Dave
+- Add extra debug controls:
+    - Execute all events on pattern skip
+    - Up arrow => restart current pattern
+    - Left arrow => jump back to previous pattern
+    - Down arrow? => reload music & events but restart from current pattern
+
 
 - Things to think about
     - Generic asset loading / decompressing system

@@ -103,7 +103,6 @@ events_set_fns:
 
 .if _DEBUG
 ; R0=pattern no. [must preserve]
-; TODO: Call events when ffwd or not?
 events_ffwd_to_pattern:
     ; Check we have events data.
     ldr r10, events_p
@@ -122,13 +121,16 @@ events_ffwd_to_pattern:
 
     ; EOF
     cmp r8, #0xff00
-    movge pc, lr
+    bge .2
+
+    ; TODO: Call events when ffwd or not?
 
     ; If music hasn't reached our event yet, then skip.
     cmp r8, r9
     addlt r10, r10, #8
     blt .1
 
+.2:
     ; Ready for next event tick.
     str r10, events_p
     mov pc, lr

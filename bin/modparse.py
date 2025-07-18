@@ -99,7 +99,7 @@ class ModParser:
     # Write out MOD file - should be byte-for-byte identical.
     def WriteMod(self, mod_file, ch_mask):
 
-        print(f"Writing MOD file '{mod_file.name}.")
+        print(f"Writing MOD file '{mod_file.name}'.")
         mod_file.write(self._title.ljust(20, '\x00').encode('ascii'))
 
         for sample in self._samples:
@@ -242,3 +242,5 @@ if __name__ == '__main__':
 #     (apparently compresses better according to Hoffman).
 #  - Write out sample data as deltas (may compress better).
 #  - Optimise? (Remove duplicate patterns etc.)
+#  - Output a debug table of vsync count per pattern
+#     (to do this correctly need to scan for tempo changes and pattern breaks etc.)
