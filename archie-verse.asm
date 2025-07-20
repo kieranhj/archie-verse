@@ -356,6 +356,9 @@ debug_toggle_main_loop_pause:
 
 ; R0=restart flag
 debug_restart_sequence:
+    cmp r0, #3
+    beq debug_skip_to_next_pattern
+
     str lr, [sp, #-4]!
 
     .if _DYNAMIC_RELOAD
@@ -409,6 +412,7 @@ debug_skip_to_next_pattern:
     bl sequence_jump_to_pattern
 
     mov r1, #0
+    strb r1, debug_restart_flag     ; ack flag.
     QTMSWI QTM_Pos         ; set music position.
 
     ldr pc, [sp], #4

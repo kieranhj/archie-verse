@@ -31,7 +31,9 @@ app_init_debug:
     DEBUG_REGISTER_KEY_WITH_VAR RMKey_S,          debug_set_byte_true,           debug_main_loop_step
     DEBUG_REGISTER_KEY_WITH_VAR RMKey_D,          debug_toggle_byte,             debug_show_info
     DEBUG_REGISTER_KEY_WITH_VAR RMKey_R,          debug_toggle_byte,             debug_show_rasters
-    DEBUG_REGISTER_KEY          RMKey_ArrowRight, debug_skip_to_next_pattern,    0
+; Not really safe to call this in event handler...
+;    DEBUG_REGISTER_KEY          RMKey_ArrowRight, debug_skip_to_next_pattern,    0
+    DEBUG_REGISTER_KEY_WITH_VAR RMKey_ArrowRight, debug_set_byte_three,          debug_restart_flag
 
 ; Doesn't work as we'll skip the tempo commands in pattern 0. :\
 ;    DEBUG_REGISTER_KEY_WITH_VAR RMKey_ArrowUp,    debug_set_byte_two,            debug_restart_flag

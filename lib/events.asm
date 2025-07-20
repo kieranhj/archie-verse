@@ -109,6 +109,8 @@ events_ffwd_to_pattern:
     cmp r10, #0
     moveq pc, lr
 
+    stmfd sp!, {r0,lr}
+
     ; Target pattern.
     mov r9, r0, lsl #8      ; 0xPP00
 
@@ -123,17 +125,23 @@ events_ffwd_to_pattern:
     cmp r8, #0xff00
     bge .2
 
-    ; TODO: Call events when ffwd or not?
-
     ; If music hasn't reached our event yet, then skip.
     cmp r8, r9
-    addlt r10, r10, #8
-    blt .1
+    bge .2
+
+    ; Call events when ffwd.
+    ldr r7, [r10, #4]
+    stmfd sp!, {r8-r10}
+    bl events_execute
+    ldmfd sp!, {r8-r10}
+
+    add r10, r10, #8
+    b .1
 
 .2:
     ; Ready for next event tick.
     str r10, events_p
-    mov pc, lr
+    ldmfd sp!, {r0,pc}
 .endif
 
 
@@ -144,11 +152,6 @@ events_tick:
     ldr r10, events_p
     cmp r10, #0
     moveq pc, lr
-
-    .if _DEBUG
-    adr r1, events_last_events
-    str r1, events_last_p
-    .endif
 
     ; Read current music position.
     mov r9, r0              ; 0xpprr
@@ -176,12 +179,18 @@ events_tick:
     .endif
 
     ; Matched pattern and row so call the events in order.
-    str lr, [sp, #-4]!
     ldr r7, [r10], #4
     str r10, events_p
 
-    ; R6 = BBBB aaaa aaaa AAAA PPPP PPPP RRRR RRRR
-    ; R7 = dddd dddd DDDD cccc cccc CCCC bbbb bbbb
+; R6 = BBBB aaaa aaaa AAAA PPPP PPPP RRRR RRRR
+; R7 = dddd dddd DDDD cccc cccc CCCC bbbb bbbb
+events_execute:
+    str lr, [sp, #-4]!
+
+    .if _DEBUG
+    adr r1, events_last_events
+    str r1, events_last_p
+    .endif
 
     mov r6, r6, lsr #16         ; strip out (pos,row)
 

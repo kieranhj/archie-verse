@@ -275,6 +275,11 @@ debug_set_byte_two:
     strb r0, [r1]
     mov pc, lr
 
+debug_set_byte_three:
+    mov r0, #3
+    strb r0, [r1]
+    mov pc, lr
+
 debug_temp_string:
 	.skip Debug_TempLen
 
