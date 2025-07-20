@@ -7,7 +7,8 @@ echo "Usage: make-rhino <MOD filename>"
 exit /b 1
 
 :args_count_ok
-set HOSTFS="..\arculator\hostfs\!Acid"
+if "%HOSTFS%"=="" set HOSTFS=hostfs
+set FOLDER=!Acid
 
 echo ---
 echo Splitting MOD into MUSIC and EVENTS...
@@ -20,12 +21,12 @@ if %ERRORLEVEL% neq 0 (
 	exit /b 1
 )
 
-echo Copy files to Arculator folder  %HOSTFS%...
-move music.mod "%HOSTFS%\music,001"
-move events.bin "%HOSTFS%\events,ffd"
+echo Copy files to Arculator folder %HOSTFS%\%FOLDER%...
+move music.mod "%HOSTFS%\%FOLDER%\music,001"
+move events.bin "%HOSTFS%\%FOLDER%\events,ffd"
 
 if %ERRORLEVEL% neq 0 (
-	echo Failed to copy files!'
+	echo Failed to copy files!
 	exit /b 1
 )
 
