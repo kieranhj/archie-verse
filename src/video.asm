@@ -40,7 +40,7 @@ video_init:
 
     ; Blank our palette for MODE switch glitch? 
     ; TODO: Check whether the one-frame default palette glitch comes back
-    ;       Might need to tell RISCOS about the palette in the first N vsyncs after MODE cange.
+    ;       Might need to tell RISCOS about the palette in the first N vsyncs after MODE change.
     ; TODO: Clear screen RAM first before MODE change...
 
     .if !AppConfig_ReturnMainToCaller   ; assume caller handles this for us.

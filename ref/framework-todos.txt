@@ -17,10 +17,11 @@ NEXT STEPS
     https://www.aes.id.au/modformat.html
     Have a watcher script so when Dave saves the MOD file it automatically splits it
     into a 4ch MOD and the events file, copies this into the Arculator hostfs folder.
-    Then just need to press a key to reload and restart the sequence.
+    Then just need to press a key to reload and restart the sequence. - DONE
     = MOD file analyser to configure code / script (pattern length table) 
 - Build something simple in ArchieSDK to assess prototyping/scripting potential.
     Or GCCSDK that Sarah was using? https://www.riscos.info/index.php/GCCSDK
+    This requires CallaSWI RM and uses FPU so implemented using sw RM.
 - MODE 13 palette tool
     Get the Javascript page hosted on github.io!
     Add ability to save the palette as a PNG.
@@ -191,9 +192,9 @@ TODO:
         E6x = pattern loop
         EEx = pattern delay
         Fxx = speed
-- Create a batch file that makes a new package for Dave
+- Create a batch file that makes a new package for Dave - DONE
 - Add extra debug controls:
-    - Execute all events on pattern skip
+    - Execute all events on pattern skip - DONE
     - Up arrow => restart current pattern
     - Left arrow => jump back to previous pattern
     - Down arrow? => reload music & events but restart from current pattern
