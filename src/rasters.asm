@@ -113,6 +113,11 @@ rasters_copy_table:
 
 raster_list:
     ;    Repeat    Reg,        Start       Delta
+    .long 256,      VIDC_Col0,  0x000000,   0x000000
+    .long -1
+
+    ; TODO: Raster plan!
+
     .long 48,       VIDC_Col1,  0x0000ff,     0x000500
     .long 48,       VIDC_Col1,  0x00ffff,   0xfffffffb
     .long 32,       VIDC_Col1,  0x00ff00,     0x080000  ; make green shorter

@@ -10,13 +10,14 @@
 seq_django3:
     ; Setup.
     call_0      rasters_init
+    call_0      vu_bars_init
 
     ; Palette.
     write_addr  palette_array_p,    seq_pal_logo
 
     ; Setup FX Layers.
-    call_3      fx_set_layer_fns,   0, rasters_tick,    screen_cls
-    call_3      fx_set_layer_fns,   1, 0,               logo_glitch_plot
+    call_3      fx_set_layer_fns,   0, vu_bars_tick,  screen_cls
+    call_3      fx_set_layer_fns,   1, 0,             logo_glitch_plot
     end_script
 
 
