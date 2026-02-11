@@ -12,8 +12,8 @@ NOTES:
 
 PLAN:
 - Start with archie-verse framework.
-- Add vertical scrolling logo at the start.
-- Use RasterMan.
+- Add vertical scrolling logo at the start. - LATER
+- Use RasterMan. - CRASHES?
 - Add glitch logo from CD1.
 - Add menu from CD2.
 - Add scroller from CD2.

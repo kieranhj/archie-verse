@@ -48,16 +48,16 @@ deploy: $(FOLDER)
 	$(MKDIR_P) "$(HOSTFS)\$(FOLDER)"
 	$(COPY) "$(FOLDER)\*.*" "$(HOSTFS)\$(FOLDER)\*.*"
 
-$(FOLDER): build ./build/archie-verse.bin ./build/!run.txt ./build/icon.bin
+$(FOLDER): build ./build/archie-verse.bin ./build/!run.txt
 	$(RM_RF) $(FOLDER)
 	$(MKDIR_P) $(FOLDER)
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
-	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
+#   $(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\RasterM38,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
-	$(COPY) ".\build\music.mod" "$(FOLDER)\Music,001"
-	$(COPY) ".\build\events.bin" "$(FOLDER)\Events,ffd"
+#	$(COPY) ".\build\music.mod" "$(FOLDER)\Music,001"
+#	$(COPY) ".\build\events.bin" "$(FOLDER)\Events,ffd"
 	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ff8"
 # TODO: Don't need all these files for a Release build.
 
@@ -68,7 +68,7 @@ build:
 # ASSET LIST
 ##########################################################################
 
-./build/assets.txt: build ./build/music.mod ./build/razor-font.bin ./build/events.bin
+./build/assets.txt: build ./build/music.mod ./build/razor-font.bin ./build/cd3-logo1.bin
 	echo done > $@
 
 ##########################################################################
@@ -289,6 +289,13 @@ clean:
 
 ./build/donut-font.bin: ./data/font/donut-font-v2-final.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC_FONT) -o $@ --loud --glyph-dim 8 8 $< 9
+
+##########################################################################
+# CHIPO DJANGO 3 ASSETS
+##########################################################################
+
+./build/cd3-logo1.bin: ./data/gfx/cd3-logo-frame1.png $(PNG2ARC_DEPS)
+	$(PYTHON3) $(PNG2ARC) -o $@ --vidc-regs $@.asm $< 9
 
 ##########################################################################
 # MUSIC ASSETS
