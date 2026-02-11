@@ -113,7 +113,7 @@ vidc_buffers_no_adr:
 .if AppConfig_UsingRasterMan
 .p2align 2
 vidc_table_1_no_adr:
-	.skip 256*4*4       ; 4 regs per scanline.
+	.skip 256*4*4*2       ; 4 regs per scanline.
 
 memc_table_no_adr:
     .skip 256*2*4       ; 2 regs per scaline.

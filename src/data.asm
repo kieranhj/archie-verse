@@ -18,9 +18,6 @@ razor_font_no_adr:
 logo_frame_1_no_adr:
 .incbin "build/cd3-logo1.bin"
 
-logo_frame_1_pal_no_adr:
-.incbin "build/cd3-logo1.bin.pal"
-
 ; ============================================================================
 ; Library data.
 ; ============================================================================

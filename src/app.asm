@@ -155,4 +155,5 @@ app_vsync_callback:
 ; ============================================================================
 
 .include "lib/screen.asm"
+.include "src/rasters.asm"
 .include "src/fx/logo-glitch.asm"

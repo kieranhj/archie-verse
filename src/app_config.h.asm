@@ -18,7 +18,7 @@
 .equ AppVsyncHandler_Irq,               1
 .equ AppVsyncHandler_RasterMan,         2
 
-.equ AppConfig_VsyncHandler,            AppVsyncHandler_Events
+.equ AppConfig_VsyncHandler,            AppVsyncHandler_RasterMan
 .equ AppConfig_UsingRasterMan,          AppConfig_VsyncHandler==AppVsyncHandler_RasterMan
 
 ; ============================================================================
