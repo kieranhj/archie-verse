@@ -255,8 +255,10 @@ exit:
     ; Release all interupt handling.
     bl vsync_exit
 
+    ; Stop QTM.
     bl audio_exit
 
+	; Write & display current screen bank.
     bl video_exit
 
     .if _DEBUG
@@ -457,7 +459,7 @@ debug_free_ram:
 ; Support library code modules used by the core app.
 ; ============================================================================
 
-.include "src/vsync.asm"
+.include "src/sys/vsync.asm"
 
 .include "lib/debug.asm"
 .include "lib/fx.asm"
@@ -467,15 +469,15 @@ debug_free_ram:
 .include "lib/events.asm"
 .endif
 .if AppConfig_UseSyncTracks
-.include "src/sync.asm"
+.include "lib/sync.asm"
 .endif
 
 ; ============================================================================
 ; App modules.
 ; ============================================================================
 
-.include "src/audio.asm"
-.include "src/video.asm"
+.include "src/sys/audio.asm"
+.include "src/sys/video.asm"
 .include "src/app.asm"
 .include "lib/lib_code.asm"
 

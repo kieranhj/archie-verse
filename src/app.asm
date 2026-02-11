@@ -154,8 +154,4 @@ app_vsync_callback:
 ; FX code modules.
 ; ============================================================================
 
-.include "src/acid-events.asm"
-.include "src/fx/sine-scroller.asm"
-.include "src/fx/scene-3d.asm"
 .include "lib/screen.asm"
-.include "lib/mesh.asm"

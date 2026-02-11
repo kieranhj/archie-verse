@@ -1,5 +1,6 @@
 ; ============================================================================
 ; DATA Segment.
+; Hack as necessary per prod.
 ; ============================================================================
 
 .p2align 6
@@ -8,7 +9,7 @@
 ; ===========================================================================
 
 ; fx/scene-3d.asm
-.include "src/data/three-dee/3d-meshes.asm" ; TODO: Remove what's not used!
+;.include "src/data/three-dee/3d-meshes.asm" ; TODO: Remove what's not used!
 
 ; fx/sine-scroller.asm
 razor_font_no_adr:
@@ -47,12 +48,14 @@ seq_main_program:
 ; Events data (TODO: Dynamic load).
 ; ============================================================================
 
+.if AppConfig_UseEvents
 .p2align 2
 events_data_no_adr:
 .if _DYNAMIC_RELOAD
 .skip Events_MaxSize
 .else
 .incbin "build/events.bin"
+.endif
 .endif
 
 ; ============================================================================

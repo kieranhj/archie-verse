@@ -1,17 +1,21 @@
 ; ============================================================================
 ; BSS Segment (Uninitialised data, not stored in the exe.)
+; Hack as necessary per prod.
 ; ============================================================================
 
 .bss
 
 ; ============================================================================
 
+.if 0
 ; fx/sine-scroller.asm
 sine_wave_table_no_adr:
     .skip SineScroller_TableSize*4
+.endif
 
 ; ============================================================================
 
+.if 0
 ; ====================================
 ; TORUS WITH REGULAR DRAW ORDER
 ; ====================================
@@ -75,6 +79,7 @@ transformed_verts_no_adr:
 
 projected_verts_no_adr:
     .skip OBJ_MAX_VERTS * VECTOR2_SIZE
+.endif
 
 ; ============================================================================
 

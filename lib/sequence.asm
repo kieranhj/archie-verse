@@ -134,7 +134,9 @@ sequence_jump_to_pattern:
     str lr, [sp, #-4]!
 
     ; Skip past events.
+    .if AppConfig_UseEvents
     bl events_ffwd_to_pattern
+    .endif
 
     ; Update frame counter to match.
     adr r2, debug_pattern_to_frame

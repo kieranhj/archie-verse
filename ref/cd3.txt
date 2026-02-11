@@ -1,0 +1,21 @@
+CHIPO DJANGO 3
+~~~
+
+NOTES:
+- Looks more like CD1 than CD2 (which is simpler, thankfully).
+- Probably want to use RasterMan again.
+- Logo at the top then palette switch.
+- Menu is from CD2.
+- Beat bars are from CD1 including going into the border.
+- Scroller is from CD2 but with CD1 style rasterbars behind it.
+- Track load logo glitch is from CD1.
+
+PLAN:
+- Start with archie-verse framework.
+- Add vertical scrolling logo at the start.
+- Use RasterMan.
+- Add glitch logo from CD1.
+- Add menu from CD2.
+- Add scroller from CD2.
+- Add VU bars from CD1.
+- Add rasterbars from CD1.

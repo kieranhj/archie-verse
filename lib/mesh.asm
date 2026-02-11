@@ -14,7 +14,7 @@
 ; Radius of the circle = b
 ; Number segments of the ring = c
 ; Number segments of the circle = d
-; Ring segments rotate around y (aligned in x,z)
+; Ring segments rotate around y (aligned in x,z) // TODO: Error, actually around Z?
 ; Circle segments rotate the ring (perpendicular to x,z)
 ; Outer loop around the circle radius, starting from the centre.
 ; Inner loop around the ring.

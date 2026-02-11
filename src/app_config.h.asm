@@ -6,10 +6,10 @@
 .equ AppConfig_StackSize,               4096
 
 .equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 0)   ; Because table gen takes time at boot...
-.equ AppConfig_LoadModFromFile,         (_DEBUG && 1)
+.equ AppConfig_LoadModFromFile,         (_DEBUG && 0)
 .equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 0)       ; desktop by default TOOD: Should be an exe config?
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
-.equ AppConfig_UseEvents,               1
+.equ AppConfig_UseEvents,               0
 .equ AppConfig_UseMemcBanks,            1
 .equ AppConfig_UseQtmEmbedded,          0
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
