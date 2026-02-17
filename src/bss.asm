@@ -6,6 +6,12 @@
 .bss
 
 ; ============================================================================
+; Dj Scroller
+
+dj_scroller_font_data_shifted_no_adr:
+	.skip Dj_Scroller_Max_Glyphs * Dj_Scroller_Glyph_Height * 12 * 8
+
+; ============================================================================
 
 .if 0
 ; fx/sine-scroller.asm

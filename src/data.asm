@@ -8,15 +8,23 @@
 
 ; ===========================================================================
 
-; fx/scene-3d.asm
-;.include "src/data/three-dee/3d-meshes.asm" ; TODO: Remove what's not used!
-
-; fx/sine-scroller.asm
-razor_font_no_adr:
-.incbin "build/razor-font.bin"
-
 logo_frame_1_no_adr:
 .incbin "build/cd3-logo1.bin"
+
+; ============================================================================
+; Dj Scroller
+
+.p2align 2
+dj_scroller_font_data_no_adr:
+.incbin "build/big-font.bin"
+
+.p2align 2
+dj_scroller_text_string_no_adr:
+; Add 20 blank chars so that scroller begins on RHS of the screen, as per Amiga.
+.byte "                    "
+.include "src/data/django/scrolltxt-final.asm"
+dj_scroller_text_string_end_no_adr:
+.p2align 2
 
 ; ============================================================================
 ; Library data.

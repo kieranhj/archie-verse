@@ -158,3 +158,4 @@ app_vsync_callback:
 .include "src/rasters.asm"
 .include "src/fx/logo-glitch.asm"
 .include "src/fx/vu-bars.asm"
+.include "src/fx/django-scroller.asm"

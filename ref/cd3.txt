@@ -13,9 +13,15 @@ NOTES:
 PLAN:
 - Start with archie-verse framework.
 - Add vertical scrolling logo at the start. - LATER
-- Use RasterMan. - CRASHES?
-- Add glitch logo from CD1.
+- Use RasterMan. - DONE
+- Add static logo. - HACKED
+- Add logo frames.
+- Glitch logo on song load.
 - Add menu from CD2.
-- Add scroller from CD2.
-- Add VU bars from CD1.
+- Add scroller from CD2. - DONE
+- Add VU bars from CD1. - HACKED
 - Add rasterbars from CD1.
+- Get gfx assets from Bodo.
+    - Logo frames
+    - Fonts
+- Get music assets from Bodo.

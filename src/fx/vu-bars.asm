@@ -2,11 +2,12 @@
 ; VU bars
 ; ============================================================================
 
-.equ VU_Bars_Y_Pos, 216
-.equ VU_Bars_Height, 3
-.equ VU_Bars_Gap, 4
-.equ VU_Bars_Effect, 2	; 'effect'
-.equ VU_Bars_Gravity, 2	; lines per vsync
+; TODO: Make these params.
+.equ VU_Bars_Y_Pos, 	219
+.equ VU_Bars_Height, 	3
+.equ VU_Bars_Gap, 		4
+.equ VU_Bars_Effect, 	2	; 'effect'
+.equ VU_Bars_Gravity, 	2	; lines per vsync
 
 vu_bars_init:
 	mov r0, #VU_Bars_Effect

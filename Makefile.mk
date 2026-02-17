@@ -68,7 +68,8 @@ build:
 # ASSET LIST
 ##########################################################################
 
-./build/assets.txt: build ./build/music.mod ./build/razor-font.bin ./build/cd3-logo1.bin
+./build/assets.txt: build ./build/music.mod ./build/razor-font.bin ./build/cd3-logo1.bin \
+	./build/big-font.bin
 	echo done > $@
 
 ##########################################################################
