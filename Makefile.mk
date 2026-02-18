@@ -68,8 +68,8 @@ build:
 # ASSET LIST
 ##########################################################################
 
-./build/assets.txt: build ./build/music.mod ./build/razor-font.bin ./build/cd3-logo1.bin \
-	./build/big-font.bin
+./build/assets.txt: build ./build/razor-font.bin ./build/cd3-logo1.bin \
+	./build/big-font.bin ./build/small-font.bin
 	echo done > $@
 
 ##########################################################################
@@ -80,8 +80,20 @@ build:
 	$(VLINK) -T link_script.txt -b rawbin1 -o $@ build/archie-verse.o -Mbuild/linker.txt
 
 .PHONY:./build/archie-verse.o	# always build as we don't have submodule dependencies...
-./build/archie-verse.o: build archie-verse.asm ./build/assets.txt
+./build/archie-verse.o: build music archie-verse.asm ./build/assets.txt
 	$(VASM) -L build/compile.txt -m250 -Fvobj -opt-adr -o build/archie-verse.o archie-verse.asm
+
+##########################################################################
+# MUSIC
+##########################################################################
+
+.PHONY:music
+music: build ./build/birdhouse.mod ./build/autumn_mood.mod ./build/square_circles.mod \
+	./build/je_suis_k.mod ./build/la_soupe.mod ./build/bodoaxian.mod \
+	./build/sajt.mod ./build/holodash.mod ./build/squid_ring.mod \
+	./build/lies.mod ./build/changing_waves.mod ./build/vectrax.mod \
+	./build/funky_delicious.mod ./build/cool_beans.mod ./build/music_splash.mod \
+	./build/digitags.mod
 
 ##########################################################################
 # SEPARATE DEMO PARTS
@@ -298,6 +310,60 @@ clean:
 ./build/cd3-logo1.bin: ./data/gfx/cd3-logo-frame1.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC) -o $@ --vidc-regs $@.asm $< 9
 
+./build/big-font.bin: ./data/font/font-big-finalFINAL.png $(PNG2ARC_DEPS)
+	$(PYTHON3) $(PNG2ARC_FONT) -o $@ --glyph-dim 16 16 $< 9
+
+./build/small-font.bin: ./data/font/font-8x5-onelined.png $(PNG2ARC_DEPS)
+	$(PYTHON2) $(PNG2ARC_FONT) -o $@ --glyph-dim 8 5 $< 9
+
+./build/birdhouse.mod: ./data/music/dj3/1IND-birdhouse-indahouz3.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/autumn_mood.mod: ./data/music/dj3/autumn-mood.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/square_circles.mod: ./data/music/dj3/ne7-square-circles.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/je_suis_k.mod: ./data/music/dj3/mod.okeanos-jesuisk.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/la_soupe.mod: ./data/music/dj3/mod.okeanos-la_soupe_aux_choux.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/bodoaxian.mod: ./data/music/dj3/bodoaxian.final.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/sajt.mod: ./data/music/dj3/dlz-sajt.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/holodash.mod: ./data/music/dj3/virgil-holodash.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/squid_ring.mod: ./data/music/dj3/squid_ring.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/lies.mod: ./data/music/dj3/punnik-Lies.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/changing_waves.mod: ./data/music/dj3/changing-waves.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/vectrax.mod: ./data/music/dj3/vectrax-longplay-by-lord_sp.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/funky_delicious.mod: ./data/music/dj3/maze-funky-delicious.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/cool_beans.mod: ./data/music/dj3/coolbeans.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/digitags.mod: ./data/music/dj3/soda7-digitags.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/music_splash.mod: ./data/music/dj3/mod.raven-stereo.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
 ##########################################################################
 # MUSIC ASSETS
 ##########################################################################
@@ -350,9 +416,6 @@ clean:
 ./build/logo.lz4: ./build/logo.bin
 ./build/logo.bin: ./data/gfx/chipodjangofina-10colors-216x68.png ./data/logo-palette-hacked.bin $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC) -o $@ --use-palette data/logo-palette-hacked.bin -m $@.mask --mask-colour 0x00ff0000 --loud $< 9
-
-./build/big-font.bin: ./data/font/font-big-finalFINAL.png $(PNG2ARC_DEPS)
-	$(PYTHON3) $(PNG2ARC_FONT) -o $@ --glyph-dim 16 16 $< 9
 
 ./build/bs-logo.bin: ./data/gfx/BITSHIFERS-logo-anaglyph.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC) -o $@ -p $@.pal $< 9

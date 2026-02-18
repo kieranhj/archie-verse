@@ -12,80 +12,19 @@ dj_scroller_font_data_shifted_no_adr:
 	.skip Dj_Scroller_Max_Glyphs * Dj_Scroller_Glyph_Height * 12 * 8
 
 ; ============================================================================
+; Dj Font
 
-.if 0
-; fx/sine-scroller.asm
-sine_wave_table_no_adr:
-    .skip SineScroller_TableSize*4
-.endif
+dj_font_map_no_adr:
+	.skip 256			; maps ASCII to small font glyph no.
 
 ; ============================================================================
+; Dj Menu
 
-.if 0
-; ====================================
-; TORUS WITH REGULAR DRAW ORDER
-; ====================================
+dj_menu_sprite_buffer_no_adr:
+	.skip 20 * 4 * Dj_Font_GlyphHeight * Dj_Menu_MaxSprites ; 20 chars * 4 bytes * 5 rows * 15 strings * 2 versions.
 
-; fx/scene-3d.asm
-; !VERTEX AND NORMAL ARRAYS MUST BE CONSECUTIVE!
-
-mesh_torus_verts_no_adr:
-    .skip MeshTorus_NumVerts * VECTOR3_SIZE
-
-; NB. Must follow verts!  <=== I'm an idiot.
-mesh_torus_normals_no_adr:
-    .skip MeshTorus_NumFaces * VECTOR3_SIZE
-
-; !VERTEX AND NORMAL ARRAYS MUST BE CONSECUTIVE!
-
-mesh_torus_faces_no_adr:
-    .skip MeshTorus_NumFaces * 4
-
-mesh_torus_colours_no_adr:
-    .skip MeshTorus_NumFaces
-.p2align 2
-
-; ====================================
-; TORUS WITH FLIPPED DRAW ORDER
-; ====================================
-
-; !VERTEX AND NORMAL ARRAYS MUST BE CONSECUTIVE!
-
-mesh_torus_flipped_verts_no_adr:
-    .skip MeshTorus_NumVerts * VECTOR3_SIZE
-
-; NB. Must follow verts!  <=== I'm an idiot.
-mesh_torus_flipped_normals_no_adr:
-    .skip MeshTorus_NumFaces * VECTOR3_SIZE
-
-; !VERTEX AND NORMAL ARRAYS MUST BE CONSECUTIVE!
-
-mesh_torus_flipped_faces_no_adr:
-    .skip MeshTorus_NumFaces * 4
-
-mesh_torus_flipped_colours_no_adr:
-    .skip MeshTorus_NumFaces
-.p2align 2
-
-; ====================================
-; TRANSFORMED VERTICES AND NORMALS
-; ====================================
-
-; !VERTEX AND NORMAL ARRAYS MUST BE CONSECUTIVE!
-
-transformed_verts_no_adr:
-    .skip OBJ_MAX_VERTS * VECTOR3_SIZE
-
-; !VERTEX AND NORMAL ARRAYS MUST BE CONSECUTIVE!
-
-;transformed_normals:       ; this is dynamic depending on num_verts.
-    .skip OBJ_MAX_FACES * VECTOR3_SIZE
-
-; !VERTEX AND NORMAL ARRAYS MUST BE CONSECUTIVE!
-
-projected_verts_no_adr:
-    .skip OBJ_MAX_VERTS * VECTOR2_SIZE
-.endif
+dj_menu_sprite_code_pointers_no_adr:
+	.skip Dj_Menu_MaxSpriteStride * 4
 
 ; ============================================================================
 

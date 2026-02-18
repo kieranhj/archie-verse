@@ -7,7 +7,7 @@
 ; ============================================================================
 
 .ifndef _WIMP_SLOT
-.equ _WIMP_SLOT,                1250*1024
+.equ _WIMP_SLOT,                1400*1024
 .endif
 
 .ifndef _DEBUG
@@ -91,6 +91,20 @@ main:
 	; Param R12=top of RAM used.
     bl audio_init
 
+	; ================================
+    ; EARLY INIT == LOAD STUFF HERE!
+	; ================================
+	; Param R12=top of RAM used (preserve!)
+
+    ; Register debug vars etc.
+    .if _DEBUG
+    bl debug_init
+    bl app_init_debug               ; exact debug equired is app dependent.
+    .endif
+
+	; Param R12=top of RAM used (preserve!)
+    bl app_early_init
+
     .if _DEBUG
     mov r0, #Debug_TopOfWimpSlot
     sub r0, r0, r12
@@ -98,18 +112,10 @@ main:
     str r0, debug_free_ram
     .endif
 
-	; ================================
-    ; EARLY INIT == LOAD STUFF HERE!
-	; ================================
-
-    ; Register debug vars etc.
-    .if _DEBUG
-    bl app_init_debug               ; exact debug equired is app dependent.
-    .endif
-
 	; Bootstrap the main sequence.
     ; NB. Does one tick of the script!
     ;     But doesn't tick the FX layers.
+    ; NB. Expects music to have been loaded.
     bl sequence_init
 
 	; ================================
@@ -127,7 +133,9 @@ main:
     bl vsync_late_init
 
 	; Play music!
+    .if AppConfig_SysHandlesMusic
 	QTMSWI QTM_Start
+    .endif
 
     ; Show whatever the app set up as the first frame.
     bl video_mark_screen_as_pending_display

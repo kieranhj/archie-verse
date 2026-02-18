@@ -20,6 +20,7 @@ seq_django3:
     call_3      fx_set_layer_fns,   0, vu_bars_tick,        screen_cls
     call_3      fx_set_layer_fns,   1, 0,                   logo_glitch_plot
     call_3      fx_set_layer_fns,   2, dj_scroller_tick,    dj_scroller_draw
+    call_3      fx_set_layer_fns,   3, 0,                   dj_menu_draw
     end_script
 
 

@@ -1,5 +1,6 @@
 ; ============================================================================
 ; The actual sequence for the demo.
+; TODO: Should this module know anything about music?!
 ; ============================================================================
 
 frame_counter:
@@ -27,6 +28,8 @@ sequence_init:
     str r0, frame_counter
 
     ; Reset music pos.
+    ; Q. Why is this reset not cleared on init?
+    ; A. Due to 'R'estart sequence setting music pos? Perhaps. Needs tidying up!
     mov r0, #-1
     mov r1, #-1
     QTMSWI QTM_Pos          ; read position.

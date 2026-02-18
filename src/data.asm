@@ -27,6 +27,13 @@ dj_scroller_text_string_end_no_adr:
 .p2align 2
 
 ; ============================================================================
+; Dj Menu
+
+.p2align 2
+dj_menu_font_data_no_adr:
+.incbin "build/small-font.bin"
+
+; ============================================================================
 ; Library data.
 ; ============================================================================
 
@@ -70,12 +77,80 @@ events_data_no_adr:
 .endif
 
 ; ============================================================================
+; Dj3 Music
+
+.p2align 2
+birdhouse_mod_no_adr:
+.incbin "build/birdhouse.mod"
+
+.p2align 2
+autumn_mood_mod_no_adr:
+.incbin "build/autumn_mood.mod"
+
+.p2align 2
+square_circles_mod_no_adr:
+.incbin "build/square_circles.mod"
+
+.p2align 2
+je_suis_k_mod_no_adr:
+.incbin "build/je_suis_k.mod"
+
+.p2align 2
+la_soupe_mod_no_adr:
+.incbin "build/la_soupe.mod"
+
+.p2align 2
+bodoaxian_mod_no_adr:
+.incbin "build/bodoaxian.mod"
+
+.p2align 2
+sajt_mod_no_adr:
+.incbin "build/sajt.mod"
+
+.p2align 2
+holodash_mod_no_adr:
+.incbin "build/holodash.mod"
+
+.p2align 2
+squid_ring_mod_no_adr:
+.incbin "build/squid_ring.mod"
+
+.p2align 2
+lies_mod_no_adr:
+.incbin "build/lies.mod"
+
+.p2align 2
+changing_waves_mod_no_adr:
+.incbin "build/changing_waves.mod"
+
+.p2align 2
+vectrax_mod_no_adr:
+.incbin "build/vectrax.mod"
+
+.p2align 2
+funky_delicious_mod_no_adr:
+.incbin "build/funky_delicious.mod"
+
+.p2align 2
+cool_beans_mod_no_adr:
+.incbin "build/cool_beans.mod"
+
+.p2align 2
+digitags_mod_no_adr:
+.incbin "build/digitags.mod"
+
+.p2align 2
+splash_mod_no_adr:
+.incbin "build/music_splash.mod"
+
+; ============================================================================
 ; Music MOD (MUST BE LAST in DATA SEGMENT).
 ; ============================================================================
 
+.if AppConfig_SysHandlesMusic
 .if AppConfig_UseArchieKlang
 
-External_Samples_no_adr:
+;External_Samples_no_adr:
 .incbin "data/akp/Rhino2.mod.raw"
 .p2align 2
 
@@ -87,7 +162,7 @@ music_mod_no_adr:
 .if !AppConfig_LoadModFromFile
 
 .p2align 2
-music_mod_no_adr:
+;music_mod_no_adr:
 .if _LOG_SAMPLES
 ; TODO: Move conversion to Log samples into Makefile.
 .incbin "data/music/particles_15.002"
@@ -96,7 +171,7 @@ music_mod_no_adr:
 .endif
 
 .endif
-
+.endif
 .endif
 
 ; ============================================================================

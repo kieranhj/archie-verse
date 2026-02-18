@@ -22,6 +22,7 @@ QtmEmbedded_Exit:
 ; App audio code.
 ; ============================================================================
 
+.if AppConfig_SysHandlesMusic
 .if AppConfig_LoadModFromFile
 music_filename:
 	.byte "<Obey$Dir>.Music",0
@@ -32,6 +33,7 @@ music_mod_p:
 .else
 music_mod_p:
 	.long music_mod_no_adr
+.endif
 .endif
 
 music_sample_speed:
@@ -93,7 +95,7 @@ audio_init:
     QTMSWI QTM_MusicOptions
 
 	; Load the music.
-
+    .if AppConfig_SysHandlesMusic
     .if AppConfig_LoadModFromFile
     ; Get file size.
     mov r0, #5
@@ -118,6 +120,7 @@ audio_init:
 	mov r0, #0              ; load from address, don't copy to RMA.
     ldr r1, music_mod_p
 	QTMSWI QTM_Load
+    .endif
 
     mov pc, lr
 

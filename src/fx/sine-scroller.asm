@@ -272,3 +272,10 @@ scroll_text_text_no_adr:
     .byte 0 ; end.
 .p2align 2
 
+; ============================================================================
+
+.if 0
+; fx/sine-scroller.asm
+sine_wave_table_no_adr:
+    .skip SineScroller_TableSize*4
+.endif
