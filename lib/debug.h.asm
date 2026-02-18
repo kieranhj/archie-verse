@@ -38,7 +38,7 @@
     mov r0, #\keycode
     adr r1, \func
     mov r2, #\param
-    bl debug_register_key
+    bl keys_register_callback
     .endif
 .endm
 
@@ -47,6 +47,6 @@
     mov r0, #\keycode
     adr r1, \func
     adr r2, \addr
-    bl debug_register_key
+    bl keys_register_callback
     .endif
 .endm

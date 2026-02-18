@@ -6,21 +6,8 @@
 .if _DEBUG
 .equ Debug_TempLen, 16
 .equ Debug_MaxVars, 8
-.equ Debug_MaxKeys, 32
 .equ Debug_MaxGlyphs, 96
 .equ Debug_Colour, 0xf
-
-debug_num_keys:
-    .long 0
-
-debug_pressed_mask:
-    .long 0
-
-debug_prev_mask:
-    .long 0
-
-debug_rm_key:
-    .long 0
 
 ; Plot a string to the screen at the current cursor position.
 ; R0=ptr to null terminated string.
@@ -171,93 +158,6 @@ debug_plot_vars:
 	SET_BORDER 0x000
 	ldr pc, [sp], #4
 
-; R0=key code to register.
-; R1=addr of function to call.
-; R2=param to call the function with.
-; Trashes: R3-R4.
-debug_register_key:
-    adr r4, debug_key_stack
-    ldr r3, debug_num_keys
-    cmp r3, #Debug_MaxKeys
-    adrge r0, error_out_of_keys
-    swige OS_GenerateError
-
-    add r4, r4, r3, lsl #3
-    add r4, r4, r3, lsl #2
-    stmia r4, {r0-r2}
-
-    add r3, r3, #1
-    str r3, debug_num_keys
-    mov pc, lr
-
-; R1=0 key up or 1 key down
-; R2=internal key number (RMKey_*)
-debug_handle_keypress:
-    stmfd sp!, {r3-r6}
-    adr r4, debug_key_stack
-    ldr r3, debug_num_keys
-    add r4, r4, r3, lsl #3
-    add r4, r4, r3, lsl #2
-    mov r5, #1
-    mov r5, r5, lsl r3      ; key bit.
-    ldr r3, debug_pressed_mask
-.1:
-    ; Any bits left?
-    movs r5, r5, lsr #1
-    beq .2                  ; no more bits.
-
-    ; Check key code.
-    ldr r6, [r4, #-12]!
-    cmp r6, r2
-    bne .1
-
-    ; Key matches so mask bit in/out.
-    cmp r1, #0
-    biceq r3, r3, r5
-    orrne r3, r3, r5
-    b .1
-
-.2:
-    str r3, debug_pressed_mask
-    ldmfd sp!, {r3-r6}
-    mov pc, lr
-
-debug_do_key_callbacks:
-	str lr, [sp, #-4]!
-
-    ldr r0, debug_pressed_mask
-	ldr r2, debug_prev_mask
-	mvn r2, r2				; ~old
-	and r2, r0, r2			; new & ~old		; diff bits
-	str r0, debug_prev_mask
-	and r4, r2, r0			; diff bits & key down bits	
-
-    adr r3, debug_key_stack
-    ldr r0, debug_num_keys
-    add r3, r3, r0, lsl #3
-    add r3, r3, r0, lsl #2
-
-    mov r5, #1
-    mov r5, r5, lsl r0      ; key bit.
-.1:
-    ; Any bits left?
-    movs r5, r5, lsr #1
-    beq .2                  ; no more bits.
-
-    ; Key down?
-    sub r3, r3, #12
-    tst r4, r5
-    beq .1
-
-    ; Make key callback.
-    ldr r0, [r3, #4]        ; func.
-    ldr r1, [r3, #8]        ; data.
-    adr lr, .1
-    mov pc, r0
-
-.2:
-    ldr pc, [sp], #4
-
 ; R1=byte addr.
 debug_toggle_byte:
     ldrb r0, [r1]
@@ -292,15 +192,6 @@ error_out_of_vars:
     .p2align 2
     .long 0
 
-debug_key_stack:
-    .skip 12*Debug_MaxKeys
-
-error_out_of_keys:
-    .long 0
-    .byte "Out of debug keys!"
-    .p2align 2
-    .long 0
-
 ; Font is 8 bytes per glyph, 1bpp.
 debug_font_p:
     .long debug_font_no_adr
@@ -311,8 +202,6 @@ debug_font_mode9_p:
 debug_init:
     ; Reset debug keys & vars.
     mov r0, #0
-    str r0, debug_num_keys
-
     adr r1, debug_var_stack
     mov r2, #Debug_MaxVars
 .3:

@@ -7,7 +7,7 @@
 
 .equ AppConfig_DynamicSampleSpeed,      (_SMALL_EXE && 0)   ; Because table gen takes time at boot...
 .equ AppConfig_LoadModFromFile,         (_DEBUG && 0)
-.equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 0)       ; desktop by default TOOD: Should be an exe config?
+.equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 0)      ; desktop by default TOOD: Should be an exe config?
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
 .equ AppConfig_UseEvents,               0
 .equ AppConfig_UseMemcBanks,            1
@@ -15,6 +15,8 @@
 .equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
 .equ AppConfig_SysHandlesMusic,			0		; otherwise app handles the music.
 												; TODO: Option to have no QTM calls at all?
+.equ AppConfig_UseKeys,					(_DEBUG && 1)
+
 .equ AppVsyncHandler_Events,            0
 .equ AppVsyncHandler_Irq,               1
 .equ AppVsyncHandler_RasterMan,         2

@@ -21,25 +21,19 @@
 app_init_debug:
     str lr, [sp, #-4]!
 
-;    DEBUG_REGISTER_VAR_EX debug_frame_rate, debug_plot_addr_as_dec4
     DEBUG_REGISTER_VAR_EX vsync_delta, debug_plot_addr_as_dec4
     DEBUG_REGISTER_VAR music_pos
-;    DEBUG_REGISTER_VAR frame_counter
-;    DEBUG_REGISTER_VAR_EX debug_free_ram, debug_plot_addr_as_dec4
+    DEBUG_REGISTER_VAR frame_counter
+    DEBUG_REGISTER_VAR_EX debug_free_ram, debug_plot_addr_as_dec4
 
     DEBUG_REGISTER_KEY          RMKey_Space,      debug_toggle_main_loop_pause,  0
-    DEBUG_REGISTER_KEY_WITH_VAR RMKey_A,          debug_set_byte_true,           debug_restart_flag
-    DEBUG_REGISTER_KEY_WITH_VAR RMKey_S,          debug_set_byte_true,           debug_main_loop_step
+
+; Don't make sense for music disc.
+;    DEBUG_REGISTER_KEY_WITH_VAR RMKey_A,          debug_set_byte_true,           debug_restart_flag
+;    DEBUG_REGISTER_KEY_WITH_VAR RMKey_S,          debug_set_byte_true,           debug_main_loop_step
     DEBUG_REGISTER_KEY_WITH_VAR RMKey_D,          debug_toggle_byte,             debug_show_info
     DEBUG_REGISTER_KEY_WITH_VAR RMKey_R,          debug_toggle_byte,             debug_show_rasters
-; Not really safe to call this in event handler...
-;    DEBUG_REGISTER_KEY          RMKey_ArrowRight, debug_skip_to_next_pattern,    0
-    DEBUG_REGISTER_KEY_WITH_VAR RMKey_ArrowRight, debug_set_byte_three,          debug_restart_flag
 
-; Doesn't work as we'll skip the tempo commands in pattern 0. :\
-;    DEBUG_REGISTER_KEY_WITH_VAR RMKey_ArrowUp,    debug_set_byte_two,            debug_restart_flag
-
-;    DEBUG_REGISTER_VAR math_var_active_count
     ldr pc, [sp], #4
 .endif
 

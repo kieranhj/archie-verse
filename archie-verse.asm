@@ -151,10 +151,12 @@ main_loop:
 	; PREPARE
 	; ========================================================================
 
-    .if _DEBUG
+    .if AppConfig_UseKeys
     bl vsync_scankeyboard               ; NOP w/out RasterMan
-    bl debug_do_key_callbacks
+    bl keys_do_callbacks
+    .endif
 
+    .if _DEBUG
     ldrb r0, debug_restart_flag
     cmp r0, #0
     blne debug_restart_sequence
@@ -470,6 +472,9 @@ debug_free_ram:
 .include "src/sys/vsync.asm"
 
 .include "lib/debug.asm"
+.if AppConfig_UseKeys
+.include "lib/keys.asm"
+.endif
 .include "lib/fx.asm"
 .include "lib/script.asm"
 .include "lib/sequence.asm"

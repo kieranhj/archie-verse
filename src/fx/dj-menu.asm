@@ -2,7 +2,8 @@
 ; Menu stuff.
 ; ============================================================================
 
-.equ Mouse_Enable,			0			; TODO: Add mouse control back.
+.equ Mouse_Enable,				1			; TODO: Add mouse control back.
+.equ Mouse_Sensitivity, 		10
 
 .equ Dj_Menu_MaxSprites, 		(Dj_Max_Songs+1)*2
 .equ Dj_Menu_Song_Column, 		20			; aligned right.
@@ -10,10 +11,10 @@
 
 .equ Dj_Menu_MaxSpriteStride, 	20
 
-.equ Dj_Menu_Top_YPos, 		94
+.equ Dj_Menu_Top_YPos, 			94
 .equ Dj_Menu_Row_Height, 		7
 .equ Dj_Menu_Item_Colour, 		4
-.equ Dj_Menu_Selection_Colour, 8
+.equ Dj_Menu_Selection_Colour, 	8
 
 .equ Dj_Menu_Autoplay_Column, 	1
 
@@ -28,94 +29,9 @@ selection_number:
 playing_colour:
 	.long 0
 
-keyboard_prev_mask:
-	.long 0
+; ============================================================================
 
-; R0=keyboard pressed mask
-; R0=frame_counter
-; R1=vsync delta
 dj_menu_tick:
-	str lr, [sp, #-4]!
-
-.if 0
-	ldr r2, keyboard_prev_mask
-	mvn r2, r2				; ~old
-	and r2, r0, r2			; new & ~old		; diff bits
-	str r0, keyboard_prev_mask
-	and r4, r2, r0			; diff bits & key down bits	
-
-	; Update playing item colour.
-    ldr r1, vsync_count
-    ands r1, r1, #4
-	moveq r0, #Dj_Menu_Selection_Colour
-	movne r0, #Dj_Menu_Item_Colour
-	str r0, playing_colour
-
-	; check up
-	tst r4, #1<<KeyBit_ArrowUp	; key changed & down?
-	beq .2
-
-	ldr r3, selection_number
-	cmp r3, #0
-	beq .2
-	sub r3, r3, #1
-	str r3, selection_number
-	
-.2:
-	; check down
-	tst r4, #1<<KeyBit_ArrowDown	; key changed & down?
-	beq .3
-
-	ldr r3, selection_number
-	cmp r3, #Dj_Max_Songs
-	bge .3
-	add r3, r3, #1
-	str r3, selection_number
-
-.3:
-	; Can't select new song if fade is active.
-	ldr r0, volume_fade
-	cmp r0, #0
-	bne .5
-
-	tst r4, #1<<KeyBit_A	; key changed & down?
-	bne .10
-
-	; check return & space
-    .if Mouse_Enable
-	tst r4, #1<<KeyBit_Return|1<<KeyBit_Space|1<<KeyBit_LeftClick	; key changed & down?
-    .else
-	tst r4, #1<<KeyBit_Return|1<<KeyBit_Space	; key changed & down?
-	.endif
-	beq .5
-
-	; Select menu item.
-	.4:
-	ldr r3, song_number
-
-	ldr r0, selection_number
-	cmp r0, #Dj_Max_Songs
-	blt .9
-
-.10:
-	; Toggle autplay.
-	ldr r0, autoplay_flag
-	eor r0, r0, #1
-	bl set_autoplay
-
-	mov r3, #Dj_Max_Songs
-	b .5
-
-	.9:
-	; Don't restart current song as can be spammed.
-	cmp r0, r3
-	beq .5
-
-	; Play song in R0.
-	bl play_song
-
-.5:
-
 .if Mouse_Enable
 	; Check mouse.
 	swi OS_Mouse
@@ -146,47 +62,10 @@ dj_menu_tick:
     mul r3, r1, r3
     mov r3, r3, lsr #10
 	str r3, selection_number
+	
+	.6:
 .endif
-
-.6:
-	; Set QTM Vu Bars effect.
-	tst r4, #1<<KeyBit_E|1<<KeyBit_F|1<<KeyBit_R|1<<KeyBit_1|1<<KeyBit_2|1<<KeyBit_3|1<<KeyBit_4|1<<KeyBit_5
-	beq .7
-
-	mov r0, #-1
-	tst r4, #1<<KeyBit_F
-	movne r0, #1			; 'fake' VU bars
-	tst r4, #1<<KeyBit_E
-	movne r0, #2			; 'effect' VU bars
-	tst r4, #1<<KeyBit_R
-	movne r0, #3			; 'real' VU bars
-
-	mov r1, #-1
-	tst r4, #1<<KeyBit_1
-	movne r1, #1
-	tst r4, #1<<KeyBit_2
-	movne r1, #2
-	tst r4, #1<<KeyBit_3
-	movne r1, #3
-	tst r4, #1<<KeyBit_4
-	movne r1, #4
-	tst r4, #1<<KeyBit_5
-	movne r1, #5
-
-	swi QTM_VUBarControl
-
-.7:
-	; check sine
-	tst r4, #1<<KeyBit_S	; key changed & down?
-	beq .8
-
-	ldr r0, scroller_enable_sine
-	eor r0, r0, #1
-	str r0, scroller_enable_sine
-
-.8:
-.endif
-	ldr pc, [sp], #4
+	mov pc, lr
 
 ; ============================================================================
 
@@ -331,7 +210,74 @@ dj_menu_init:
 .2:
 	; TODO: Assert num strings, buffer overflow etc.
 
+	; Register keys.
+    mov r0, #RMKey_ArrowUp
+	adr r1, dj_menu_change_selection
+    mov r2, #-1							; up
+    bl keys_register_callback
+
+    mov r0, #RMKey_ArrowDown
+	adr r1, dj_menu_change_selection
+    mov r2, #1							; down
+    bl keys_register_callback
+
+    mov r0, #RMKey_Return
+	adr r1, dj_menu_play_selection
+    mov r2, #0
+    bl keys_register_callback
+
+    mov r0, #RMKey_LeftClick
+	adr r1, dj_menu_play_selection
+    mov r2, #0
+    bl keys_register_callback
+
+	.if !_DEBUG
+    mov r0, #RMKey_Space
+	adr r1, dj_menu_play_selection
+    mov r2, #0
+    bl keys_register_callback
+	.endif
+
+    mov r0, #RMKey_A
+	adr r1, dj_menu_toggle_autoplay
+    mov r2, #0
+    bl keys_register_callback
+
+	; TODO: VU BAR CONTROLS ETC.
+	; 1-5 set R1 of QTM_VUBarControl
+	; Fake/Effect/Real 1/2/3 set R0 of QTM_VUBarControl
+	; S to toggle scroller sine wave.
+
+	; TODO: Mouse control.
+
 	ldr pc, [sp], #4	
+
+; ============================================================================
+
+; R1=data.
+dj_menu_change_selection:
+	ldr r3, selection_number
+	adds r3, r3, r1
+
+	; Clamp selection.
+	movmi r3, #0
+	cmp r3, #Dj_Max_Songs
+	movge r3, #Dj_Max_Songs-1
+	str r3, selection_number
+	mov pc, lr
+
+dj_menu_play_selection:
+	ldr r0, selection_number
+	cmp r0, #Dj_Max_Songs
+	beq dj_menu_toggle_autoplay
+	; Play song in R0.
+	b play_song
+
+dj_menu_toggle_autoplay:
+	; Toggle autplay.
+	ldr r0, autoplay_flag
+	eor r0, r0, #1
+	b set_autoplay
 
 ; ============================================================================
 

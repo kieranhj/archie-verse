@@ -107,11 +107,11 @@ vsync_exit:
 .if AppVsync_KeyEvents
 ; R0=event number
 eventv_handler:
-    .if _DEBUG
+    .if AppConfig_UseKeys
 	cmp r0, #Event_KeyPressed
 	; R1=0 key up or 1 key down
 	; R2=internal key number (RMKey_*)
-    beq debug_handle_keypress
+    beq keys_handle_keypress
     .endif
 
     .if AppVsync_UseEvents
@@ -268,11 +268,11 @@ vsync_lock_flag:
 ; Keyboard handling (because RasterMan does this manually).
 ; ============================================================================
 
-.if _DEBUG
+.if AppConfig_UseKeys
 vsync_scankeyboard:
     .if AppVsync_UseRasterMan
     swi RasterMan_ScanKeyboard
-    str r0, debug_rm_key        ; R0=(low key nibble << 8) | (high key nibble)
+    str r0, keys_rm_code        ; R0=(low key nibble << 8) | (high key nibble)
     mov r1, r0, lsr #12         ; 0xc=key down 0xd=key up
     and r1, r1, #1
     eor r1, r1, #1              ; 1=key down 0=key up
@@ -280,7 +280,7 @@ vsync_scankeyboard:
     and r2, r2, #0xf
     and r0, r0, #0xf
     orrs r2, r2, r0, lsl #4     ; combine nibbles back into RMKey_* value
-    b debug_handle_keypress
+    b keys_handle_keypress
     .else
     mov pc, lr
     .endif
