@@ -299,32 +299,6 @@ dj_menu_sprite_strides:				; in bytes
 
 ; ============================================================================
 
-.p2align 2
-dj_menu_strings:
-	.byte "digitags", 0, "soda7", 0
-	.byte "birdhouse in da houz3", 0, "slime", 0
-	.byte "funky delicious", 0, "maz3", 0
-	.byte "autumn mood", 0, "triace", 0
-	.byte "je suis k", 0, "okeanos", 0
-	.byte "square circles", 0, "ne7", 0
-	.byte "cool beans", 0, "tobach", 0
-	.byte "la soupe aux choux", 0, "okeanos", 0
-	.byte "sajt", 0, "dalezy", 0
-	.byte "bodoaxian", 0, "slash", 0
-	.byte "holodash", 0, "virgill", 0
-	.byte "squid ring", 0, "curt cool", 0
-	.byte "lies", 0, "punnik", 0
-	.byte "vectrax longplay", 0, "lord", 0
-	.byte "changing waves", 0, "4mat", 0
-	.byte "autoplay off", 0
-	.byte "autoplay on", 0
-; End of string list.
-	.byte -1
-
-.p2align 2
-
-; ============================================================================
-
 ; R9=sprite buffer ptr.
 ; R10=colour word.
 ; R11=screen addr.

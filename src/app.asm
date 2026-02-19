@@ -169,7 +169,7 @@ song_number:
 	.long -1
 
 autoplay_flag:
-	.long 0
+	.long 1
 
 song_timer:
 	.long 0
@@ -292,39 +292,63 @@ set_autoplay:
 ; ============================================================================
 
 music_table:
-	.long digitags_mod_no_adr			; 0
-	.long birdhouse_mod_no_adr			; 1
-	.long funky_delicious_mod_no_adr	; 2
-	.long autumn_mood_mod_no_adr		; 3
-	.long je_suis_k_mod_no_adr			; 4
-	.long square_circles_mod_no_adr		; 5
-	.long cool_beans_mod_no_adr			; 6
-	.long la_soupe_mod_no_adr			; 7
-	.long sajt_mod_no_adr				; 8
-	.long bodoaxian_mod_no_adr			; 9
-	.long holodash_mod_no_adr			; 10
-	.long squid_ring_mod_no_adr			; 11
-	.long lies_mod_no_adr				; 12
-	.long vectrax_mod_no_adr			; 13
-	.long changing_waves_mod_no_adr		; 14
+	.long flight_gone_mod_no_adr		; 0
+	.long take_me_back_mod_no_adr		; 1
+	.long bang_for_beep_mod_no_adr	    ; 2
+	.long darkside_mod_no_adr		    ; 3
+	.long herr_irrtum_mod_no_adr		; 4
+	.long echoes_past_mod_no_adr		; 5
+	.long my_life_mod_no_adr		    ; 6
+	.long holodash_mod_no_adr			; 7
+	.long squid_ring_mod_no_adr			; 8
+	.long lies_mod_no_adr			    ; 9
+	.long changing_waves_mod_no_adr		; 10
+	.long vectrax_mod_no_adr			; 11
+	.long funky_delicious_mod_no_adr	; 12
+	.long cool_beans_mod_no_adr			; 13
+	.long digitags_mod_no_adr		    ; 14
+
+.p2align 2
+dj_menu_strings:
+	.byte "flight gone", 0, "adkd", 0
+	.byte "take me back", 0, "crm 2021", 0
+	.byte "bang for the beep", 0, "curt cool", 0
+	.byte "darkside", 0, "filippp", 0
+	.byte "herr irrum die nmi", 0, "miami chip gang", 0
+	.byte "echoes of the past", 0, "okeanos", 0
+	.byte "my life in melody", 0, "wotw", 0
+	.byte "holodash", 0, "virgill", 0
+	.byte "squid ring", 0, "curt cool", 0
+	.byte "lies", 0, "punnik", 0
+	.byte "changing waves", 0, "4mat", 0
+	.byte "vectrax longplay", 0, "lord", 0
+	.byte "funky delicious", 0, "maze", 0
+	.byte "cool beans", 0, "tobach", 0
+	.byte "digitags", 0, "soda7", 0
+	.byte "autoplay off", 0
+	.byte "autoplay on", 0
+; End of string list.
+	.byte -1
+
+.p2align 2
 
 ; master volume of each tune
 volumeTable:    
-    .byte    60      ; digitags
-    .byte    35      ; birdhouse
-    .byte    50-10   ; funky delicious
-    .byte    62-2  ; autumn
-    .byte    51  ; je suis k
-    .byte    60-2-2  ; square circles
-    .byte    50+5     ; coolbeans
-    .byte    54+2  ; la soupe
-    .byte    56-3  ; sajt
-    .byte    59-1+2  ; bodoaxian
-    .byte    64    ; holodash
-    .byte    39-2  ; squid ring
-    .byte    61-1  ; lies
-    .byte    53      ; vectrax longplay
-    .byte    45-8-4    ; changing waves
+    .byte    64 ;60      ; digitags
+    .byte    64 ;35      ; birdhouse
+    .byte    64 ;50-10   ; funky delicious
+    .byte    64 ;62-2  ; autumn
+    .byte    64 ;51  ; je suis k
+    .byte    64 ;60-2-2  ; square circles
+    .byte    64 ;50+5     ; coolbeans
+    .byte    64 ;54+2  ; la soupe
+    .byte    64 ;56-3  ; sajt
+    .byte    64 ;59-1+2  ; bodoaxian
+    .byte    64 ;64    ; holodash
+    .byte    64 ;39-2  ; squid ring
+    .byte    64 ;61-1  ; lies
+    .byte    64 ;53      ; vectrax longplay
+    .byte    64 ;45-8-4    ; changing waves
 	.p2align 2
 
 durationTable:

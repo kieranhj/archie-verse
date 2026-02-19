@@ -88,9 +88,9 @@ build:
 ##########################################################################
 
 .PHONY:music
-music: build ./build/birdhouse.mod ./build/autumn_mood.mod ./build/square_circles.mod \
-	./build/je_suis_k.mod ./build/la_soupe.mod ./build/bodoaxian.mod \
-	./build/sajt.mod ./build/holodash.mod ./build/squid_ring.mod \
+music: build ./build/flight-gone.mod ./build/take-me-back.mod ./build/bang-for-beep.mod \
+	./build/darkside.mod ./build/herr-irrtum.mod ./build/echoes-past.mod ./build/my-life.mod \
+	./build/holodash.mod ./build/squid_ring.mod \
 	./build/lies.mod ./build/changing_waves.mod ./build/vectrax.mod \
 	./build/funky_delicious.mod ./build/cool_beans.mod ./build/music_splash.mod \
 	./build/digitags.mod
@@ -316,49 +316,49 @@ clean:
 ./build/small-font.bin: ./data/font/font-8x5-onelined.png $(PNG2ARC_DEPS)
 	$(PYTHON2) $(PNG2ARC_FONT) -o $@ --glyph-dim 8 5 $< 9
 
-./build/birdhouse.mod: ./data/music/dj3/1IND-birdhouse-indahouz3.mod
+./build/flight-gone.mod: ./data/music/dj3/adkd_-_flight_gone.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/autumn_mood.mod: ./data/music/dj3/autumn-mood.mod
+./build/take-me-back.mod: ./data/music/dj3/crm_2021_takemeback.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/square_circles.mod: ./data/music/dj3/ne7-square-circles.mod
+./build/bang-for-beep.mod: ./data/music/dj3/curtCool-bang_for_the_beep.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/je_suis_k.mod: ./data/music/dj3/mod.okeanos-jesuisk.mod
+./build/darkside.mod: ./data/music/dj3/filippp-darkside.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/la_soupe.mod: ./data/music/dj3/mod.okeanos-la_soupe_aux_choux.mod
+./build/herr-irrtum.mod: ./data/music/dj3/herr-irrtum-die-nmi_-_miami_chip_gang(2025).mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/bodoaxian.mod: ./data/music/dj3/bodoaxian.final.mod
+./build/echoes-past.mod: ./data/music/dj3/mod.okeanos-echoes_of_the_past.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/sajt.mod: ./data/music/dj3/dlz-sajt.mod
+./build/my-life.mod: ./data/music/dj3/wotw_my-life-in-melody.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/holodash.mod: ./data/music/dj3/virgil-holodash.mod
+./build/holodash.mod: ./data/music/django/virgil-holodash.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/squid_ring.mod: ./data/music/dj3/squid_ring.mod
+./build/squid_ring.mod: ./data/music/django/squid_ring.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/lies.mod: ./data/music/dj3/punnik-Lies.mod
+./build/lies.mod: ./data/music/django/punnik-Lies.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/changing_waves.mod: ./data/music/dj3/changing-waves.mod
+./build/changing_waves.mod: ./data/music/django/changing-waves.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/vectrax.mod: ./data/music/dj3/vectrax-longplay-by-lord_sp.mod
+./build/vectrax.mod: ./data/music/django/vectrax-longplay-by-lord_sp.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/funky_delicious.mod: ./data/music/dj3/maze-funky-delicious.mod
+./build/funky_delicious.mod: ./data/music/django/maze-funky-delicious.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/cool_beans.mod: ./data/music/dj3/coolbeans.mod
+./build/cool_beans.mod: ./data/music/django/coolbeans.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/digitags.mod: ./data/music/dj3/soda7-digitags.mod
+./build/digitags.mod: ./data/music/django/soda7-digitags.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ./build/music_splash.mod: ./data/music/dj3/mod.raven-stereo.mod

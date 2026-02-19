@@ -80,32 +80,32 @@ events_data_no_adr:
 ; Dj3 Music
 
 .p2align 2
-birdhouse_mod_no_adr:
-.incbin "build/birdhouse.mod"
+flight_gone_mod_no_adr:
+.incbin "build/flight-gone.mod"
 
 .p2align 2
-autumn_mood_mod_no_adr:
-.incbin "build/autumn_mood.mod"
+take_me_back_mod_no_adr:
+.incbin "build/take-me-back.mod"
 
 .p2align 2
-square_circles_mod_no_adr:
-.incbin "build/square_circles.mod"
+bang_for_beep_mod_no_adr:
+.incbin "build/bang-for-beep.mod"
 
 .p2align 2
-je_suis_k_mod_no_adr:
-.incbin "build/je_suis_k.mod"
+darkside_mod_no_adr:
+.incbin "build/darkside.mod"
 
 .p2align 2
-la_soupe_mod_no_adr:
-.incbin "build/la_soupe.mod"
+herr_irrtum_mod_no_adr:
+.incbin "build/herr-irrtum.mod"
 
 .p2align 2
-bodoaxian_mod_no_adr:
-.incbin "build/bodoaxian.mod"
+echoes_past_mod_no_adr:
+.incbin "build/echoes-past.mod"
 
 .p2align 2
-sajt_mod_no_adr:
-.incbin "build/sajt.mod"
+my_life_mod_no_adr:
+.incbin "build/my-life.mod"
 
 .p2align 2
 holodash_mod_no_adr:
