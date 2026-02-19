@@ -18,7 +18,7 @@ seq_django3:
 
     ; Setup FX Layers.
     call_3      fx_set_layer_fns,   0, vu_bars_tick,        screen_cls
-    call_3      fx_set_layer_fns,   1, 0,                   logo_glitch_plot
+    call_3      fx_set_layer_fns,   1, check_autoplay,      logo_glitch_plot
     call_3      fx_set_layer_fns,   2, dj_scroller_tick,    dj_scroller_draw
     call_3      fx_set_layer_fns,   3, dj_menu_tick,        dj_menu_draw
     end_script

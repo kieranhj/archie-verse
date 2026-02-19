@@ -18,7 +18,7 @@
 .equ _SMALL_EXE,                !_DEBUG
 .endif
 
-.equ _SLOW_CPU,                 1       ; ARM2 @ 8MHz. TODO: Set dynamically.
+.equ _SLOW_CPU,                 0       ; ARM2 @ 8MHz. TODO: Set dynamically.
 .equ _LOG_SAMPLES,              (_SMALL_EXE && 0)
 
 .equ _DEBUG_RASTERS,            (_DEBUG && 1)

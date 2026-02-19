@@ -11,7 +11,7 @@
 
 .equ Dj_Menu_MaxSpriteStride, 	20
 
-.equ Dj_Menu_Top_YPos, 			94
+.equ Dj_Menu_Top_YPos, 			84
 .equ Dj_Menu_Row_Height, 		7
 .equ Dj_Menu_Item_Colour, 		4
 .equ Dj_Menu_Selection_Colour, 	8
@@ -31,7 +31,14 @@ playing_colour:
 
 ; ============================================================================
 
+; R0=frame counter
+; R1=vsync delta
 dj_menu_tick:
+	ands r0, r0, #2
+	moveq r0, #Dj_Menu_Selection_Colour
+	movne r0, #Dj_Menu_Item_Colour
+	str r0, playing_colour
+
 .if Mouse_Enable
 	; Check mouse.
 	swi OS_Mouse

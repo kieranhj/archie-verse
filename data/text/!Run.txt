@@ -13,7 +13,7 @@ RMLOAD <Obey$Dir>.RasterM38 { > null: }
 ScreenSize 128K
 FontSize 0K
 SpriteSize 0K
-wimpslot -min 1250K
+wimpslot -min 1400K
 |
 Run <Obey$Dir>.!RunImage
 |

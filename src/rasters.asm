@@ -5,14 +5,14 @@
 raster_table_p:
     .long vidc_table_1_no_adr
 
-raster_table_top_p:
-    .long vidc_table_1_no_adr+256*4*4
-
 raster_tables:
 	.long vidc_table_1_no_adr
 	.long -1
 	.long -1
 	.long -1
+
+rasters_default:
+    .long VIDC_Col15 | 0xddd    ; VIDC_Border | 0x000
 
 ; ============================================================================
 
@@ -29,30 +29,31 @@ rasters_init:
 	stmfd sp!, {r0-r3}
 
 	mov r4, #0
-	mov r6, #VIDC_Border | 0x000
+    ldr r6, rasters_default
 	mov r7, r6
 	mov r8, r6
 	mov r9, r6
 	mov r5, #256
 .1:
 	stmia r0!, {r6-r9}		; 4x VIDC commands per line.
-	stmia r0!, {r6-r9}		; Double up as we're scrolling through the first buffer.
     ; NB. No longer need to fill redundant buffers.
 	subs r5, r5, #1
 	bne .1
 
 	ldmfd sp, {r0-r3}
 	swi RasterMan_SetTables
-	ldmfd sp!, {r0-r3}
+	ldmfd sp!, {r0-r3}              ; R0=array base
 
     ; Make a raster table.
-    ldr r1, raster_table_top_p  ; dupe
     mov r3, #0
-    adr r2, raster_list
+    adr r10, raster_list
 .2:
-    ldmia r2!, {r5-r8}      ; R5=repeat, R6=reg, R7=start, R8=delta
-    cmp r5, #-1
+    ldmia r10!, {r1, r2, r5-r8}     ; R1=slot, R2=scanline, R5=repeat, R6=reg, R7=start, R8=delta
+    cmp r1, #-1
     moveq pc, lr
+
+    add r2, r0, r2, lsl #4          ; base[scanline]
+    add r2, r2, r1, lsl #2          ; base[scanline][slot]
 
 .3:
     ; Construct VIDC reg
@@ -67,8 +68,7 @@ rasters_init:
     orr r9, r9, r6          ; VIDC_reg | BGR
 
     ; Store reg.
-    str r9, [r0], #16
-    str r9, [r1], #16
+    str r9, [r2], #16
 
     add r7, r7, r8
     subs r5, r5, #1
@@ -76,6 +76,7 @@ rasters_init:
 
     b .2
 
+.if 0
 rasters_tick:
 	adr r5, raster_tables
 	ldmia r5, {r0-r3}
@@ -91,6 +92,7 @@ rasters_tick:
     ; Update table pointers.
 	swi RasterMan_SetTables
     mov pc, lr
+.endif
 
 ; ============================================================================
 
@@ -112,18 +114,50 @@ rasters_copy_table:
 ; ============================================================================
 
 raster_list:
-    ;    Repeat    Reg,        Start       Delta
-    .long 256,      VIDC_Col0,  0x000000,   0x000000
+    ;     Slot  Scanline  Repeat    Reg,        Start       Delta
+    ;                                           0xBbGgRr    0xBbGgRr
+    .long 0,    0,        256,      VIDC_Col0,  0x000000,   0x000000
+    .long 1,    0,        256,      VIDC_Border,0x000000,   0x000000
+
+    .long 1,    81,       1,        VIDC_Col4,  0xffff00,   0x000000    ; menu item
+    .long 2,    81,       1,        VIDC_Col8,  0x333333,   0x000000    ; menu selection
+
+    .long 0,    VU_Bars_Y_Pos-VU_Bars_Gap,                  VU_Bars_Height,        VIDC_Col0,  0x330000,   0x000000
+    .long 0,    VU_Bars_Y_Pos+1,                            VU_Bars_Height,        VIDC_Col0,  0x330000,   0x000000
+    .long 0,    VU_Bars_Y_Pos+1+VU_Bars_Gap,                VU_Bars_Height,        VIDC_Col0,  0x330000,   0x000000
+    .long 0,    VU_Bars_Y_Pos+1+VU_Bars_Gap+VU_Bars_Gap,    VU_Bars_Height,        VIDC_Col0,  0x330000,   0x000000
+
+    .long 1,    VU_Bars_Y_Pos-VU_Bars_Gap,                  VU_Bars_Height,        VIDC_Border,  0x330000,   0x000000
+    .long 1,    VU_Bars_Y_Pos+1,                            VU_Bars_Height,        VIDC_Border,  0x330000,   0x000000
+    .long 1,    VU_Bars_Y_Pos+1+VU_Bars_Gap,                VU_Bars_Height,        VIDC_Border,  0x330000,   0x000000
+    .long 1,    VU_Bars_Y_Pos+1+VU_Bars_Gap+VU_Bars_Gap,    VU_Bars_Height,        VIDC_Border,  0x330000,   0x000000
+
+    .long 0,    236,      1,        VIDC_Col0,  0xffffff,   0x000000
+    .long 0,    248,      1,        VIDC_Col0,  0x00bbcc,   0x000000
+    .long 0,    249,      1,        VIDC_Col0,  0x0088aa,   0x000000
+    .long 0,    250,      1,        VIDC_Col0,  0x004488,   0x000000
+    .long 0,    251,      1,        VIDC_Col0,  0x001166,   0x000000
+    .long 0,    252,      1,        VIDC_Col0,  0x000033,   0x000000
+    .long 0,    253,      3,        VIDC_Col0,  0x000022,   0x000000
+    .long 0,    255,      1,        VIDC_Col0,  0xffffff,   0x000000
+
+    .long 1,    236,      1,        VIDC_Border,  0xffffff,   0x000000
+    .long 1,    248,      1,        VIDC_Border,  0x00bbcc,   0x000000
+    .long 1,    249,      1,        VIDC_Border,  0x0088aa,   0x000000
+    .long 1,    250,      1,        VIDC_Border,  0x004488,   0x000000
+    .long 1,    251,      1,        VIDC_Border,  0x001166,   0x000000
+    .long 1,    252,      1,        VIDC_Border,  0x000033,   0x000000
+    .long 1,    253,      3,        VIDC_Border,  0x000022,   0x000000
+; NB. Need to fire interrupts on scanline 256 to do this!
+;   .long 1,    255,      1,        VIDC_Border,  0xffffff,   0x000000
+
+    .long 2,    240,      16,       VIDC_Col8,  0xffffff,   0xfff0f0f0
+
+; NB. Need to fire interrupts on scanline 256 to do this!
+;   .long 2,    255,      1,        VIDC_Col0,    0x000000,   0x000000
+    .long 3,    255,      1,        VIDC_Border,  0x000000,   0x000000
     .long -1
 
-    ; TODO: Raster plan!
-
-    .long 48,       VIDC_Col1,  0x0000ff,     0x000500
-    .long 48,       VIDC_Col1,  0x00ffff,   0xfffffffb
-    .long 32,       VIDC_Col1,  0x00ff00,     0x080000  ; make green shorter
-    .long 32,       VIDC_Col1,  0xffff00,   0xfffff800  ; make green shorter
-    .long 48,       VIDC_Col1,  0xff0000,     0x000005
-    .long 48,       VIDC_Col1,  0xff00ff,   0xfffb0000
-    .long -1
+    ; Looks like Bodo's Amiga screen is 258 lines long?
 
 ; ============================================================================

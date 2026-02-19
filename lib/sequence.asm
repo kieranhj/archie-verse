@@ -104,8 +104,10 @@ sequence_tick:
     ; Update frame counter.
     ; TODO: Should this come after draw?
     ldr r0, frame_counter
-    ldr r1, max_frames
     add r0, r0, #1
+
+    .if AppConfig_SysHandlesMusic
+    ldr r1, max_frames
     cmp r0, r1
     .if SeqConfig_EnableLoop
     movge r0, #0
@@ -116,6 +118,9 @@ sequence_tick:
     .else
     str r0, frame_counter
     strge r0, end_the_demo
+    .endif
+    .else
+    str r0, frame_counter
     .endif
 
     .if AppConfig_UseSyncTracks

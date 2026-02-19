@@ -12,8 +12,9 @@
 .equ AppConfig_UseEvents,               0
 .equ AppConfig_UseMemcBanks,            1
 .equ AppConfig_UseQtmEmbedded,          0
-.equ AppConfig_UseSyncTracks,           0       ; currently Luapod could also be Rocket.
-.equ AppConfig_SysHandlesMusic,			0		; otherwise app handles the music.
+.equ AppConfig_UseSyncTracks,           0       ; Currently Luapod could also be Rocket.
+.equ AppConfig_SysHandlesMusic,			0		; Otherwise app handles the music, e.g. musicdisk.
+												; NB. This also turns off sequence check for max frames.
 												; TODO: Option to have no QTM calls at all?
 .equ AppConfig_UseKeys,					(_DEBUG && 1)
 
@@ -54,8 +55,8 @@
 ; Audio config.
 ; ============================================================================
 
-.equ AudioConfig_SampleSpeed_SlowCPU,   48		    ; ideally get this down for ARM2
-.equ AudioConfig_SampleSpeed_FastCPU,   24		    ; ideally 24us for ARM250+
+.equ AudioConfig_SampleSpeed_SlowCPU,   24		    ; ideally get this down for ARM2
+.equ AudioConfig_SampleSpeed_FastCPU,   16		    ; ideally 24us for ARM250+
 .if _SLOW_CPU
 .equ AudioConfig_SampleSpeed_Default,   AudioConfig_SampleSpeed_SlowCPU
 .else

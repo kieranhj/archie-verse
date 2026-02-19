@@ -11,17 +11,21 @@ NOTES:
 - Track load logo glitch is from CD1.
 
 PLAN:
-- Start with archie-verse framework.
-- Add vertical scrolling logo at the start. - LATER
+- Start with archie-verse framework. - DONE`
+- Add vertical scrolling logo at the start w/ raven sample. - LATER
 - Use RasterMan. - DONE
-- Add static logo. - HACKED
+- Add static logo. - DONE
 - Add logo frames.
 - Glitch logo on song load.
-- Add menu from CD2.
+- Add menu from CD2. - DONE
 - Add scroller from CD2. - DONE
-- Add VU bars from CD1. - HACKED
-- Add rasterbars from CD1.
+- Add VU bars from CD1. - DONE
+- Add rasterbars from CD1. - DONE
+- Add menu colours as per Amiga version.
 - Get gfx assets from Bodo.
     - Logo frames
     - Fonts
+- Palette fade/animation for the logo.
 - Get music assets from Bodo.
+
+==> NEED UPDATED VERSION OF RASTERMAN FROM STEVE.
