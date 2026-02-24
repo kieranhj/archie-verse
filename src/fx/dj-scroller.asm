@@ -6,7 +6,7 @@
 ; ============================================================================
 
 ; TODO: Make these params.
-.equ Dj_Scroller_Y_Pos, 			240
+.equ Dj_Scroller_Y_Pos, 			240-2		; dj3
 .equ Dj_Scroller_Max_Glyphs, 		60
 
 .equ Dj_Scroller_Glyph_Width, 		16

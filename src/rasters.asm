@@ -2,6 +2,8 @@
 ; Rasters via RasterMan.
 ; ============================================================================
 
+.equ Dj3_Adjust,    -2
+
 raster_table_p:
     .long vidc_table_1_no_adr
 
@@ -132,30 +134,30 @@ raster_list:
     .long 1,    VU_Bars_Y_Pos+1+VU_Bars_Gap,                VU_Bars_Height,        VIDC_Border,  0x330000,   0x000000
     .long 1,    VU_Bars_Y_Pos+1+VU_Bars_Gap+VU_Bars_Gap,    VU_Bars_Height,        VIDC_Border,  0x330000,   0x000000
 
-    .long 0,    236,      1,        VIDC_Col0,  0xffffff,   0x000000
-    .long 0,    248,      1,        VIDC_Col0,  0x00bbcc,   0x000000
-    .long 0,    249,      1,        VIDC_Col0,  0x0088aa,   0x000000
-    .long 0,    250,      1,        VIDC_Col0,  0x004488,   0x000000
-    .long 0,    251,      1,        VIDC_Col0,  0x001166,   0x000000
-    .long 0,    252,      1,        VIDC_Col0,  0x000033,   0x000000
-    .long 0,    253,      3,        VIDC_Col0,  0x000022,   0x000000
-    .long 0,    255,      1,        VIDC_Col0,  0xffffff,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos-4,      1,        VIDC_Col0,  0xffffff,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos+8,      1,        VIDC_Col0,  0x00bbcc,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos+9,      1,        VIDC_Col0,  0x0088aa,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos+10,      1,        VIDC_Col0,  0x004488,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos+11,      1,        VIDC_Col0,  0x001166,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos+12,      1,        VIDC_Col0,  0x000033,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos+13,      3,        VIDC_Col0,  0x000022,   0x000000
+    .long 0,    Dj_Scroller_Y_Pos+15,      1,        VIDC_Col0,  0xffffff,   0x000000
 
-    .long 1,    236,      1,        VIDC_Border,  0xffffff,   0x000000
-    .long 1,    248,      1,        VIDC_Border,  0x00bbcc,   0x000000
-    .long 1,    249,      1,        VIDC_Border,  0x0088aa,   0x000000
-    .long 1,    250,      1,        VIDC_Border,  0x004488,   0x000000
-    .long 1,    251,      1,        VIDC_Border,  0x001166,   0x000000
-    .long 1,    252,      1,        VIDC_Border,  0x000033,   0x000000
-    .long 1,    253,      3,        VIDC_Border,  0x000022,   0x000000
+    .long 1,    Dj_Scroller_Y_Pos-4,      1,        VIDC_Border,  0xffffff,   0x000000
+    .long 1,    Dj_Scroller_Y_Pos+8,      1,        VIDC_Border,  0x00bbcc,   0x000000
+    .long 1,    Dj_Scroller_Y_Pos+9,      1,        VIDC_Border,  0x0088aa,   0x000000
+    .long 1,    Dj_Scroller_Y_Pos+10,      1,        VIDC_Border,  0x004488,   0x000000
+    .long 1,    Dj_Scroller_Y_Pos+11,      1,        VIDC_Border,  0x001166,   0x000000
+    .long 1,    Dj_Scroller_Y_Pos+12,      1,        VIDC_Border,  0x000033,   0x000000
+    .long 1,    Dj_Scroller_Y_Pos+13,      3,        VIDC_Border,  0x000022,   0x000000
 ; NB. Need to fire interrupts on scanline 256 to do this!
-;   .long 1,    255,      1,        VIDC_Border,  0xffffff,   0x000000
+   .long 1,    Dj_Scroller_Y_Pos+15,      1,        VIDC_Border,  0xffffff,   0x000000
 
-    .long 2,    240,      16,       VIDC_Col8,  0xffffff,   0xfff0f0f0
+    .long 2,    Dj_Scroller_Y_Pos,      16,       VIDC_Col8,  0xffffff,   0xfff0f0f0
 
 ; NB. Need to fire interrupts on scanline 256 to do this!
-;   .long 2,    255,      1,        VIDC_Col0,    0x000000,   0x000000
-    .long 3,    255,      1,        VIDC_Border,  0x000000,   0x000000
+    .long 2,    Dj_Scroller_Y_Pos+16,      1,        VIDC_Col0,    0x000000,   0x000000
+    .long 3,    Dj_Scroller_Y_Pos+16,      1,        VIDC_Border,  0x000000,   0x000000
     .long -1
 
     ; Looks like Bodo's Amiga screen is 258 lines long?

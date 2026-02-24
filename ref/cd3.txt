@@ -21,7 +21,7 @@ PLAN:
 - Add scroller from CD2. - DONE
 - Add VU bars from CD1. - DONE
 - Add rasterbars from CD1. - DONE
-- Add menu colours as per Amiga version.
+- Add menu colours as per Amiga version. - DONE
 - Get gfx assets from Bodo.
     - Logo frames - got PNG - maybe just a palette anim not frames? => 32 colours!
     - Fonts
@@ -34,5 +34,6 @@ BUGS:
 - Fix raster slide on MOD load.
 - Had a lockup where it was blocked on pending screen buffer? (missed vsync callback?)
 - RAM usage for 2Mb machine?
+- Need narrower 'i' in menu again. - DONE
 
 ==> NEED UPDATED VERSION OF RASTERMAN FROM STEVE.

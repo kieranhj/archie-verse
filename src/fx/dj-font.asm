@@ -6,7 +6,7 @@
 .equ Dj_Font_GlyphHeight, 5
 .equ Dj_Font_GlyphWidth, 8
 .equ Dj_Font_SpaceWidth, 5
-.equ Dj_Font_I_Width, 4             ; was 4 for CD2
+.equ Dj_Font_I_Width, 3             ; was 4 for CD2 TODO: Put this back!
 .equ Dj_Font_AdjustPadding, 2       ; pixels
 
 .equ ASCII_a, 97
@@ -207,10 +207,14 @@ dj_font_plot_glyph_to_buffer:
     sub r11, r11, r12
 
     add r6, r6, #Dj_Font_GlyphWidth
+    .if Dj_Font_SpaceWidth != Dj_Font_GlyphWidth
     cmp r0, #ASCII_Space
     subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_SpaceWidth
-;    cmp r0, #ASCII_i
-;    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
+    .endif
+    .if Dj_Font_I_Width != Dj_Font_GlyphWidth
+    cmp r0, #ASCII_i
+    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
+    .endif
 
     cmp r6, #8
     addge r11, r11, #4              ; next word
@@ -230,10 +234,14 @@ dj_font_get_pixel_width_for_string:
 	moveq pc, lr
 
     add r6, r6, #Dj_Font_GlyphWidth
+    .if Dj_Font_SpaceWidth != Dj_Font_GlyphWidth
     cmp r0, #ASCII_Space
     subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_SpaceWidth
-;    cmp r0, #ASCII_i
-;    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
+    .endif
+    .if Dj_Font_I_Width != Dj_Font_GlyphWidth
+    cmp r0, #ASCII_i
+    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
+    .endif
     b .1
 
 ; R1=ptr to string (updated).

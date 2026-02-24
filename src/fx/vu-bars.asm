@@ -3,7 +3,7 @@
 ; ============================================================================
 
 ; TODO: Make these params.
-.equ VU_Bars_Y_Pos, 	219
+.equ VU_Bars_Y_Pos, 	219-2		; dj3
 .equ VU_Bars_Height, 	3
 .equ VU_Bars_Gap, 		4
 .equ VU_Bars_Effect, 	2	; 'effect'
