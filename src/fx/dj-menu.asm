@@ -6,10 +6,10 @@
 .equ Mouse_Sensitivity, 		10
 
 .equ Dj_Menu_MaxSprites, 		(Dj_Max_Songs+1)*2
-.equ Dj_Menu_Song_Column, 		20			; aligned right.
+.equ Dj_Menu_Song_Column, 		22			; aligned right.
 .equ Dj_Menu_Artist_Column, 	26			; aligned left.
 
-.equ Dj_Menu_MaxSpriteStride, 	20
+.equ Dj_Menu_MaxSpriteStride, 	22
 
 .equ Dj_Menu_Top_YPos, 			84
 .equ Dj_Menu_Row_Height, 		7

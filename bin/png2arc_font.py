@@ -103,24 +103,36 @@ def main(options):
             palette.append([r, g, b])
 
     else:
-        # Sort palette by (greyscale) intensity.
-        # palette.sort(key=lambda e: e[0]*e[0]+e[1]*e[1]+e[2]*e[2])
-        palette.sort(key=lambda e: 0.299*e[0] + 0.587*e[1] + 0.114*e[2])
 
-
-        if len(palette) < 16:
-            # Prefer entry 0 to be black, if not already.
-            if palette[0] != [0, 0, 0]:
-                palette.insert(0, [0, 0, 0])
-
-        # Prefer last entry to be white, if not already.
-        if len(palette) < 16:
-            if palette[-1] != [255, 255, 255]:
+        if options.mono_pal is not None:
+            assert(len(palette)==2)         # supposed to be mono.
+            font_col=palette[1]             # this is our font colour.
+            palette=[]                      # reset palette to black.
+            palette.append([0, 0, 0])
+            while len(palette) < 16:
                 palette.append([255, 255, 255])
+            
+            # force our palette index to match.
+            palette[options.mono_pal] = font_col
+        else:
+            # Sort palette by (greyscale) intensity.
+            # palette.sort(key=lambda e: e[0]*e[0]+e[1]*e[1]+e[2]*e[2])
+            palette.sort(key=lambda e: 0.299*e[0] + 0.587*e[1] + 0.114*e[2])
 
-        # Pad end of palette with white:
-        while len(palette) < 16:
-            palette.append([255, 255, 255])
+
+            if len(palette) < 16:
+                # Prefer entry 0 to be black, if not already.
+                if palette[0] != [0, 0, 0]:
+                    palette.insert(0, [0, 0, 0])
+
+            # Prefer last entry to be white, if not already.
+            if len(palette) < 16:
+                if palette[-1] != [255, 255, 255]:
+                    palette.append([255, 255, 255])
+
+            # Pad end of palette with white:
+            while len(palette) < 16:
+                palette.append([255, 255, 255])
 
     # Reading the file again seems wrong? This is OK now we have a separate palette?
     png_result=png.Reader(filename=options.input_path).asRGBA8()
@@ -278,6 +290,10 @@ if __name__=='__main__':
                         default=None,
                         type=int,
                         help='maximum number of glyphs to save')
+    parser.add_argument('--mono-pal',
+                        default=None,
+                        type=int,
+                        help='assume mono palette use this index')
     parser.add_argument('--use-palette',dest='use_palette',metavar='FILE',help='use palette binary data from %(metavar)s')
     parser.add_argument('--closest-match',action='store_true',help='match closest entry in palette if not exact.')
     parser.add_argument('--proportional',dest='prop_path',metavar='FILE',help='output proportion data to %(metavar)s')

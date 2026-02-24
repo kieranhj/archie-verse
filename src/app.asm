@@ -4,7 +4,7 @@
 ; Want this file to be hackable.
 ; ============================================================================
 
-.equ Dj_Max_Songs,              15
+.equ Dj_Max_Songs,              12
 
 ;.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
 
@@ -293,38 +293,32 @@ set_autoplay:
 
 music_table:
 	.long flight_gone_mod_no_adr		; 0
-	.long take_me_back_mod_no_adr		; 1
+	.long chips_asmussen_mod_no_adr		; 1
 	.long bang_for_beep_mod_no_adr	    ; 2
 	.long darkside_mod_no_adr		    ; 3
 	.long herr_irrtum_mod_no_adr		; 4
-	.long echoes_past_mod_no_adr		; 5
-	.long my_life_mod_no_adr		    ; 6
-	.long holodash_mod_no_adr			; 7
-	.long squid_ring_mod_no_adr			; 8
-	.long lies_mod_no_adr			    ; 9
-	.long changing_waves_mod_no_adr		; 10
-	.long vectrax_mod_no_adr			; 11
-	.long funky_delicious_mod_no_adr	; 12
-	.long cool_beans_mod_no_adr			; 13
-	.long digitags_mod_no_adr		    ; 14
+	.long no_mistake_mod_no_adr			; 5
+	.long novel_mod_no_adr			    ; 6
+	.long echoes_past_mod_no_adr		; 7
+	.long chipfly_mod_no_adr			; 8
+	.long rettungsgasse_mod_no_adr		; 9
+	.long my_life_mod_no_adr		    ; 10
+	.long take_me_back_mod_no_adr		; 11
 
 .p2align 2
 dj_menu_strings:
 	.byte "flight gone", 0, "adkd", 0
-	.byte "take me back", 0, "crm 2021", 0
+    .byte "chips asmussen", 0, "andy", 0
 	.byte "bang for the beep", 0, "curt cool", 0
 	.byte "darkside", 0, "filippp", 0
-	.byte "herr irrum die nmi", 0, "miami chip gang", 0
+	.byte "die nmi miamichip gang", 0, "herr irrum", 0
+	.byte "wattwurmshredde", 0, "nomistake", 0
+	.byte "django", 0, "novel", 0
 	.byte "echoes of the past", 0, "okeanos", 0
+	.byte "chipfly", 0, "slaxx", 0
+	.byte "rettungsgasse", 0, "uncen20", 0
 	.byte "my life in melody", 0, "wotw", 0
-	.byte "holodash", 0, "virgill", 0
-	.byte "squid ring", 0, "curt cool", 0
-	.byte "lies", 0, "punnik", 0
-	.byte "changing waves", 0, "4mat", 0
-	.byte "vectrax longplay", 0, "lord", 0
-	.byte "funky delicious", 0, "maze", 0
-	.byte "cool beans", 0, "tobach", 0
-	.byte "digitags", 0, "soda7", 0
+	.byte "take me back", 0, "crm 2021", 0
 	.byte "autoplay off", 0
 	.byte "autoplay on", 0
 ; End of string list.
@@ -346,13 +340,9 @@ volumeTable:
     .byte    64 ;59-1+2  ; bodoaxian
     .byte    64 ;64    ; holodash
     .byte    64 ;39-2  ; squid ring
-    .byte    64 ;61-1  ; lies
-    .byte    64 ;53      ; vectrax longplay
-    .byte    64 ;45-8-4    ; changing waves
 	.p2align 2
 
 durationTable:
-;    dcb.w   10,250  
     .long    50*122      ; digitags
     .long    51*50       ; birdhouse
     .long    50*92      ; funky delicious
@@ -365,9 +355,6 @@ durationTable:
     .long    110*50      ; bodoaxian
     .long    116*50      ; holodash
     .long    174*50      ; squid ring
-    .long    181*50-10   ; lies
-    .long    485*50      ; vectrax longplay
-    .long    50*6*60     ; changing waves
     
 ; break between tunes
 songpausetable:
@@ -383,9 +370,6 @@ songpausetable:
     .long    70      ; bodoaxian
     .long    90+20      ; holodash
     .long    90      ; squid ring
-    .long    50-10   ; lies
-    .long    50      ; vectrax longplay
-    .long    600      ; changing waves    
 
 ; ============================================================================
 ; FX code modules.

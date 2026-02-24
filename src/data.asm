@@ -108,24 +108,24 @@ my_life_mod_no_adr:
 .incbin "build/my-life.mod"
 
 .p2align 2
-holodash_mod_no_adr:
-.incbin "build/holodash.mod"
+chips_asmussen_mod_no_adr:
+.incbin "build/chips-asmussen.mod"
 
 .p2align 2
-squid_ring_mod_no_adr:
-.incbin "build/squid_ring.mod"
+no_mistake_mod_no_adr:
+.incbin "build/no-mistake.mod"
 
 .p2align 2
-lies_mod_no_adr:
-.incbin "build/lies.mod"
+novel_mod_no_adr:
+.incbin "build/novel.mod"
 
 .p2align 2
-changing_waves_mod_no_adr:
-.incbin "build/changing_waves.mod"
+chipfly_mod_no_adr:
+.incbin "build/chipfly.mod"
 
 .p2align 2
-vectrax_mod_no_adr:
-.incbin "build/vectrax.mod"
+rettungsgasse_mod_no_adr:
+.incbin "build/rettungsgasse.mod"
 
 .p2align 2
 funky_delicious_mod_no_adr:

@@ -1,12 +1,12 @@
 ; ============================================================================
-; New font for Django 2.
+; New font for Django 3.
 ; ============================================================================
 
-.equ Dj_Font_MaxGlyphs, 42
+.equ Dj_Font_MaxGlyphs, 52
 .equ Dj_Font_GlyphHeight, 5
 .equ Dj_Font_GlyphWidth, 8
 .equ Dj_Font_SpaceWidth, 5
-.equ Dj_Font_I_Width, 4
+.equ Dj_Font_I_Width, 4             ; was 4 for CD2
 .equ Dj_Font_AdjustPadding, 2       ; pixels
 
 .equ ASCII_a, 97
@@ -29,12 +29,22 @@
 .equ Dj_Font_z, 25
 .equ Dj_Font_0, 26
 .equ Dj_Font_9, 35
-.equ Dj_Font_ExclamationMark, 36
-.equ Dj_Font_Colon, 37
-.equ Dj_Font_Space, 38
-.equ Dj_Font_Minus, 39
-.equ Dj_Font_LessThan, 40
-.equ Dj_Font_MoreThan, 41
+.equ Dj_Font_Space, 36
+.equ Dj_Font_QuestionMark, 37
+.equ Dj_Font_ExclamationMark, 38
+.equ Dj_Font_Quotes, 39
+.equ Dj_Font_Hash, 40
+.equ Dj_Font_LeftBracket, 41
+.equ Dj_Font_RightBracket, 42
+.equ Dj_Font_LeftSquare, 43
+.equ Dj_Font_RightSquare, 44
+.equ Dj_Font_Comma, 45
+.equ Dj_Font_Dot, 46
+.equ Dj_Font_Colon, 47
+.equ Dj_Font_SemiColon, 48
+.equ Dj_Font_Slash, 49
+.equ Dj_Font_Plus, 50
+.equ Dj_Font_Minus, 51
 
 ; ============================================================================
 
@@ -49,8 +59,6 @@ dj_font_map_from_ascii:
     .byte ASCII_ExclamationMark, Dj_Font_ExclamationMark, 1
     .byte ASCII_Minus, Dj_Font_Minus, 1
     .byte ASCII_Colon, Dj_Font_Colon, 1
-    .byte ASCII_LessThan, Dj_Font_LessThan, 1
-    .byte ASCII_MoreThan, Dj_Font_MoreThan, 1
 
     .byte ASCII_0, Dj_Font_0, 10
     .byte ASCII_a, Dj_Font_a, 26
@@ -201,8 +209,8 @@ dj_font_plot_glyph_to_buffer:
     add r6, r6, #Dj_Font_GlyphWidth
     cmp r0, #ASCII_Space
     subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_SpaceWidth
-    cmp r0, #ASCII_i
-    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
+;    cmp r0, #ASCII_i
+;    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
 
     cmp r6, #8
     addge r11, r11, #4              ; next word
@@ -224,8 +232,8 @@ dj_font_get_pixel_width_for_string:
     add r6, r6, #Dj_Font_GlyphWidth
     cmp r0, #ASCII_Space
     subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_SpaceWidth
-    cmp r0, #ASCII_i
-    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
+;    cmp r0, #ASCII_i
+;    subeq r6, r6, #Dj_Font_GlyphWidth-Dj_Font_I_Width
     b .1
 
 ; R1=ptr to string (updated).

@@ -90,9 +90,10 @@ build:
 .PHONY:music
 music: build ./build/flight-gone.mod ./build/take-me-back.mod ./build/bang-for-beep.mod \
 	./build/darkside.mod ./build/herr-irrtum.mod ./build/echoes-past.mod ./build/my-life.mod \
-	./build/holodash.mod ./build/squid_ring.mod \
-	./build/lies.mod ./build/changing_waves.mod ./build/vectrax.mod \
-	./build/funky_delicious.mod ./build/cool_beans.mod ./build/music_splash.mod \
+	./build/chips-asmussen.mod ./build/no-mistake.mod ./build/music_splash.mod \
+	./build/novel.mod ./build/chipfly.mod ./build/rettungsgasse.mod \
+	./build/funky_delicious.mod \
+	./build/cool_beans.mod \
 	./build/digitags.mod
 
 ##########################################################################
@@ -313,43 +314,43 @@ clean:
 ./build/big-font.bin: ./data/font/font-big-finalFINAL.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC_FONT) -o $@ --glyph-dim 16 16 $< 9
 
-./build/small-font.bin: ./data/font/font-8x5-onelined.png $(PNG2ARC_DEPS)
-	$(PYTHON2) $(PNG2ARC_FONT) -o $@ --glyph-dim 8 5 $< 9
+./build/small-font.bin: ./data/font/font8x5.png $(PNG2ARC_DEPS)
+	$(PYTHON2) $(PNG2ARC_FONT) -o $@ --loud --mono-pal 15 --glyph-dim 8 5 $< 9
 
-./build/flight-gone.mod: ./data/music/dj3/adkd_-_flight_gone.mod
+./build/flight-gone.mod: ./data/music/dj3/adkd-flight-gone.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ./build/take-me-back.mod: ./data/music/dj3/crm_2021_takemeback.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/bang-for-beep.mod: ./data/music/dj3/curtCool-bang_for_the_beep.mod
+./build/bang-for-beep.mod: ./data/music/dj3/curt-cool-bang-for-the-beep.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ./build/darkside.mod: ./data/music/dj3/filippp-darkside.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/herr-irrtum.mod: ./data/music/dj3/herr-irrtum-die-nmi_-_miami_chip_gang(2025).mod
+./build/herr-irrtum.mod: ./data/music/dj3/herr-irrtum-die-nmi-miamichip-gang.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/echoes-past.mod: ./data/music/dj3/mod.okeanos-echoes_of_the_past.mod
+./build/echoes-past.mod: ./data/music/dj3/okeanos-echoes-of-the-past.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/my-life.mod: ./data/music/dj3/wotw_my-life-in-melody.mod
+./build/my-life.mod: ./data/music/dj3/wotw-my-life-in-melody.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/holodash.mod: ./data/music/django/virgil-holodash.mod
+./build/chips-asmussen.mod: ./data/music/dj3/andy-chips-asmussen.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/squid_ring.mod: ./data/music/django/squid_ring.mod
+./build/no-mistake.mod: ./data/music/dj3/nomistake-wattwurmshredde.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/lies.mod: ./data/music/django/punnik-Lies.mod
+./build/novel.mod: ./data/music/dj3/novel-django.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/changing_waves.mod: ./data/music/django/changing-waves.mod
+./build/chipfly.mod: ./data/music/dj3/slaxx-chipfly-final.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/vectrax.mod: ./data/music/django/vectrax-longplay-by-lord_sp.mod
+./build/rettungsgasse.mod: ./data/music/dj3/vincenzo-rettungsgasse.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ./build/funky_delicious.mod: ./data/music/django/maze-funky-delicious.mod
