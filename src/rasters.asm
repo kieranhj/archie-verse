@@ -9,8 +9,8 @@ raster_table_p:
 
 raster_tables:
 	.long vidc_table_1_no_adr
-	.long -1
-	.long -1
+	.long vidc_table_2_no_adr
+	.long vidc_table_3_no_adr
 	.long -1
 
 rasters_default:
@@ -20,7 +20,7 @@ rasters_default:
 
 rasters_init:
     ; Configure RasterMan for future compatibility.
-    mov r0, #4              ; number of VIDC reg writes
+    mov r0, #16              ; number of VIDC reg writes
     mov r1, #0              ; number of MEMC reg writes
     mov r2, #1              ; number of scanlines between H-interrupts
     swi RasterMan_Configure
@@ -37,7 +37,10 @@ rasters_init:
 	mov r9, r6
 	mov r5, #256
 .1:
-	stmia r0!, {r6-r9}		; 4x VIDC commands per line.
+	stmia r0!, {r6-r9}		        ; 4x VIDC commands per line.
+	stmia r1!, {r6-r9}		        ; 4x VIDC commands per line.
+	stmia r2!, {r6-r9}		        ; 4x VIDC commands per line.
+	stmia r2!, {r6-r9}		        ; 4x VIDC commands per line.
     ; NB. No longer need to fill redundant buffers.
 	subs r5, r5, #1
 	bne .1
@@ -95,6 +98,54 @@ rasters_tick:
 	swi RasterMan_SetTables
     mov pc, lr
 .endif
+
+; ============================================================================
+
+; Turn an abc palette-per-scanline table into VIDC registers for RasterMan:
+; R0=ptr to abc pal (assumes 16 writes per line)
+; R1=which scanline to start from
+; R2=number of lines
+rasters_abc_pal_to_rasters:
+	adr r3, raster_tables
+	ldmia r3, {r4-r6}
+    ; Offset into raster tables from starting scanline.
+    add r4, r4, r1, lsl #4              ; skip N lines at 4 writes per line.
+    add r5, r5, r1, lsl #4              ; skip N lines at 4 writes per line.
+    add r6, r6, r1, lsl #5              ; skip N lines at 8 writes per line.
+
+    ; Scanline loop.
+.1:
+
+    ; Palette index loop.
+    mov r1, #0
+.2:
+    ldrb r7, [r0], #1                   ; 0x0r
+    ldrb r8, [r0], #1                   ; 0xgb
+
+    ; index<<26 | 0xbgr
+
+    and r9, r8, #0xf0                   ; 0xg0
+    orr r7, r7, r9                      ; 0xgr
+    and r9, r8, #0x0f                   ; 0x0b
+    orr r7, r7, r9, lsl #8              ; 0x0bgr
+    orr r7, r7, r1, lsl #26             ; VIDC reg | 0x0bgr
+
+    tst r1, #0b1100                   
+    streq r7, [r4], #4
+    beq .3
+    tst r1, #0b1000
+    streq r7, [r5], #4
+    strne r7, [r6], #4
+    .3:
+
+    add r1, r1, #1
+    cmp r1, #16
+    blt .2
+
+
+    subs r2, r2, #1
+    bne .1
+    mov pc, lr
 
 ; ============================================================================
 

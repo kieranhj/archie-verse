@@ -16,7 +16,7 @@
 .equ AppConfig_SysHandlesMusic,			0		; Otherwise app handles the music, e.g. musicdisk.
 												; NB. This also turns off sequence check for max frames.
 												; TODO: Option to have no QTM calls at all?
-.equ AppConfig_UseKeys,					(_DEBUG && 1)
+.equ AppConfig_UseKeys,					(_DEBUG || 1)
 
 .equ AppVsyncHandler_Events,            0
 .equ AppVsyncHandler_Irq,               1

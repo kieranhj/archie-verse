@@ -61,6 +61,12 @@ vidc_table_1_no_adr:
 	.skip 256*4*4       ; 4 regs per scanline.
     ; TODO: Define the buffer size somewhere related to the code that fills it.
 
+vidc_table_2_no_adr:
+	.skip 256*4*4       ; 4 regs per scanline.
+
+vidc_table_3_no_adr:
+	.skip 256*8*4       ; 8 regs per scanline.
+
 ;memc_table_no_adr:
 ;    .skip 256*2*4       ; 2 regs per scaline.
 .endif

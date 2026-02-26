@@ -1,9 +1,9 @@
 ; Logo plotting.
 
-.equ Logo_Height, 80
+.equ Logo_Height, 74
 
 logo_data_p:
-    .long logo_frame_1_no_adr
+    .long dj_logo_no_adr
 
 logo_glitch_plot:
     ldr r9, logo_data_p

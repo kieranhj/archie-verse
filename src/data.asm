@@ -8,8 +8,13 @@
 
 ; ===========================================================================
 
-logo_frame_1_no_adr:
-.incbin "build/cd3-logo1.bin"
+.p2align 2
+dj_logo_no_adr:
+.incbin "build/cdlogo.bin"
+
+.p2align 2
+dj_logo_raster_pal_no_adr:
+.incbin "build/cdlogo.bin.pal"
 
 ; ============================================================================
 ; Dj Scroller
@@ -17,6 +22,7 @@ logo_frame_1_no_adr:
 .p2align 2
 dj_scroller_font_data_no_adr:
 .incbin "build/big-font.bin"
+
 
 .p2align 2
 dj_scroller_text_string_no_adr:

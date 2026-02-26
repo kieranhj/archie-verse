@@ -73,6 +73,7 @@ plot_vu_bar:
 ; R11 = y pos on screen.
 ; Preserve R0 please.
 vu_bar_set_raster:
+.if AppConfig_UsingRasterMan
     ; Raster version.
     adr r9, raster_tables
     ldr r8, [r9]
@@ -84,7 +85,7 @@ vu_bar_set_raster:
     str r1, [r8, #-12]          ; on previous line.
     str r1, [r8, #-8]           ; on previous line.
     str r1, [r8, #-4]           ; on previous line.
-
+.endif
 	ldr pc, [sp], #4
 
 copy_1_to_8:

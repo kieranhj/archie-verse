@@ -205,6 +205,10 @@ play_song:
 	ldrb r0, [r2, r1]
 	QTMSWI QTM_Volume
 
+    ; NB. According to Chipo Django 1 source:
+	; This seems to help minimise how much RasterMan timing slips after QTM_Start.
+	swi RasterMan_Wait
+
 	; Play music!
 	QTMSWI QTM_Start
 
@@ -376,7 +380,9 @@ songpausetable:
 ; ============================================================================
 
 .include "src/fx/dj-menu.asm"
+.if AppConfig_UsingRasterMan
 .include "src/rasters.asm"
+.endif
 .include "src/fx/logo-glitch.asm"
 .include "src/fx/vu-bars.asm"
 .include "src/fx/dj-scroller.asm"

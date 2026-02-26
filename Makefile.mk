@@ -13,6 +13,7 @@ LZ4?=bin\lz4.exe
 SHRINKLER?=bin\Shrinkler.exe
 PYTHON3?=python.exe
 DOS2UNIX?=bin\dos2unix.exe
+ABC?=bin\abc2.exe
 else
 RM_RF:=rm -Rf
 MKDIR_P:=mkdir -p
@@ -23,6 +24,7 @@ LZ4?=lz4
 SHRINKLER?=shrinkler
 PYTHON3?=python
 DOS2UNIX?=dos2unix
+ABC?=abc
 endif
 
 SPLITMOD=./bin/SplitMod.exe
@@ -68,7 +70,7 @@ build:
 # ASSET LIST
 ##########################################################################
 
-./build/assets.txt: build ./build/razor-font.bin ./build/cd3-logo1.bin \
+./build/assets.txt: build ./build/razor-font.bin ./build/cdlogo.bin \
 	./build/big-font.bin ./build/small-font.bin
 	echo done > $@
 
@@ -310,6 +312,9 @@ clean:
 
 ./build/cd3-logo1.bin: ./data/gfx/cd3-logo-frame1.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC) -o $@ --vidc-regs $@.asm $< 9
+
+./build/cdlogo.bin: ./data/gfx/cdlogo.png $(ABC)
+	$(ABC) $< -b $@ -p $@.pal -bpc 4 -mpp -quantize -archie
 
 ./build/big-font.bin: ./data/font/font-big-finalFINAL.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC_FONT) -o $@ --glyph-dim 16 16 $< 9
