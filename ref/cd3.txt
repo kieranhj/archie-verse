@@ -33,6 +33,7 @@ TODO:
 - Palette fade/animation for the logo.
 - Add fade out at the end.
 - Add compressed loader.
+- Add icon and help.
 
 ASSETS:
 - Final MODs?
@@ -43,5 +44,5 @@ ASSETS:
 BUGS:
 - Fix raster slide on MOD load. => with Steve
 - Had a lockup where it was blocked on pending screen buffer? (missed vsync callback?)
-- RAM usage for 2Mb machine? => Why is BSS so high?!?!
-- Noticeable boot time for non _DEBUG build? 5 seconds!!
+- RAM usage for 2Mb machine? => Why is BSS so high?!?! - UNUSED LIBS!
+- Noticeable boot time for non _DEBUG build? 5 seconds!! - DONE

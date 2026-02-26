@@ -10,7 +10,7 @@
 .equ AppConfig_ReturnMainToCaller,      (!_DEBUG && 0)      ; desktop by default TOOD: Should be an exe config?
 .equ AppConfig_UseArchieKlang,          (_SMALL_EXE && 0)
 .equ AppConfig_UseEvents,               0
-.equ AppConfig_UseMemcBanks,            1
+.equ AppConfig_UseMemcBanks,            0
 .equ AppConfig_UseQtmEmbedded,          0
 .equ AppConfig_UseSyncTracks,           0       ; Currently Luapod could also be Rocket.
 .equ AppConfig_SysHandlesMusic,			0		; Otherwise app handles the music, e.g. musicdisk.
@@ -77,7 +77,7 @@
 ; ============================================================================
 
 .equ VideoConfig_Widescreen,            0
-.equ VideoConfig_ScreenBanks,           3
+.equ VideoConfig_ScreenBanks,           2
 
 .equ Screen_Mode,                       9
 .equ Screen_Width,                      320

@@ -1,7 +1,7 @@
 ; ============================================================================
-; Shrinkler loader with embedded data.
+; Loader with embedded compressed exe block.
 ; Relocate all data to top of RAM.
-; Call Shrinkler and return to app start at 0x8000.
+; Call Shrinkler / LZ4 uncompress and return to app start at 0x8000.
 ; ============================================================================
 
 .equ _DEBUG, 0
@@ -9,7 +9,7 @@
 .include "../lib/swis.h.asm"
 
 .ifndef _WIMPSLOT
-.equ _WIMPSLOT, 1400*1024           ; Assumed RAM - see !Run.txt
+.equ _WIMPSLOT, 1200*1024           ; Assumed RAM - see !Run.txt
 .endif
 
 .equ STACK_SIZE, 1024
@@ -48,11 +48,13 @@ main:
 
     mov r1, #0x8000                 ; destination
 
+    .if _USE_SHRINKLER
     adr r2, callback
     sub r2, r2, r3                  ; callback fn (reloc)
 
     mov r3, #0                      ; callback arg
-
+    .endif
+    
     ; R9 = end of reloc = shrinkler contexts
 
     mov sp, r8                      ; reset stack top
@@ -60,28 +62,22 @@ main:
     mov pc, r8                      ; jump to reloc
 
 message_text:
-    .byte "                           _______                  ",13,10
-    .byte " ________ __________ _____ \\_    /___  __ ________  ",13,10
-    .byte "_\\_____ /_\\ ____   //     \\ |  ___  /_(__)\\  __   \\ ",13,10
-    .byte "|  \\  /  |  \\  /  /_  /\\__/_|  \\ |   |    |  _____/ ",13,10
-    .byte "|   \\/   |   \\/__/ /  \\_/   /   \\|   |    |   \\/ \\  ",13,10
-    .byte "|___/\\___|___/\\   /|_______/|___/|___|____|\\__    \\ ",13,10
-    .byte "____.          \\ /          !NE7  ______     /_____\\",13,10
-    .byte "T   | ___ ___   \\  ________ ______\\__  /_____       ",13,10
-    .byte "|   |/ _/|   |    .\\_____ /_\\ ____\\/__/   __/       ",13,10
-    .byte "|   __ \\_:   | ___T  \\  /  |  \\_ // |   _/______    ",13,10
-    .byte "|   \\|   |   |/   /   \\/   |   T/   |  /___  __//.  ",13,10
-    .byte "|___/|___|_______/|___/\\___|___|\\___|___ \\/  \\ ///. ",13,10
-    .byte "--------------------------------- dS! -/_____//////.",13,10
-    .byte 23,1,0,0,0,0,0,0,0,0  ; turn off cursor
+    .byte "Decompress..."
+    ;.byte 23,1,0,0,0,0,0,0,0,0  ; turn off cursor
     .byte 0
 message_end:
 .p2align 2
 
 reloc_to:
+.if _USE_SHRINKLER
     .long 0x8000 + _WIMPSLOT - (reloc_end - reloc_start) - (NUM_CONTEXTS*4) - 4
+.else
+    .long 0x8000 + _WIMPSLOT - (reloc_end - reloc_start) - 4
+.endif
 
 reloc_start:
+
+.if _USE_SHRINKLER
 	b ShrinklerDecompress
 
 ; R0=bytes written
@@ -92,16 +88,25 @@ callback:
     mov pc, lr
 
 .include "../lib/arc-shrinkler.asm"
+.else
+    ; b unlz4  <== code starts here anyway.
+.include "../lib/lz4-decode.asm"
+.endif
 
 .p2align 2
 compressed_demo_start:
+.if _USE_SHRINKLER
 .incbin "../build/archie-verse.shri"
+.else
+.incbin "../build/archie-verse.lz4"
+.endif
 .p2align 2
 compressed_demo_end:
 
 shrinkler_contexts:
     ; .skip (NUM_CONTEXTS*4)
 
+.skip 8        ; fudge to avoid adr issue  - will depend on compressed code size.
 reloc_end:
 
 ; ============================================================================

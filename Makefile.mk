@@ -131,17 +131,21 @@ compress: shrink
 	$(COPY) "$(FOLDER)\*.*" "$(HOSTFS)\$(FOLDER)\*.*"
 
 .PHONY:shrink
-shrink: build ./build/!run.txt ./build/loader.bin ./build/icon.bin
+shrink: build ./build/!run.txt ./build/loader.bin
 	$(RM_RF) $(FOLDER)
 	$(MKDIR_P) $(FOLDER)
-	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
-	$(COPY) .\build\loader.bin "$(FOLDER)\!Run,ff8"
+	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
+#	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
+	$(COPY) ".\data\riscos\RasterM38,ffa" "$(FOLDER)"
+	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
+	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
+	$(COPY) .\build\loader.bin "$(FOLDER)\!RunImage,ff8"
 
 ./build/archie-verse.shri: build ./build/archie-verse.bin
 	$(SHRINKLER) -b -d -p -z -3 ./build/archie-verse.bin $@
 
-./build/loader.bin: build ./src/loader.asm ./build/archie-verse.shri
-	$(VASM) -L build\loader.txt -m250 -Fbin -opt-adr -D_USE_SHRINKLER=1 -o $@ ./src/loader.asm
+./build/loader.bin: build ./src/loader.asm ./build/archie-verse.lz4
+	$(VASM) -L build\loader.txt -m250 -Fbin -opt-adr -D_USE_SHRINKLER=0 -o $@ ./src/loader.asm
 
 ##########################################################################
 # SEQUENCE TARGET
