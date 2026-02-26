@@ -40,9 +40,11 @@ sinus_table_no_adr:
 
 ; ============================================================================
 
+.if LibConfig_IncludeMathVar
 math_var_buffer_no_adr:
     .skip MathVar_SIZE * MathVars_MAX
 math_var_buffer_end_no_adr:
+.endif
 
 ; ============================================================================
 

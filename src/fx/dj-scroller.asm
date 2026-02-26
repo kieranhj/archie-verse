@@ -20,7 +20,7 @@
 .equ Dj_Scroller_Sine_Tick_Delta, 	1024
 .equ Dj_Scroller_Sine_Shift, 		13			; [-8,+8]
 
-.equ _SCROLLER_SINE, 1
+.equ _SCROLLER_SINE, 0
 
 dj_scroller_enable_sine:
 	.long 0

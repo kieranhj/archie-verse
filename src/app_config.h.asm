@@ -116,11 +116,11 @@
 ; ============================================================================
 
 ; All parts.
-.equ LibConfig_IncludeMem,              1
-.equ LibConfig_IncludeMathVar,          1
-.equ LibConfig_IncludeSine,             1
-.equ LibConfig_IncludeVector,           1
-.equ LibConfig_IncludeMatrix,           1
-.equ LibConfig_IncludeTriangle,         1
-.equ LibConfig_IncludeDivide,           1
-.equ LibConfig_IncludeSqrt,             1
+.equ LibConfig_IncludeMem,              0
+.equ LibConfig_IncludeMathVar,          0
+.equ LibConfig_IncludeSine,             0
+.equ LibConfig_IncludeVector,           0
+.equ LibConfig_IncludeMatrix,           0
+.equ LibConfig_IncludeTriangle,         0
+.equ LibConfig_IncludeDivide,           0
+.equ LibConfig_IncludeSqrt,             0

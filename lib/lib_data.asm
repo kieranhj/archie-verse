@@ -14,14 +14,14 @@ debug_font_no_adr:
 
 ; ============================================================================
 
-.if LibConfig_IncludeSine && LibSine_MakeSinusTable==0
+.if LibConfig_IncludeSine && (LibSine_MakeSinusTable==0)
 sinus_table_no_adr:
 	.incbin "data/lib/sine_8192.bin"
 .endif
 
 ; ============================================================================
 
-.if LibConfig_IncludeSqrt && LibSqrt_MakeSqrtTable==0
+.if LibConfig_IncludeSqrt && (LibSqrt_MakeSqrtTable==0)
 sqrt_table_no_adr:
 ;	.incbin "data/lib/sqrt_1024.bin"
 

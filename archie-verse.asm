@@ -21,7 +21,7 @@
 .equ _SLOW_CPU,                 0       ; ARM2 @ 8MHz. TODO: Set dynamically.
 .equ _LOG_SAMPLES,              (_SMALL_EXE && 0)
 
-.equ _DEBUG_RASTERS,            (_DEBUG && 1)
+.equ _DEBUG_RASTERS,            (_DEBUG && !AppConfig_UsingRasterMan)
 .equ _CHECK_FRAME_DROP,         (!_DEBUG && 0)  ; TODO: Check this is still fit for purpose.
 ; TODO: Revisit _SYNC_EDIT for LuaPod or Rocket driven variables.
 .equ _DYNAMIC_RELOAD,           (_DEBUG && 1)
