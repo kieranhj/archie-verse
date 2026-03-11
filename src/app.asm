@@ -188,6 +188,7 @@ play_song:
 	QTMSWI QTM_Stop
 
 	; Unload the current module.
+	; Converts samples back to linear format (from LOG) so they can be played again.
 	mov r1, r0
 	mov r0, #-1
 	QTMSWI QTM_Clear
@@ -197,7 +198,7 @@ play_song:
 	str r0, song_number
 	adr r2, music_table
 	ldr r1, [r2, r0, lsl #2]	; r0 * 4
-	mov r0, #-1					; load from address and copy to RMA.
+	mov r0, #0					; load from address and use in-place.
 	QTMSWI QTM_Load
 
 	adr r2, volumeTable
