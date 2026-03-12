@@ -27,6 +27,8 @@ seq_django3:
 
     ; Don't need to draw all layers.
     call_3      fx_set_layer_fns,   0, vu_bars_tick,        dj_scroller_cls
-;    call_3      fx_set_layer_fns,   3, dj_menu_tick,        0
+.if Dj_Menu_Use_Rasters
+    call_3      fx_set_layer_fns,   3, dj_menu_tick,        dj_menu_update_rasters
+.endif
 
     end_script

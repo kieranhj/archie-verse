@@ -17,6 +17,10 @@
 .equ Dj_Menu_Selection_Colour, 	8
 
 .equ Dj_Menu_Autoplay_Column, 	1
+.equ Dj_Menu_Raster_Lines,		(Dj_Max_Songs + 2) * Dj_Menu_Row_Height
+
+.equ Dj_Menu_Use_Rasters,		(AppConfig_UsingRasterMan && 0)
+.equ Dj_Menu_Use_Mask_Plot,		0
 
 .if Mouse_Enable
 prev_mouse_y:
@@ -28,6 +32,11 @@ selection_number:
 
 playing_colour:
 	.long 0
+
+.if Dj_Menu_Use_Rasters
+dj_menu_repaint_autoplay:
+	.long 0
+.endif
 
 ; ============================================================================
 
@@ -76,6 +85,63 @@ dj_menu_tick:
 
 ; ============================================================================
 
+.if Dj_Menu_Use_Rasters
+; R12=screen addr.
+dj_menu_update_rasters:
+    ; Raster version.
+    adr r9, raster_tables
+    ldr r8, [r9]				; VIDC table 1.
+	add r8, r8, #Dj_Menu_Top_YPos * 16
+
+	; Entries are defaulted to VIDC_Col15 | 0xddd
+
+	; Set all rasters in menu area to item colour.
+	mov r7, r8
+
+	mov r0, #VIDC_Col4 | 0x0ff0		; item colour
+	mov r1, #Dj_Menu_Raster_Lines
+	.1:
+	str r0, [r7], #16
+	subs r1, r1, #1
+	bne .1
+
+	ldr r4, playing_colour
+	cmp r4, #Dj_Menu_Selection_Colour
+	moveq r0, #VIDC_Col4 | 0x0333		; selection colour
+
+	; Find currently playing and set rasters for that line to black from vsync bits.
+	ldr r2, song_number
+	mov r3, #Dj_Menu_Row_Height*16
+	mla r7, r2, r3, r8
+
+	.rept Dj_Menu_Row_Height
+	str r0, [r7], #16
+	.endr
+
+	mov r0, #VIDC_Col4 | 0x0333		; selection colour
+
+	; Find current selection and set rasters for that menu line to selection colour.
+	ldr r2, selection_number
+	cmp r2, #Dj_Max_Songs
+	addeq r2, r2, #1
+	mla r7, r2, r3, r8
+	.rept Dj_Menu_Row_Height
+	str r0, [r7], #16
+	.endr
+
+	ldr r0, dj_menu_repaint_autoplay
+	cmp r0, #0
+	moveq pc, lr
+
+	str lr, [sp, #-4]!
+	mov r8, #Dj_Max_Songs*2
+	add r12, r12, #Screen_Stride*Dj_Menu_Top_YPos
+	add r12, r12, #Screen_Stride*Dj_Max_Songs*Dj_Menu_Row_Height
+	b dj_menu_draw_autoplay
+.endif
+
+; ============================================================================
+
 ; R7=sprite stride in bytes.
 plot_dj_menu_sprite:
 	ldr r0, dj_menu_sprite_code_p
@@ -103,6 +169,7 @@ dj_menu_draw:
 	; set colour word.
 	mov r10, #Dj_Menu_Item_Colour
 
+.if !Dj_Menu_Use_Rasters
 	; song_number = what's playing
 	ldr r3, song_number
 	mov r3, r3, lsl #1
@@ -114,6 +181,7 @@ dj_menu_draw:
 	mov r4, r4, lsl #1
 	cmp r8, r4
 	moveq r10, #Dj_Menu_Selection_Colour
+.endif
 
 	; set colour word.
 	orr r10, r10, r10, lsl #4
@@ -146,12 +214,17 @@ dj_menu_draw:
 	cmp r8, #Dj_Max_Songs*2
 	blt .1
 
+; Super hack balls!
+dj_menu_draw_autoplay:
+
 	; Plot autoplay string.
 	mov r10, #Dj_Menu_Item_Colour
+.if !Dj_Menu_Use_Rasters
 	ldr r4, selection_number
 	mov r4, r4, lsl #1
 	cmp r8, r4
 	moveq r10, #Dj_Menu_Selection_Colour
+.endif
 
 	; set colour word.
 	orr r10, r10, r10, lsl #4
@@ -255,8 +328,6 @@ dj_menu_init:
 	; Fake/Effect/Real 1/2/3 set R0 of QTM_VUBarControl
 	; S to toggle scroller sine wave.
 
-	; TODO: Mouse control.
-
 	ldr pc, [sp], #4	
 
 ; ============================================================================
@@ -281,6 +352,11 @@ dj_menu_play_selection:
 	b play_song
 
 dj_menu_toggle_autoplay:
+.if Dj_Menu_Use_Rasters
+	mov r0, #1
+	str r0, dj_menu_repaint_autoplay
+.endif
+
 	; Toggle autplay.
 	ldr r0, autoplay_flag
 	eor r0, r0, #1
@@ -309,6 +385,7 @@ dj_menu_sprite_strides:				; in bytes
 
 sprite_mask_gen_4:
 	ldmia r9!, {r0-r3}		; load 4 words.
+.if Dj_Menu_Use_Mask_Plot
 	ldmia r11, {r4-r7}
 	bic r4, r4, r0
 	bic r5, r5, r1
@@ -323,10 +400,18 @@ sprite_mask_gen_4:
 	orr r6, r6, r2
 	orr r7, r7, r3
 	stmia r11!, {r4-r7}
+.else
+	and r0, r0, r10
+	and r1, r1, r10
+	and r2, r2, r10
+	and r3, r3, r10
+	stmia r11!, {r0-r3}
+.endif
 sprite_mask_gen_4_end:
 
 sprite_mask_gen_3:
 	ldmia r9!, {r0-r2}		; load 3 words.
+.if Dj_Menu_Use_Mask_Plot
 	ldmia r11, {r4-r6}
 	bic r4, r4, r0
 	bic r5, r5, r1
@@ -338,10 +423,17 @@ sprite_mask_gen_3:
 	orr r5, r5, r1
 	orr r6, r6, r2
 	stmia r11!, {r4-r6}
+.else
+	and r0, r0, r10
+	and r1, r1, r10
+	and r2, r2, r10
+	stmia r11!, {r0-r2}
+.endif
 sprite_mask_gen_3_end:
 
 sprite_mask_gen_2:
 	ldmia r9!, {r0-r1}		; load 2 words.
+.if Dj_Menu_Use_Mask_Plot
 	ldmia r11, {r4-r5}
 	bic r4, r4, r0
 	bic r5, r5, r1
@@ -350,15 +442,25 @@ sprite_mask_gen_2:
 	orr r4, r4, r0
 	orr r5, r5, r1
 	stmia r11!, {r4-r5}
+.else
+	and r0, r0, r10
+	and r1, r1, r10
+	stmia r11!, {r0-r1}
+.endif
 sprite_mask_gen_2_end:
 
 sprite_mask_gen_1:
 	ldr r0, [r9], #4		; load 1 word.
+.if Dj_Menu_Use_Mask_Plot
 	ldr r4, [r11]
 	bic r4, r4, r0
 	and r0, r0, r10
 	orr r4, r4, r0
 	str r4, [r11], #4
+.else
+	and r0, r0, r10
+	str r0, [r11], #4
+.endif
 sprite_mask_gen_1_end:
 
 sprite_end_of_row:

@@ -332,7 +332,7 @@ dj_menu_strings:
 	.byte "my life in melody", 0, "wotw", 0
 	.byte "take me back", 0, "crm 2021", 0
 	.byte "autoplay off", 0
-	.byte "autoplay on", 0
+	.byte "autoplay on ", 0
 ; End of string list.
 	.byte -1
 
