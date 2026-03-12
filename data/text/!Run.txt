@@ -10,10 +10,10 @@ RMLOAD <Obey$Dir>.MemAlloc { > null: }
 RMLOAD <Obey$Dir>.QTM149rm24 { > null: }
 RMLOAD <Obey$Dir>.RasterM38 { > null: }
 |
-ScreenSize 80K
+ScreenSize 40K
 FontSize 0K
 SpriteSize 0K
-wimpslot -min 1200K
+wimpslot -min 1000K
 |
 Run <Obey$Dir>.!RunImage
 |

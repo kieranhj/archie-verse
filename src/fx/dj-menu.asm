@@ -254,6 +254,7 @@ dj_menu_init:
 
 	; R12=available RAM for generated code.
 	bl gen_sprite_code
+	str r12, [sp, #-4]!
 
 	ldr r11, dj_menu_sprite_buffer_p
 	adr r1, dj_menu_strings
@@ -328,6 +329,7 @@ dj_menu_init:
 	; Fake/Effect/Real 1/2/3 set R0 of QTM_VUBarControl
 	; S to toggle scroller sine wave.
 
+	ldr r12, [sp], #4
 	ldr pc, [sp], #4	
 
 ; ============================================================================
