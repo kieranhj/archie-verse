@@ -8,6 +8,18 @@ logo_data_p:
 logo_glitch_plot:
     ldr r9, logo_data_p
 
+    ldr r0, glitch_timer
+    cmp r0, #0
+    moveq pc, lr
+
+    subs r0, r0, #1
+    str r0, glitch_timer
+
+    bne plot_logo_glitched
+
+    ; Not glitched.
+.1:
+
 ; R9=logo_addr, R12=screen_addr
 ; Assume plotting at top of the screen.
 plot_logo:
@@ -65,7 +77,7 @@ plot_logo_glitched:
     str r0, logo_seed
 
     ; Pixel offset shift.
-    and r0, r0, #0x03
+    and r0, r0, #0x07
     mov r10, r0, lsl #2     ; pixel shift (4*n)
     rsb r11, r10, #32       ; reverse pixel shift (32-4*n)
 

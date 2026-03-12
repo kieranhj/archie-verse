@@ -77,7 +77,7 @@
 ; ============================================================================
 
 .equ VideoConfig_Widescreen,            0
-.equ VideoConfig_ScreenBanks,           2
+.equ VideoConfig_ScreenBanks,           1
 
 .equ Screen_Mode,                       9
 .equ Screen_Width,                      320

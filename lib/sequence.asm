@@ -62,6 +62,8 @@ sequence_init:
 	bl script_add_program
 
     ; Tick script once for module init.
+    ; NB. This must be called with a vsync delta in R0!
+    mov r0, #1              ; one vsync.
     bl script_tick_all
 
     ldr pc, [sp], #4

@@ -475,3 +475,29 @@ dj_scroller_tick:
 	blmi update_scrolltext_ptr
 
 	ldr pc, [sp], #4
+
+; R12=screen addr.
+dj_scroller_cls:
+	add r12, r12, #Dj_Scroller_Y_Pos * Screen_Stride
+	mov r0, #0
+	mov r1, r0
+	mov r2, r0
+	mov r3, r0
+	mov r4, r0
+	mov r5, r0
+	mov r6, r0
+	mov r7, r0
+	mov r8, r0
+	mov r9, r0
+	mov r10, r0
+	mov r11, r0
+
+	.if Dj_Scroller_Glyph_Height!=16
+	.error "Expected Dj_Scroller_Glyph_Height to be 16!"
+	.endif
+
+	.rept Dj_Scroller_Glyph_Height*Screen_Stride/48
+	stmia r12!, {r0-r11}
+	.endr
+	stmia r12!, {r0-r3}	; 16 bytes
+	mov pc, lr

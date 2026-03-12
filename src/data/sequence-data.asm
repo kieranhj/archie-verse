@@ -21,4 +21,12 @@ seq_django3:
     call_3      fx_set_layer_fns,   1, check_autoplay,      logo_glitch_plot
     call_3      fx_set_layer_fns,   2, dj_scroller_tick,    dj_scroller_draw
     call_3      fx_set_layer_fns,   3, dj_menu_tick,        dj_menu_draw
+
+    wait 1      ; Stop here after init.
+    wait 1      ; Draw one frame.
+
+    ; Don't need to draw all layers.
+    call_3      fx_set_layer_fns,   0, vu_bars_tick,        dj_scroller_cls
+;    call_3      fx_set_layer_fns,   3, dj_menu_tick,        0
+
     end_script

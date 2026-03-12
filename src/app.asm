@@ -5,6 +5,7 @@
 ; ============================================================================
 
 .equ Dj_Max_Songs,              12
+.equ Glitch_Time,				20 	; frames
 
 ;.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
 
@@ -183,6 +184,9 @@ volume_fade:
 prev_sound_flags:
 	.long 0
 
+glitch_timer:
+	.long 0
+
 ; R0=song number
 play_song:
 	QTMSWI QTM_Stop
@@ -217,6 +221,9 @@ play_song:
 	str r0, song_timer
 	str r0, song_pause
 	str r0, volume_fade
+
+	mov r0, #Glitch_Time
+	str r0, glitch_timer
 	mov pc, lr
 
 check_autoplay:
