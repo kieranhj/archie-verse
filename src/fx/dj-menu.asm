@@ -38,6 +38,9 @@ dj_menu_repaint_autoplay:
 	.long 0
 .endif
 
+dj_menu_still_playing:
+	.long 1
+
 ; ============================================================================
 
 ; R0=frame counter
@@ -324,6 +327,16 @@ dj_menu_init:
     mov r2, #0
     bl keys_register_callback
 
+   	mov r0, #RMKey_Escape
+	adr r1, dj_menu_flag_quit
+    mov r2, #0
+    bl keys_register_callback
+
+   	mov r0, #RMKey_RightClick
+	adr r1, dj_menu_flag_quit
+    mov r2, #0
+    bl keys_register_callback
+
 	; TODO: VU BAR CONTROLS ETC.
 	; 1-5 set R1 of QTM_VUBarControl
 	; Fake/Effect/Real 1/2/3 set R0 of QTM_VUBarControl
@@ -336,14 +349,14 @@ dj_menu_init:
 
 ; R1=data.
 dj_menu_change_selection:
-	ldr r3, selection_number
-	adds r3, r3, r1
+	ldr r2, selection_number
+	adds r2, r2, r1
 
 	; Clamp selection.
-	movmi r3, #0
-	cmp r3, #Dj_Max_Songs
-	movge r3, #Dj_Max_Songs-1
-	str r3, selection_number
+	movmi r2, #0
+	cmp r2, #Dj_Max_Songs
+	movge r2, #Dj_Max_Songs-1
+	str r2, selection_number
 	mov pc, lr
 
 dj_menu_play_selection:
@@ -363,6 +376,11 @@ dj_menu_toggle_autoplay:
 	ldr r0, autoplay_flag
 	eor r0, r0, #1
 	b set_autoplay
+
+dj_menu_flag_quit:
+	mov r0, #0
+	str r0, dj_menu_still_playing
+	mov pc, lr 
 
 ; ============================================================================
 

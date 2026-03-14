@@ -32,7 +32,7 @@ TODO:
 - Add vertical scrolling logo at the start w/ raven sample.
 - Add glitch logo on song load. - DONE
 - Palette fade/animation for the logo.
-- Add fade out at the end.
+- Add fade out at the end. - DONE
 - Add compressed loader. - DONE
 - Add icon and help.
 
@@ -45,5 +45,6 @@ ASSETS:
 BUGS:
 - Fix raster slide on MOD load. => with Steve - BETTER
 - Had a lockup where it was blocked on pending screen buffer? (missed vsync callback?)
+    - HAPPENED AGIN WHEN WIGGLING THE MOUSE A LOT ==> FIXED RASTERMAN MOUSE/KEY HANDLER.
 - RAM usage for 2Mb machine? => Why is BSS so high?!?! - DONE
 - Noticeable boot time for non _DEBUG build? 5 seconds!! - DONE

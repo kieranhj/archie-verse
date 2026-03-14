@@ -255,8 +255,12 @@ main_loop_skip_tick:
     bne exit
 
 	; repeat!
+    .if AppConfig_ExitOnEscape
     bl vsync_check_escape
 	bcc main_loop                   ; exit if Escape is pressed
+    .else
+    b main_loop
+    .endif
 
 exit:
     ; App custom exit.

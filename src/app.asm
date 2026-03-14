@@ -26,6 +26,7 @@ app_init_debug:
     DEBUG_REGISTER_VAR music_pos
     DEBUG_REGISTER_VAR frame_counter
     DEBUG_REGISTER_VAR_EX debug_free_ram, debug_plot_addr_as_dec4
+	DEBUG_REGISTER_VAR keys_rm_code
 
     DEBUG_REGISTER_KEY          RMKey_Space,      debug_toggle_main_loop_pause,  0
 

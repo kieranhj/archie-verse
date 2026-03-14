@@ -17,6 +17,7 @@
 												; NB. This also turns off sequence check for max frames.
 												; TODO: Option to have no QTM calls at all?
 .equ AppConfig_UseKeys,					(_DEBUG || 1)
+.equ AppConfig_ExitOnEscape,			0		; Otherwise caught by demo code.
 
 .equ AppVsyncHandler_Events,            0
 .equ AppVsyncHandler_Irq,               1
@@ -37,7 +38,7 @@
 ; Sequence config.
 ; ============================================================================
 
-.equ SeqConfig_EnableLoop,              (AppConfig_UsingRasterMan || 1) ; RM version of QTM always loops
+.equ SeqConfig_EnableLoop,              0 			; RM version of QTM always loops
 .equ SeqConfig_InitOnLoop,              1
 .equ SeqConfig_MaxPatterns,             22
 

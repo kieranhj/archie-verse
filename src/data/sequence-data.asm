@@ -31,4 +31,16 @@ seq_django3:
     call_3      fx_set_layer_fns,   3, dj_menu_tick,        dj_menu_update_rasters
 .endif
 
+    gosub seq_wait_for_quit
+
+    call_3      fx_set_layer_fns,   0, 0,                   dj_scroller_cls
+    call_3      fx_set_layer_fns,   1, 0,                   logo_glitch_plot
+    call_3      fx_set_layer_fns,   2, dj_scroller_tick,    dj_scroller_draw
+    call_3      fx_set_layer_fns,   3, rasters_sub_all_to_zero, 0   
+
+    wait 32
     end_script
+
+seq_wait_for_quit:
+    end_script_if_zero dj_menu_still_playing
+    yield seq_wait_for_quit

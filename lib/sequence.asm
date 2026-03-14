@@ -111,18 +111,24 @@ sequence_tick:
     .if AppConfig_SysHandlesMusic
     ldr r1, max_frames
     cmp r0, r1
-    .if SeqConfig_EnableLoop
-    movge r0, #0
-    str r0, frame_counter
-    .if SeqConfig_InitOnLoop
-    blge sequence_init
-    .endif
+        .if SeqConfig_EnableLoop
+        movge r0, #0
+        str r0, frame_counter
+            .if SeqConfig_InitOnLoop
+            blge sequence_init
+            .endif
+        .else
+        str r0, frame_counter
+        strge r0, end_the_demo
+        .endif
     .else
     str r0, frame_counter
-    strge r0, end_the_demo
-    .endif
-    .else
-    str r0, frame_counter
+        .if !SeqConfig_EnableLoop
+        ldr r0, script_program_still_running
+        cmp r0, #0
+        moveq r1, #1
+        streq r1, end_the_demo
+        .endif
     .endif
 
     .if AppConfig_UseSyncTracks

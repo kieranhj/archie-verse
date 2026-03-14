@@ -273,9 +273,17 @@ vsync_scankeyboard:
     .if AppVsync_UseRasterMan
     swi RasterMan_ScanKeyboard
     str r0, keys_rm_code        ; R0=(low key nibble << 8) | (high key nibble)
-    mov r1, r0, lsr #12         ; 0xc=key down 0xd=key up
-    and r1, r1, #1
-    eor r1, r1, #1              ; 1=key down 0=key up
+
+    mov r2, r0, lsr #12         ; 0xc=key down 0xd=key up
+	cmp r2, #0xc
+	moveq r1, #1
+	beq .1
+
+	cmp r2, #0xd	
+	moveq r1, #0
+	movne pc, lr
+
+.1:
     mov r2, r0, lsr #8
     and r2, r2, #0xf
     and r0, r0, #0xf

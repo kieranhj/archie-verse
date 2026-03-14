@@ -99,6 +99,44 @@ rasters_tick:
     mov pc, lr
 .endif
 
+.macro rgb12_sub reg
+    tst \reg, #0x000f
+    subne \reg, \reg, #0x0001
+    tst \reg, #0x00f0
+    subne \reg, \reg, #0x0010
+    tst \reg, #0x0f00
+    subne \reg, \reg, #0x0100
+.endm
+
+rasters_sub_all_to_zero:
+	; Init tables.
+	adr r5, raster_tables
+	ldmia r5, {r0-r3}
+
+    mov r12, #256*4
+.1:
+    ; Read VIDC reg write.
+    ldr r4, [r0]
+    rgb12_sub r4
+    str r4, [r0], #4
+
+    ldr r4, [r1]
+    rgb12_sub r4
+    str r4, [r1], #4
+
+    ldr r4, [r2]
+    rgb12_sub r4
+    str r4, [r2], #4
+
+    ldr r4, [r2]
+    rgb12_sub r4
+    str r4, [r2], #4
+
+    subs r12, r12, #1
+    bne .1
+
+    mov pc, lr
+
 ; ============================================================================
 
 ; Turn an abc palette-per-scanline table into VIDC registers for RasterMan:

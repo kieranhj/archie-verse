@@ -21,6 +21,7 @@ keys_rm_code:
 ; R1=addr of function to call.
 ; R2=param to call the function with.
 ; Trashes: R3-R4.
+; NB. Key callbacks must preserve registers R3-R5!!!
 keys_register_callback:
     adr r4, keys_callback_stack
     ldr r3, keys_num

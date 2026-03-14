@@ -9,6 +9,8 @@
 .equ Debug_MaxGlyphs, 96
 .equ Debug_Colour, 0xf
 
+.equ Debug_PlotYPos, 20
+
 ; Plot a string to the screen at the current cursor position.
 ; R0=ptr to null terminated string.
 .if Screen_Mode==9
@@ -135,7 +137,9 @@ debug_plot_vars:
 
 	SET_BORDER 0xfff		; white = debug
 
-    bl debug_cursor_home
+    mov r1, #0
+    mov r2, #Debug_PlotYPos
+    bl debug_set_cursor
 
     adr r10, debug_var_stack
     mov r9, #0
