@@ -3,7 +3,7 @@
 make_spark.py - Create a RISC OS !Spark-compatible archive from a folder.
 
 Usage:
-    python make_spark.py <folder> [-o output.spk]
+    python make_spark.py <folder> [-o output.spk] [-c]
 
 RISC OS file type information is read from ',xxx' suffixes on local filenames
 (e.g. '!Run,feb', '!RunImage,ff8') and stored in the RISC OS attribute block
@@ -13,8 +13,9 @@ The output is a two-level Spark archive:
   outer: one entry named after the folder (filetype 0xDDC = Spark archive)
   inner: one entry per file/subdirectory
 
-Uses stored (uncompressed) method 0x82 for all entries. !Spark and SparkFS
-can read stored archives.
+Without -c: uses stored method 0x82 (no compression).
+With -c:    uses ARC squash method 0x89 (LZW-13, compatible with SparkFS/NSpark).
+            Falls back to stored if compression does not reduce file size.
 """
 
 import argparse
@@ -40,6 +41,96 @@ def crc16(data: bytes) -> int:
             else:
                 crc >>= 1
     return crc
+
+
+# ---------------------------------------------------------------------------
+# LZW compression / decompression  (ARC method 9 = squash, 13-bit max)
+# LSB-first bit packing, no CLEAR or EOF codes, initial table 0-255.
+# ---------------------------------------------------------------------------
+
+def lzw_compress(data: bytes, max_bits: int = 13) -> bytes:
+    """Compress data using ARC squash (LZW, 13-bit max, no CLEAR code)."""
+    if not data:
+        return b''
+    table = {bytes([i]): i for i in range(256)}
+    next_code = 256
+    code_width = 9
+    bit_buf = 0
+    bit_cnt = 0
+    out = bytearray()
+
+    def emit(code):
+        nonlocal bit_buf, bit_cnt
+        bit_buf |= code << bit_cnt
+        bit_cnt += code_width
+        while bit_cnt >= 8:
+            out.append(bit_buf & 0xFF)
+            bit_buf >>= 8
+            bit_cnt -= 8
+
+    prefix = bytes([data[0]])
+    for byte in data[1:]:
+        ext = prefix + bytes([byte])
+        if ext in table:
+            prefix = ext
+        else:
+            emit(table[prefix])
+            if next_code < (1 << max_bits):
+                table[ext] = next_code
+                next_code += 1
+                if next_code >= (1 << code_width) and code_width < max_bits:
+                    code_width += 1
+            prefix = bytes([byte])
+    emit(table[prefix])
+    if bit_cnt > 0:
+        out.append(bit_buf & 0xFF)
+    return bytes(out)
+
+
+def lzw_decompress(data: bytes, max_bits: int = 13) -> bytes:
+    """Decompress ARC squash (LZW, 13-bit max, no CLEAR code)."""
+    if not data:
+        return b''
+    table = [bytes([i]) for i in range(256)]
+    code_width = 9
+    bit_buf = 0
+    bit_cnt = 0
+    pos = 0
+
+    def read():
+        nonlocal bit_buf, bit_cnt, pos
+        while bit_cnt < code_width:
+            if pos >= len(data):
+                return None
+            bit_buf |= data[pos] << bit_cnt
+            pos += 1
+            bit_cnt += 8
+        code = bit_buf & ((1 << code_width) - 1)
+        bit_buf >>= code_width
+        bit_cnt -= code_width
+        return code
+
+    out = bytearray()
+    prev = None
+    while True:
+        # Adjust width before reading: +1 corrects for the first read having
+        # no corresponding table addition (table lags compressor by 1 entry).
+        while (len(table) + 1) >= (1 << code_width) and code_width < max_bits:
+            code_width += 1
+        code = read()
+        if code is None:
+            break
+        if code < len(table):
+            entry = table[code]
+        elif code == len(table) and prev is not None:
+            entry = table[prev] + bytes([table[prev][0]])
+        else:
+            raise ValueError(f'Invalid LZW code {code} (table size {len(table)})')
+        out.extend(entry)
+        if prev is not None and len(table) < (1 << max_bits):
+            table.append(table[prev] + bytes([entry[0]]))
+        prev = code
+    return bytes(out)
 
 
 # ---------------------------------------------------------------------------
@@ -97,31 +188,49 @@ def get_filetype(filename: str):
 # Archive entry writer
 # ---------------------------------------------------------------------------
 
+# ARC method bytes (lower 7 bits); 0x80 bit = RISC OS attribute block present
+_METHOD_STORED = 0x02
+_METHOD_SQUASH = 0x09  # ARC squash: LZW-13, supported by SparkFS / NSpark
+
+
 def write_entry(buf: io.BytesIO, arc_name: str, data: bytes,
-                unix_time: float, filetype: int = None, attrs: int = 0x03):
+                unix_time: float, filetype: int = None, attrs: int = 0x03,
+                compress: bool = False):
     """
     Write a single Spark archive entry (header + data) to buf.
 
-    method 0x82 = stored (no compression) + RISC OS attribute block.
-    If filetype is None, method 0x02 is used (no RISC OS block).
+    With compress=True, attempts ARC squash (method 9); falls back to stored
+    if the compressed output is not smaller than the original.
     """
     has_riscos = filetype is not None
-    method = 0x82 if has_riscos else 0x02
+    orig_size = len(data)
+    file_crc = crc16(data)
+
+    if compress:
+        comp_data = lzw_compress(data)
+        if len(comp_data) < orig_size:
+            method_base = _METHOD_SQUASH
+        else:
+            comp_data = data
+            method_base = _METHOD_STORED
+    else:
+        comp_data = data
+        method_base = _METHOD_STORED
+
+    method = (method_base | 0x80) if has_riscos else method_base
 
     fname = arc_name.encode('latin-1', errors='replace')[:13].ljust(13, b'\x00')
-    size = len(data)
-    file_crc = crc16(data)
     dos_date, dos_time = dos_date_time(unix_time)
 
     # Standard 29-byte ARC header
     buf.write(b'\x1a')
     buf.write(bytes([method]))
     buf.write(fname)
-    buf.write(struct.pack('<I', size))   # compressed size (= original for stored)
+    buf.write(struct.pack('<I', len(comp_data)))  # compressed size
     buf.write(struct.pack('<H', dos_date))
     buf.write(struct.pack('<H', dos_time))
     buf.write(struct.pack('<H', file_crc))
-    buf.write(struct.pack('<I', size))   # original size
+    buf.write(struct.pack('<I', orig_size))       # original size
 
     # 12-byte RISC OS extension
     if has_riscos:
@@ -129,14 +238,14 @@ def write_entry(buf: io.BytesIO, arc_name: str, data: bytes,
         buf.write(struct.pack('<I', make_exec_addr(unix_time)))
         buf.write(struct.pack('<I', attrs))
 
-    buf.write(data)
+    buf.write(comp_data)
 
 
 # ---------------------------------------------------------------------------
 # Recursive archive builder
 # ---------------------------------------------------------------------------
 
-def build_archive(folder: Path) -> bytes:
+def build_archive(folder: Path, compress: bool = False) -> bytes:
     """
     Build a Spark inner archive from the contents of folder.
     Returns the archive as bytes (including end-of-archive marker).
@@ -150,9 +259,9 @@ def build_archive(folder: Path) -> bytes:
 
         if item.is_file():
             write_entry(buf, clean_name, item.read_bytes(), mtime,
-                        filetype=filetype, attrs=0x03)
+                        filetype=filetype, attrs=0x03, compress=compress)
         elif item.is_dir():
-            sub_data = build_archive(item)
+            sub_data = build_archive(item, compress=compress)
             dir_filetype = filetype if filetype is not None else 0xDDC
             write_entry(buf, clean_name, sub_data, mtime,
                         filetype=dir_filetype, attrs=0x33)
@@ -165,7 +274,8 @@ def build_archive(folder: Path) -> bytes:
 # Entry point
 # ---------------------------------------------------------------------------
 
-def create_spark(folder_path: str, output_path: str = None):
+def create_spark(folder_path: str, output_path: str = None,
+                 compress: bool = False):
     folder = Path(folder_path)
     if not folder.is_dir():
         raise SystemExit(f'Error: {folder_path} is not a directory')
@@ -173,7 +283,7 @@ def create_spark(folder_path: str, output_path: str = None):
     if output_path is None:
         output_path = str(folder.parent / (folder.name + '.spk'))
 
-    inner_data = build_archive(folder)
+    inner_data = build_archive(folder, compress=compress)
     mtime = folder.stat().st_mtime
 
     outer = io.BytesIO()
@@ -191,5 +301,7 @@ if __name__ == '__main__':
     parser.add_argument('folder', help='Input folder path')
     parser.add_argument('-o', '--output',
                         help='Output archive path (default: <folder>.spk)')
+    parser.add_argument('-c', '--compress', action='store_true',
+                        help='Compress files using ARC squash (LZW-13, method 9)')
     args = parser.parse_args()
-    create_spark(args.folder, args.output)
+    create_spark(args.folder, args.output, compress=args.compress)
