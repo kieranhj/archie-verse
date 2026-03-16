@@ -36,7 +36,9 @@ PNG2ARC_SPRITE=./bin/png2arc_sprite.py
 PNG2ARC_DEPS:=./bin/png2arc.py ./bin/arc.py ./bin/png2arc_font.py ./bin/png2arc_sprite.py
 UV_TABLE=./bin/uv-table-conv.py
 UV_SHADER=./bin/uv-shader-conv.py
+MAKE_SPARK=./bin/make_spark.py
 FOLDER=!dj3
+ARCHIVE=build/django3,ddc
 HOSTFS=../arculator/hostfs
 # TODO: Need a copy command that copes with forward slash directory separator. (Maybe MSYS cp?)
 
@@ -49,6 +51,7 @@ deploy: $(FOLDER)
 	$(RM_RF) "$(HOSTFS)\$(FOLDER)"
 	$(MKDIR_P) "$(HOSTFS)\$(FOLDER)"
 	$(COPY) "$(FOLDER)\*.*" "$(HOSTFS)\$(FOLDER)\*.*"
+	$(PYTHON3) $(MAKE_SPARK) $(FOLDER) -o $(ARCHIVE)
 
 $(FOLDER): build ./build/archie-verse.bin ./build/!run.txt
 	$(RM_RF) $(FOLDER)
@@ -129,6 +132,7 @@ compress: shrink
 	$(RM_RF) "$(HOSTFS)\$(FOLDER)"
 	$(MKDIR_P) "$(HOSTFS)\$(FOLDER)"
 	$(COPY) "$(FOLDER)\*.*" "$(HOSTFS)\$(FOLDER)\*.*"
+	$(PYTHON3) $(MAKE_SPARK) $(FOLDER) -o $(ARCHIVE)
 
 .PHONY:shrink
 shrink: build ./build/!run.txt ./build/loader.bin
