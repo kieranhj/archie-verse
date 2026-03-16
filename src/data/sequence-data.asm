@@ -11,7 +11,9 @@ seq_django3:
     ; Setup.
 .if AppConfig_UsingRasterMan
     call_0      rasters_init
-    call_3      rasters_abc_pal_to_rasters, dj_logo_raster_pal_no_adr, 0, 74
+;   call_3      rasters_abc_pal_to_rasters, dj_logo_raster_pal_no_adr, 0, 74
+    call_4      rasters_abc_pal_to_min_rasters, dj_logo_raster_pal_no_adr, 0, 74, seq_logo_vidc_pal
+    write_addr  palette_array_p, seq_logo_vidc_pal
 .endif
     call_0      vu_bars_init
     call_0      dj_scroller_init
@@ -44,3 +46,6 @@ seq_django3:
 seq_wait_for_quit:
     end_script_if_zero dj_menu_still_playing
     yield seq_wait_for_quit
+
+seq_logo_vidc_pal:
+    .skip 16*4

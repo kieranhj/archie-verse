@@ -106,7 +106,7 @@ compressed_demo_end:
 shrinkler_contexts:
     ; .skip (NUM_CONTEXTS*4)
 
-.skip 8        ; fudge to avoid adr issue  - will depend on compressed code size.
+.skip 16        ; fudge to avoid adr issue  - will depend on compressed code size.
 reloc_end:
 
 ; ============================================================================
