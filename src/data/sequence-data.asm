@@ -11,7 +11,8 @@ seq_django3:
     ; Setup.
 .if AppConfig_UsingRasterMan
     call_0      rasters_init
-    call_3      rasters_abc_pal_to_rasters, dj_logo_raster_pal_no_adr, 0, 74
+    call_3      rasters_vidc_pal_to_rasters, dj_logo_vidc_pal_no_adr, 0, 74
+    write_addr  palette_array_p, dj_logo_vidc_pal_no_adr
 .endif
     call_0      vu_bars_init
     call_0      dj_scroller_init

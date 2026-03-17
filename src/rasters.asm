@@ -20,7 +20,7 @@ rasters_default:
 
 rasters_init:
     ; Configure RasterMan for future compatibility.
-    mov r0, #16              ; number of VIDC reg writes
+    mov r0, #8              ; number of VIDC reg writes
     mov r1, #0              ; number of MEMC reg writes
     mov r2, #1              ; number of scanlines between H-interrupts
     swi RasterMan_Configure
@@ -139,6 +139,49 @@ rasters_sub_all_to_zero:
 
 ; ============================================================================
 
+; List of VIDC register writes per line for RasterMan.
+; R0=ptr to vidc regs or -1 for end of line (assumes max 8 writes per line)
+; R1=which scanline to start from
+; R2=number of lines
+rasters_vidc_pal_to_rasters:
+	adr r3, raster_tables
+	ldmia r3, {r4-r5}
+
+    ; Skip first line (assume this is done in vsync).
+.5:
+    ldr r7, [r0], #4
+    cmp r7, #-1
+    bne .5
+    add r1, r1, #1
+    sub r2, r2, #1
+
+    ; Scanline loop.
+.1:
+    ; Offset into raster tables from starting scanline.
+    add r8, r4, r1, lsl #4              ; skip N lines at 4 writes per line.
+    add r9, r5, r1, lsl #4              ; skip N lines at 4 writes per line.
+
+    ; Palette index loop.
+    mov r6, #0
+.2:
+    ldr r7, [r0], #4                    ; vidc write
+    cmp r7, #-1
+    beq .3
+
+    tst r6, #0b1100                   
+    streq r7, [r8], #4
+    strne r7, [r9], #4
+    
+    add r6, r6, #1
+    b .2
+
+.3:
+    add r1, r1, #1
+    subs r2, r2, #1
+    bne .1
+    mov pc, lr
+
+.if 0
 ; Turn an abc palette-per-scanline table into VIDC registers for RasterMan:
 ; R0=ptr to abc pal (assumes 16 writes per line)
 ; R1=which scanline to start from
@@ -184,6 +227,7 @@ rasters_abc_pal_to_rasters:
     subs r2, r2, #1
     bne .1
     mov pc, lr
+.endif
 
 ; ============================================================================
 

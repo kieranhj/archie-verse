@@ -76,7 +76,7 @@ build:
 ##########################################################################
 
 ./build/assets.txt: build ./build/razor-font.bin ./build/cdlogo.bin \
-	./build/big-font.bin ./build/small-font.bin
+	./build/big-font.bin ./build/small-font.bin ./build/cdlogo_vidc.bin
 	echo done > $@
 
 ##########################################################################
