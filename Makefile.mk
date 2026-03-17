@@ -34,6 +34,8 @@ PNG2ARC=./bin/png2arc.py
 PNG2ARC_FONT=./bin/png2arc_font.py
 PNG2ARC_SPRITE=./bin/png2arc_sprite.py
 PNG2ARC_DEPS:=./bin/png2arc.py ./bin/arc.py ./bin/png2arc_font.py ./bin/png2arc_sprite.py
+PNG2SCANPAL=./bin/png2scanpal.py
+PAL_CONV=./bin/pal_conv.py
 UV_TABLE=./bin/uv-table-conv.py
 UV_SHADER=./bin/uv-shader-conv.py
 MAKE_SPARK=./bin/make_spark.py
@@ -321,8 +323,14 @@ clean:
 ./build/cd3-logo1.bin: ./data/gfx/cd3-logo-frame1.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC) -o $@ --vidc-regs $@.asm $< 9
 
-./build/cdlogo.bin: ./data/gfx/cdlogo.png $(ABC)
-	$(ABC) $< -b $@ -p $@.pal -bpc 4 -mpp -quantize -archie
+# png2scanpal generates cdlogo.bin, cdlogo.bin.pal and cdlogo_scanpal.png together
+./build/cdlogo.bin: ./data/gfx/cdlogo.png $(PNG2SCANPAL)
+	$(PYTHON3) $(PNG2SCANPAL) $< ./build/cdlogo_scanpal.png ./build/cdlogo.bin.pal \
+		--bin $@
+
+# cdlogo_vidc.bin is the delta-compressed VIDC palette stream (optional, not embedded)
+./build/cdlogo_vidc.bin: ./build/cdlogo.bin $(PAL_CONV)
+	$(PYTHON3) $(PAL_CONV) ./build/cdlogo.bin.pal $@
 
 ./build/big-font.bin: ./data/font/font-big-finalFINAL.png $(PNG2ARC_DEPS)
 	$(PYTHON3) $(PNG2ARC_FONT) -o $@ --glyph-dim 16 16 $< 9
