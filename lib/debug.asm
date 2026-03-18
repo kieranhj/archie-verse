@@ -81,7 +81,7 @@ debug_write_fp:
 	mov r2, #Debug_TempLen
 	swi OS_ConvertHex8
 	adr r0, debug_temp_string
-	swi OS_WriteO
+	swi OS_Write0
     mov r0, #32
     swi OS_WriteC
     ldmfd sp!, {r1, r2}
@@ -354,7 +354,7 @@ debug_calc_scr_ptr:
     mov pc, lr
 
 debug_plot_string_slow:
-    swi OS_WriteO
+    swi OS_Write0
     mov pc, lr
 .endif
 
