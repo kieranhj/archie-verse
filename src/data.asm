@@ -22,6 +22,10 @@ dj_logo_raster_pal_no_adr:
 dj_logo_vidc_pal_no_adr:
 .incbin "build/cdlogo_vidc.bin"
 
+.p2align 2
+startlogo_no_adr:
+.incbin "build/startlogo.bin"
+
 ; ============================================================================
 ; Dj Scroller
 

@@ -76,7 +76,8 @@ build:
 ##########################################################################
 
 ./build/assets.txt: build ./build/razor-font.bin ./build/cdlogo.bin \
-	./build/big-font.bin ./build/small-font.bin ./build/cdlogo_vidc.bin
+	./build/big-font.bin ./build/small-font.bin ./build/cdlogo_vidc.bin \
+	./build/startlogo.bin
 	echo done > $@
 
 ##########################################################################
@@ -320,8 +321,8 @@ clean:
 # CHIPO DJANGO 3 ASSETS
 ##########################################################################
 
-./build/cd3-logo1.bin: ./data/gfx/cd3-logo-frame1.png $(PNG2ARC_DEPS)
-	$(PYTHON3) $(PNG2ARC) -o $@ --vidc-regs $@.asm $< 9
+./build/startlogo.bin: ./data/gfx/startlogo_1bit.png $(PNG2ARC_DEPS)
+	$(PYTHON3) $(PNG2ARC) -o $@ $< 0
 
 # png2scanpal generates cdlogo.bin, cdlogo.bin.pal and cdlogo_scanpal.png together
 ./build/cdlogo.bin: ./data/gfx/cdlogo.png $(PNG2SCANPAL)

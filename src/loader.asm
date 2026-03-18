@@ -9,7 +9,7 @@
 .include "../lib/swis.h.asm"
 
 .ifndef _WIMPSLOT
-.equ _WIMPSLOT, 1000*1024           ; Assumed RAM - see !Run.txt
+.equ _WIMPSLOT, 1200*1024           ; Assumed RAM - see !Run.txt
 .endif
 
 .equ STACK_SIZE, 1024
@@ -31,7 +31,7 @@ main:
     ; Relocate decoder.
     mov r9, r8                      ; dst
     adr r11, reloc_start            ; src
-    adr r10, reloc_end              ; end
+    ldr r10, reloc_end              ; end
 .1:
     ldr r0, [r11], #4
     str r0, [r9], #4
@@ -70,10 +70,13 @@ message_end:
 
 reloc_to:
 .if _USE_SHRINKLER
-    .long 0x8000 + _WIMPSLOT - (reloc_end - reloc_start) - (NUM_CONTEXTS*4) - 4
+    .long 0x8000 + _WIMPSLOT - (reloc_end_no_adr - reloc_start) - (NUM_CONTEXTS*4) - 4
 .else
-    .long 0x8000 + _WIMPSLOT - (reloc_end - reloc_start) - 4
+    .long 0x8000 + _WIMPSLOT - (reloc_end_no_adr - reloc_start) - 4
 .endif
+
+reloc_end:
+    .long reloc_end_no_adr
 
 reloc_start:
 
@@ -106,7 +109,6 @@ compressed_demo_end:
 shrinkler_contexts:
     ; .skip (NUM_CONTEXTS*4)
 
-.skip 4       ; fudge to avoid adr issue  - will depend on compressed code size.
-reloc_end:
+reloc_end_no_adr:
 
 ; ============================================================================

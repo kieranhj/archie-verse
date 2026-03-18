@@ -40,6 +40,13 @@ seq_django3:
     call_3      fx_set_layer_fns,   3, rasters_sub_all_to_zero, 0   
 
     wait 32
+
+    call_3      fx_set_layer_fns,   0, 0,                   screen_cls
+    call_3      fx_set_layer_fns,   1, 0,                   0
+    call_3      fx_set_layer_fns,   2, 0,                   0
+    call_3      fx_set_layer_fns,   3, 0,                   0
+
+    wait 8
     end_script
 
 seq_wait_for_quit:

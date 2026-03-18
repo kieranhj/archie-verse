@@ -59,11 +59,124 @@ app_early_init:
 ; App late initialisation for things that require access to the screen.
 ; ============================================================================
 
+startlogo_p:
+	.long startlogo_no_adr
+
+startlogo_height:
+	.long 1219 - 512
+
+startlogo_colour:
+	.long 0xff
+
+.p2align 2
+app_osword_block:
+    .skip 8
+    ; logical colour
+    ; physical colour (16)
+    ; red
+    ; green
+    ; blue
+    ; (pad)
+
+; R3 = index
+; R4 = RGBx word (actually 0x00BbGgRr) where bgr are ignored.
+; Uses R0,R1 
+app_set_colour:
+    adrl r1, app_osword_block
+    strb r3, [r1, #0]       ; logical colour
+    mov r0, #16
+    strb r0, [r1, #1]       ; physical colour
+    and r0, r4, #0xff
+    strb r0, [r1, #2]       ; red
+    mov r0, r4, lsr #8
+    strb r0, [r1, #3]       ; green
+    mov r0, r4, lsr #16
+    strb r0, [r1, #4]       ; blue
+    mov r0, #12
+    swi OS_Word
+    mov pc,lr
+
 ; R12=screen addr.
 app_late_init:
     str lr, [sp, #-4]!
 
+.if !_DEBUG
+    swi OS_WriteI+22
+    swi OS_WriteI+18
+    swi OS_RemoveCursors
+
+	mov r3, #0
+	mov r4, #0x00000000
+	;bl app_set_colour
+
+	ldr r8, startlogo_height
+	mov r14, #2
+	mov r9, #0
+.2:
+
     ldr r12, screen_addr
+	ldr r11, startlogo_p
+	add r11, r11, r9, lsl #6
+	add r11, r11, r9, lsl #4
+
+	; Wait for vsync.
+	mov r0, #19
+	swi OS_Byte
+
+	mov r3, #1
+	ldr r2, startlogo_colour
+	orr r4, r2, r2, lsl #8
+	orr r4, r4, r2, lsl #16
+	str r14, [sp, #-4]!
+	bl app_set_colour
+	ldr r14, [sp], #4
+
+	; Copy logo to screen.
+	mov r10, #640*2
+.1:
+	ldmia r11!, {r0-r7}
+	stmia r12!, {r0-r7}
+	subs r10, r10, #1
+	bne .1
+
+	; Move up/down.
+	adds r9, r9, r14
+	movmi r9, #0
+	movmi r14, #2
+	cmp r9, r8
+	movgt r9, r8
+	movgt r14, #-2
+
+	; Check if fade in progress.
+	ldr r4, startlogo_colour
+	cmp r4, #0xff
+	bne .3
+
+	; Check for mouse button.
+	swi OS_Mouse
+	cmp r2, #0
+	bne .3
+
+	; Check for keypress.
+  	MOV     R0, #129
+  	MOV     R1, #0      ; timeout low byte (centiseconds)
+  	MOV     R2, #0      ; timeout high byte — 0,0 = return immediately
+  	SWI     OS_Byte  
+
+	cmp r2, #0xff
+	beq .2
+
+.3:
+	; Start fade out here.
+	subs r4, r4, #8
+	str r4, startlogo_colour
+	bpl .2
+
+	; Reset to MODE 9.
+    swi OS_WriteI+22
+    swi OS_WriteI+9
+    swi OS_RemoveCursors
+.endif
 
     ldr pc, [sp], #4
 

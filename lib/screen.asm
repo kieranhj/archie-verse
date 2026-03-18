@@ -10,7 +10,7 @@
 ; Jump into unrolled code for large block.
 screen_cls_from_line:
     .if Cls_Bytes != 30080
-    .err "Expected Screen_Mode == 30080!"
+    .err "Expected Cls_Bytes == 30080!"
     .endif
 
     add r12, r12, #Cls_FirstLine*Screen_Stride

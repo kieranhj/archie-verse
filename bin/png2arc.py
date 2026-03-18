@@ -111,16 +111,18 @@ def to_box_row_mask_pixels(boxed_row_flat_pixel, mask_rgba):
 
 def main(options):
     # Only support MODE 9 for now. MODE 13 coming later.
-    if options.mode != 9 and options.mode != 4:
+    if options.mode != 9 and options.mode != 4 and options.mode != 12 and options.mode != 0:
         print('FATAL: invalid mode: {0}'.format(options.mode), file=sys.stderr) # Changed: print is a function
         sys.exit(1)
 
-    if options.mode == 4:
+    if options.mode == 4 or options.mode == 0:
         pixels_per_byte=8
         pack=arc.pack_1bpp
+        max_pal=2
     else:
         pixels_per_byte=2
         pack=arc.pack_4bpp
+        max_pal=16
 
     step_x=1
     step_y=1
@@ -151,20 +153,20 @@ def main(options):
     palette = get_palette(all_rows, mask) # Changed: pass the list of rows
     print('Found {0} palette entries.'.format(len(palette))) # Changed: print is a function
     
-    if len(palette) > 16:
+    if len(palette) > max_pal:
         print('FATAL: too many colours: {0}'.format(len(palette)), file=sys.stderr) # Changed: print is a function
         sys.exit(1)
 
     if options.is_index:
         palette=[]
-        for i in range(16):
+        for i in range(max_pal):
             palette.append([i, i, i, 255])
 
     if options.use_palette is not None:
         # Open palette binary file.
         with open(options.use_palette, 'rb') as palette_file: # Changed: use 'with' statement for file handling
             palette=[]
-            for i in range(16):
+            for i in range(max_pal):
                 r = get_byte(palette_file)
                 g = get_byte(palette_file)
                 b = get_byte(palette_file)
@@ -174,14 +176,14 @@ def main(options):
         # Sort palette by intensity.
         palette.sort(key=lambda e: e[0]*e[0]+e[1]*e[1]+e[2]*e[2])
 
-        if len(palette) < 16:
+        if len(palette) < max_pal:
             # Prefer entry 0 to be black, if not already.
             if palette[0] != [0, 0, 0, 255]:
                 palette.insert(0, [0, 0, 0, 255])
 
             # Pad end of palette with white if MODE 9:
-            if options.mode == 9:
-                while len(palette) < 16:
+            if options.mode == 9 or options.mode == 12:
+                while len(palette) < max_pal:
                     palette.append([255, 255, 255, 255])
 
     if options.loud:
