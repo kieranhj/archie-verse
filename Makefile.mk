@@ -61,7 +61,7 @@ $(FOLDER): build ./build/archie-verse.bin ./build/!run.txt
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
 #   $(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\RasterM38,ffa" "$(FOLDER)"
-	$(COPY) ".\data\riscos\QTM149rm24,ffa" "$(FOLDER)"
+	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
 #	$(COPY) ".\build\music.mod" "$(FOLDER)\Music,001"
 #	$(COPY) ".\build\events.bin" "$(FOLDER)\Events,ffd"
@@ -145,7 +145,7 @@ shrink: build ./build/!run.txt ./build/loader.bin
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
 #	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\RasterM38,ffa" "$(FOLDER)"
-	$(COPY) ".\data\riscos\QTM149rm24,ffa" "$(FOLDER)"
+	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
 	$(COPY) .\build\loader.bin "$(FOLDER)\!RunImage,ff8"
 

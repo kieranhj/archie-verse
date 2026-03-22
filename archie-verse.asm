@@ -11,7 +11,7 @@
 .endif
 
 .ifndef _DEBUG
-.equ _DEBUG,                    1
+.equ _DEBUG,                    0
 .endif
 
 .ifndef _SMALL_EXE

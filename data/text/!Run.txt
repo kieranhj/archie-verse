@@ -7,7 +7,7 @@ Set CPU$Type ARM3
 RMEnsure Arm3Support 0.0 Set CPU$Type ARM2
 |
 RMLOAD <Obey$Dir>.MemAlloc { > null: }
-RMLOAD <Obey$Dir>.QTM149rm24 { > null: }
+RMLOAD <Obey$Dir>.QTM149rm48 { > null: }
 RMLOAD <Obey$Dir>.RasterM38 { > null: }
 |
 ScreenSize 40K

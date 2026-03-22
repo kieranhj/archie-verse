@@ -50,7 +50,11 @@ app_early_init:
     bl dj_font_init
     bl dj_menu_init
 
+	.if _DEBUG
     mov r0, #0
+	.else
+	mov r0, #Dj_Max_Songs
+	.endif
     bl play_song
 
     ldr pc, [sp], #4
@@ -176,6 +180,9 @@ app_late_init:
     swi OS_WriteI+22
     swi OS_WriteI+9
     swi OS_RemoveCursors
+
+	mov r0, #0
+	bl play_song
 .endif
 
     ldr pc, [sp], #4
@@ -433,6 +440,7 @@ music_table:
 	.long vproject7_mod_no_adr          ; 12
 	.long rettungsgasse_mod_no_adr		; 13
 	.long my_life_mod_no_adr		    ; 14
+	.long splash_mod_no_adr				; shush!
 
 .p2align 2
 dj_menu_strings:
@@ -475,6 +483,7 @@ volumeTable:
     .byte    64      ; vproject7
     .byte    64      ; rettungsgasse
     .byte    64      ; my life in melody
+	.byte	 64		 ; splash
 	.p2align 2
 
 durationTable:
@@ -493,6 +502,7 @@ durationTable:
     .long    50*120      ; vproject7
     .long    110*50      ; rettungsgasse
     .long    116*50      ; my life in melody
+	.long	 0			 ; splash
 
 ; break between tunes
 songpausetable:
@@ -511,6 +521,7 @@ songpausetable:
     .long    100         ; vproject7
     .long    100         ; rettungsgasse
     .long    100         ; my life in melody
+	.long	 0			 ; splash
 
 ; ============================================================================
 ; FX code modules.
