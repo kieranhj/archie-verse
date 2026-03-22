@@ -160,20 +160,34 @@ SONGS = [
 ]
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate durationTable .asm include from MOD files')
+    parser.add_argument('-o', metavar='FILE', help='output file (default: stdout)')
+    args = parser.parse_args()
+
     base = os.path.dirname(os.path.abspath(__file__))
     repo = os.path.dirname(base)
 
-    print("durationTable:")
+    lines = []
     for idx, name, rel_path in SONGS:
         path = os.path.join(repo, rel_path)
         try:
-            mod      = parse_mod(path)
-            secs     = calculate_duration(mod)
-            frames   = int(secs * 50)
-            mins, s  = divmod(int(secs), 60)
-            print(f"    .long    {frames:<8} ; {idx}: {name} ({mins}m{s:02d}s)")
+            mod    = parse_mod(path)
+            secs   = calculate_duration(mod)
+            frames = int(secs * 50)
+            mins, s = divmod(int(secs), 60)
+            lines.append(f"    .long    {frames:<8} ; {idx}: {name} ({mins}m{s:02d}s)")
         except Exception as e:
-            print(f"    ; ERROR parsing {name}: {e}")
+            lines.append(f"    ; ERROR parsing {name}: {e}")
+            sys.exit(1)
+
+    output = '\n'.join(lines) + '\n'
+
+    if args.o:
+        with open(args.o, 'w') as f:
+            f.write(output)
+    else:
+        sys.stdout.write(output)
 
 if __name__ == '__main__':
     main()

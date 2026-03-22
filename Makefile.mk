@@ -88,12 +88,32 @@ build:
 	$(VLINK) -T link_script.txt -b rawbin1 -o $@ build/archie-verse.o -Mbuild/linker.txt
 
 .PHONY:./build/archie-verse.o	# always build as we don't have submodule dependencies...
-./build/archie-verse.o: build music archie-verse.asm ./build/assets.txt
+./build/archie-verse.o: build music archie-verse.asm ./build/assets.txt ./build/duration_table.asm
 	$(VASM) -L build/compile.txt -m250 -Fvobj -opt-adr -o build/archie-verse.o archie-verse.asm
 
 ##########################################################################
 # MUSIC
 ##########################################################################
+
+DJ3_MODS := \
+	./data/music/dj3/adkd-flight-gone.mod \
+	./data/music/dj3/505-23-wavering-kb.mod \
+	./data/music/dj3/andy-chips-asmussen.mod \
+	./data/music/dj3/chavez-me-doing-me.mod \
+	./data/music/dj3/crome-take-me-back.mod \
+	./data/music/dj3/curt-cool-bang-for-the-beep.mod \
+	./data/music/dj3/filippp-darkside.mod \
+	./data/music/dj3/herr-irrtum-die-nmi-miamichip-gang.mod \
+	./data/music/dj3/nomistake-wattwurmshredde.mod \
+	./data/music/dj3/novel-django.mod \
+	./data/music/dj3/okeanos-echoes-of-the-past.mod \
+	./data/music/dj3/slaxx-chipfly-final.mod \
+	./data/music/dj3/teis-vproject7.mod \
+	./data/music/dj3/vincenzo-rettungsgasse.mod \
+	./data/music/dj3/wotw-my-life-in-melody.mod
+
+./build/duration_table.asm: build $(DJ3_MODS) ./bin/mod_duration.py
+	$(PYTHON3) ./bin/mod_duration.py -o $@
 
 .PHONY:music
 music: build ./build/flight-gone.mod ./build/bang-for-beep.mod \

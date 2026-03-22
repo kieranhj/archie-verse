@@ -487,21 +487,7 @@ volumeTable:
 	.p2align 2
 
 durationTable:
-    .long    8447        ; flight gone       (2m28s)
-    .long    5122        ; wavering kb       (1m42s)
-    .long    4611        ; chips asmussen    (1m32s)
-    .long    5967        ; me doing me       (1m59s)
-    .long    7330        ; crome take me back (2m26s)
-    .long    7680        ; bang for the beep (2m33s)
-    .long    8183        ; darkside          (2m43s)
-    .long    4897        ; herr irrtum       (1m37s)
-    .long    8645        ; no mistake        (2m52s)
-    .long    7295        ; novel             (2m25s)
-    .long    9677        ; echoes of the past (3m13s)
-    .long    8321        ; chipfly           (2m46s)
-    .long    9482        ; vproject7         (3m09s)
-    .long    8833        ; rettungsgasse     (2m56s)
-    .long    3074        ; my life in melody (1m01s)
+.include "build/duration_table.asm"
 	.long	 0			 ; splash
 
 ; break between tunes
