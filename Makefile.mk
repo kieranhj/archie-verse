@@ -88,7 +88,7 @@ build:
 	$(VLINK) -T link_script.txt -b rawbin1 -o $@ build/archie-verse.o -Mbuild/linker.txt
 
 .PHONY:./build/archie-verse.o	# always build as we don't have submodule dependencies...
-./build/archie-verse.o: build music archie-verse.asm ./build/assets.txt ./build/duration_table.asm
+./build/archie-verse.o: build archie-verse.asm ./build/assets.txt ./build/duration_table.asm
 	$(VASM) -L build/compile.txt -m250 -Fvobj -opt-adr -o build/archie-verse.o archie-verse.asm
 
 ##########################################################################
@@ -114,16 +114,6 @@ DJ3_MODS := \
 
 ./build/duration_table.asm: build $(DJ3_MODS) ./bin/mod_duration.py
 	$(PYTHON3) ./bin/mod_duration.py -o $@
-
-.PHONY:music
-music: build ./build/flight-gone.mod ./build/bang-for-beep.mod \
-	./build/darkside.mod ./build/herr-irrtum.mod ./build/echoes-past.mod ./build/my-life.mod \
-	./build/chips-asmussen.mod ./build/no-mistake.mod ./build/music_splash.mod \
-	./build/novel.mod ./build/chipfly.mod ./build/rettungsgasse.mod \
-	./build/wavering-kb.mod \
-	./build/me-doing-me.mod \
-	./build/crome-take-me-back.mod \
-	./build/vproject7.mod
 
 ##########################################################################
 # SEPARATE DEMO PARTS
@@ -360,62 +350,6 @@ clean:
 ./build/small-font.bin: ./data/font/font8x5.png $(PNG2ARC_DEPS)
 	$(PYTHON2) $(PNG2ARC_FONT) -o $@ --loud --mono-pal 15 --glyph-dim 8 5 $< 9
 
-./build/flight-gone.mod: ./data/music/dj3/adkd-flight-gone.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/bang-for-beep.mod: ./data/music/dj3/curt-cool-bang-for-the-beep.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/darkside.mod: ./data/music/dj3/filippp-darkside.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/herr-irrtum.mod: ./data/music/dj3/herr-irrtum-die-nmi-miamichip-gang.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/echoes-past.mod: ./data/music/dj3/okeanos-echoes-of-the-past.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/my-life.mod: ./data/music/dj3/wotw-my-life-in-melody.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/chips-asmussen.mod: ./data/music/dj3/andy-chips-asmussen.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/no-mistake.mod: ./data/music/dj3/nomistake-wattwurmshredde.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/novel.mod: ./data/music/dj3/novel-django.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/chipfly.mod: ./data/music/dj3/slaxx-chipfly-final.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/rettungsgasse.mod: ./data/music/dj3/vincenzo-rettungsgasse.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/funky_delicious.mod: ./data/music/django/maze-funky-delicious.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/cool_beans.mod: ./data/music/django/coolbeans.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/digitags.mod: ./data/music/django/soda7-digitags.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/music_splash.mod: ./data/music/dj3/mod.raven-stereo.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/wavering-kb.mod: ./data/music/dj3/505-23-wavering-kb.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/me-doing-me.mod: ./data/music/dj3/chavez-me-doing-me.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/crome-take-me-back.mod: ./data/music/dj3/crome-take-me-back.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
-./build/vproject7.mod: ./data/music/dj3/teis-vproject7.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ##########################################################################
 # MUSIC ASSETS

@@ -97,67 +97,67 @@ events_data_no_adr:
 
 .p2align 2
 flight_gone_mod_no_adr:
-.incbin "build/flight-gone.mod"
-
-.p2align 2
-bang_for_beep_mod_no_adr:
-.incbin "build/bang-for-beep.mod"
-
-.p2align 2
-darkside_mod_no_adr:
-.incbin "build/darkside.mod"
-
-.p2align 2
-herr_irrtum_mod_no_adr:
-.incbin "build/herr-irrtum.mod"
-
-.p2align 2
-echoes_past_mod_no_adr:
-.incbin "build/echoes-past.mod"
-
-.p2align 2
-my_life_mod_no_adr:
-.incbin "build/my-life.mod"
-
-.p2align 2
-chips_asmussen_mod_no_adr:
-.incbin "build/chips-asmussen.mod"
-
-.p2align 2
-no_mistake_mod_no_adr:
-.incbin "build/no-mistake.mod"
-
-.p2align 2
-novel_mod_no_adr:
-.incbin "build/novel.mod"
-
-.p2align 2
-chipfly_mod_no_adr:
-.incbin "build/chipfly.mod"
-
-.p2align 2
-rettungsgasse_mod_no_adr:
-.incbin "build/rettungsgasse.mod"
-
-.p2align 2
-splash_mod_no_adr:
-.incbin "build/music_splash.mod"
+.incbin "data/music/dj3/adkd-flight-gone.mod"
 
 .p2align 2
 wavering_kb_mod_no_adr:
-.incbin "build/wavering-kb.mod"
+.incbin "data/music/dj3/505-23-wavering-kb.mod"
+
+.p2align 2
+chips_asmussen_mod_no_adr:
+.incbin "data/music/dj3/andy-chips-asmussen.mod"
 
 .p2align 2
 me_doing_me_mod_no_adr:
-.incbin "build/me-doing-me.mod"
+.incbin "data/music/dj3/chavez-me-doing-me.mod"
 
 .p2align 2
 crome_take_me_back_mod_no_adr:
-.incbin "build/crome-take-me-back.mod"
+.incbin "data/music/dj3/crome-take-me-back.mod"
+
+.p2align 2
+bang_for_beep_mod_no_adr:
+.incbin "data/music/dj3/curt-cool-bang-for-the-beep.mod"
+
+.p2align 2
+darkside_mod_no_adr:
+.incbin "data/music/dj3/filippp-darkside.mod"
+
+.p2align 2
+herr_irrtum_mod_no_adr:
+.incbin "data/music/dj3/herr-irrtum-die-nmi-miamichip-gang.mod"
+
+.p2align 2
+no_mistake_mod_no_adr:
+.incbin "data/music/dj3/nomistake-wattwurmshredde.mod"
+
+.p2align 2
+novel_mod_no_adr:
+.incbin "data/music/dj3/novel-django.mod"
+
+.p2align 2
+echoes_past_mod_no_adr:
+.incbin "data/music/dj3/okeanos-echoes-of-the-past.mod"
+
+.p2align 2
+chipfly_mod_no_adr:
+.incbin "data/music/dj3/slaxx-chipfly-final.mod"
 
 .p2align 2
 vproject7_mod_no_adr:
-.incbin "build/vproject7.mod"
+.incbin "data/music/dj3/teis-vproject7.mod"
+
+.p2align 2
+rettungsgasse_mod_no_adr:
+.incbin "data/music/dj3/vincenzo-rettungsgasse.mod"
+
+.p2align 2
+my_life_mod_no_adr:
+.incbin "data/music/dj3/wotw-my-life-in-melody.mod"
+
+.p2align 2
+splash_mod_no_adr:
+.incbin "data/music/dj3/mod.raven-stereo.mod"
 
 ; ============================================================================
 ; Music MOD (MUST BE LAST in DATA SEGMENT).
