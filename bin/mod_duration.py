@@ -140,37 +140,54 @@ def calculate_duration(mod):
     return total_seconds
 
 
-# music_table order from src/app.asm
-SONGS = [
-    ( 0, "flight gone",        "data/music/dj3/adkd-flight-gone.mod"),
-    ( 1, "wavering kb",        "data/music/dj3/505-23-wavering-kb.mod"),
-    ( 2, "chips asmussen",     "data/music/dj3/andy-chips-asmussen.mod"),
-    ( 3, "me doing me",        "data/music/dj3/chavez-me-doing-me.mod"),
-    ( 4, "crome take me back", "data/music/dj3/crome-take-me-back.mod"),
-    ( 5, "bang for the beep",  "data/music/dj3/curt-cool-bang-for-the-beep.mod"),
-    ( 6, "darkside",           "data/music/dj3/filippp-darkside.mod"),
-    ( 7, "herr irrtum",        "data/music/dj3/herr-irrtum-die-nmi-miamichip-gang.mod"),
-    ( 8, "no mistake",         "data/music/dj3/nomistake-wattwurmshredde.mod"),
-    ( 9, "novel",              "data/music/dj3/novel-django.mod"),
-    (10, "echoes of the past", "data/music/dj3/okeanos-echoes-of-the-past.mod"),
-    (11, "chipfly",            "data/music/dj3/slaxx-chipfly-final.mod"),
-    (12, "vproject7",          "data/music/dj3/teis-vproject7.mod"),
-    (13, "rettungsgasse",      "data/music/dj3/vincenzo-rettungsgasse.mod"),
-    (14, "my life in melody",  "data/music/dj3/wotw-my-life-in-melody.mod"),
-]
+def load_dj3_mods(makefile_path):
+    """Parse the DJ3_MODS variable from Makefile.mk and return a list of relative paths."""
+    paths = []
+    in_block = False
+    with open(makefile_path) as f:
+        for line in f:
+            stripped = line.strip()
+            if stripped.startswith('DJ3_MODS'):
+                in_block = True
+                rest = stripped.split(':=', 1)[1].strip()
+            elif in_block:
+                rest = stripped
+            else:
+                continue
+
+            cont = rest.endswith('\\')
+            value = rest[:-1].strip() if cont else rest.strip()
+            if value.startswith('./'):
+                value = value[2:]
+            if value.endswith('.mod'):
+                paths.append(value)
+            if not cont:
+                break
+
+    return paths
+
 
 def main():
     import argparse
     parser = argparse.ArgumentParser(description='Generate durationTable .asm include from MOD files')
     parser.add_argument('-o', metavar='FILE', help='output file (default: stdout)')
+    parser.add_argument('--makefile', metavar='FILE', default='Makefile.mk',
+                        help='path to Makefile.mk relative to repo root (default: Makefile.mk)')
     args = parser.parse_args()
 
     base = os.path.dirname(os.path.abspath(__file__))
     repo = os.path.dirname(base)
 
+    makefile_path = os.path.join(repo, args.makefile)
+    rel_paths = load_dj3_mods(makefile_path)
+    if not rel_paths:
+        print(f'error: no DJ3_MODS entries found in {makefile_path}', file=sys.stderr)
+        sys.exit(1)
+
     lines = []
-    for idx, name, rel_path in SONGS:
+    for idx, rel_path in enumerate(rel_paths):
         path = os.path.join(repo, rel_path)
+        name = os.path.splitext(os.path.basename(rel_path))[0]
         try:
             mod    = parse_mod(path)
             secs   = calculate_duration(mod)
@@ -178,7 +195,7 @@ def main():
             mins, s = divmod(int(secs), 60)
             lines.append(f"    .long    {frames:<8} ; {idx}: {name} ({mins}m{s:02d}s)")
         except Exception as e:
-            lines.append(f"    ; ERROR parsing {name}: {e}")
+            print(f'error parsing {rel_path}: {e}', file=sys.stderr)
             sys.exit(1)
 
     output = '\n'.join(lines) + '\n'

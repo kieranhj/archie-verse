@@ -141,7 +141,11 @@ echoes_past_mod_no_adr:
 
 .p2align 2
 chipfly_mod_no_adr:
-.incbin "data/music/dj3/slaxx-chipfly-final.mod"
+.incbin "data/music/dj3/slaxx-chipfly.mod"
+
+.p2align 2
+slik_body_chip_mod_no_adr:
+.incbin "data/music/dj3/slik-body-chip.mod"
 
 .p2align 2
 vproject7_mod_no_adr:

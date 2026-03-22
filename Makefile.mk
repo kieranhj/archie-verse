@@ -107,10 +107,11 @@ DJ3_MODS := \
 	./data/music/dj3/nomistake-wattwurmshredde.mod \
 	./data/music/dj3/novel-django.mod \
 	./data/music/dj3/okeanos-echoes-of-the-past.mod \
-	./data/music/dj3/slaxx-chipfly-final.mod \
+	./data/music/dj3/slaxx-chipfly.mod \
 	./data/music/dj3/teis-vproject7.mod \
 	./data/music/dj3/vincenzo-rettungsgasse.mod \
-	./data/music/dj3/wotw-my-life-in-melody.mod
+	./data/music/dj3/wotw-my-life-in-melody.mod \
+	./data/music/dj3/slik-body-chip.mod
 
 ./build/duration_table.asm: build $(DJ3_MODS) ./bin/mod_duration.py
 	$(PYTHON3) ./bin/mod_duration.py -o $@

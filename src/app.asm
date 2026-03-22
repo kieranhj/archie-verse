@@ -4,7 +4,7 @@
 ; Want this file to be hackable.
 ; ============================================================================
 
-.equ Dj_Max_Songs,              15
+.equ Dj_Max_Songs,              16
 .equ Glitch_Time,				20 	; frames
 
 ;.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
@@ -440,6 +440,7 @@ music_table:
 	.long vproject7_mod_no_adr          ; 12
 	.long rettungsgasse_mod_no_adr		; 13
 	.long my_life_mod_no_adr		    ; 14
+	.long slik_body_chip_mod_no_adr     ; 15
 	.long splash_mod_no_adr				; shush!
 
 .p2align 2
@@ -459,6 +460,7 @@ dj_menu_strings:
 	.byte "vproject7", 0, "teis", 0
 	.byte "rettungsgasse", 0, "uncen20", 0
 	.byte "my life in melody", 0, "wotw", 0
+	.byte "body chip", 0, "slik", 0
 	.byte "autoplay off", 0
 	.byte "autoplay on ", 0
 ; End of string list.
@@ -483,6 +485,7 @@ volumeTable:
     .byte    64      ; vproject7
     .byte    64      ; rettungsgasse
     .byte    64      ; my life in melody
+    .byte    64      ; slik body chip
 	.byte	 64		 ; splash
 	.p2align 2
 
@@ -507,6 +510,7 @@ songpausetable:
     .long    100         ; vproject7
     .long    100         ; rettungsgasse
     .long    100         ; my life in melody
+    .long    100         ; slik body chip
 	.long	 0			 ; splash
 
 ; ============================================================================
