@@ -4,7 +4,7 @@
 ; Want this file to be hackable.
 ; ============================================================================
 
-.equ Dj_Max_Songs,              16
+.include "build/dj3_defs.asm"
 .equ Glitch_Time,				20 	; frames
 
 ;.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
@@ -425,42 +425,12 @@ set_autoplay:
 ; ============================================================================
 
 music_table:
-	.long flight_gone_mod_no_adr		; 0
-	.long wavering_kb_mod_no_adr        ; 1
-	.long chips_asmussen_mod_no_adr		; 2
-	.long me_doing_me_mod_no_adr        ; 3
-	.long crome_take_me_back_mod_no_adr ; 4
-	.long bang_for_beep_mod_no_adr	    ; 5
-	.long darkside_mod_no_adr		    ; 6
-	.long herr_irrtum_mod_no_adr		; 7
-	.long no_mistake_mod_no_adr			; 8
-	.long novel_mod_no_adr			    ; 9
-	.long echoes_past_mod_no_adr		; 10
-	.long chipfly_mod_no_adr			; 11
-	.long vproject7_mod_no_adr          ; 12
-	.long rettungsgasse_mod_no_adr		; 13
-	.long my_life_mod_no_adr		    ; 14
-	.long slik_body_chip_mod_no_adr     ; 15
+.include "build/music_table.asm"
 	.long splash_mod_no_adr				; shush!
 
 .p2align 2
 dj_menu_strings:
-	.byte "flight gone", 0, "adkd", 0
-	.byte "23 wavering kb", 0, "505", 0
-    .byte "chips asmussen", 0, "andy", 0
-	.byte "me doing me", 0, "chavez", 0
-	.byte "take me back", 0, "crome", 0
-	.byte "bang for the beep", 0, "curt cool", 0
-	.byte "darkside", 0, "filippp", 0
-	.byte "die nmi miamichip gang", 0, "herr irrum", 0
-	.byte "wattwurmshredde", 0, "nomistake", 0
-	.byte "django", 0, "novel", 0
-	.byte "echoes of the past", 0, "okeanos", 0
-	.byte "chipfly", 0, "slaxx", 0
-	.byte "vproject7", 0, "teis", 0
-	.byte "rettungsgasse", 0, "uncen20", 0
-	.byte "my life in melody", 0, "wotw", 0
-	.byte "body chip", 0, "slik", 0
+.include "build/dj_menu_strings.asm"
 	.byte "autoplay off", 0
 	.byte "autoplay on ", 0
 ; End of string list.
@@ -470,22 +440,7 @@ dj_menu_strings:
 
 ; master volume of each tune
 volumeTable:
-    .byte    64      ; flight gone
-    .byte    64      ; wavering kb
-    .byte    64      ; chips asmussen
-    .byte    64      ; me doing me
-    .byte    64      ; crome take me back
-    .byte    64      ; bang for the beep
-    .byte    64      ; darkside
-    .byte    64      ; herr irrtum
-    .byte    64      ; no mistake
-    .byte    64      ; novel
-    .byte    64      ; echoes of the past
-    .byte    64      ; chipfly
-    .byte    64      ; vproject7
-    .byte    64      ; rettungsgasse
-    .byte    64      ; my life in melody
-    .byte    64      ; slik body chip
+.include "build/volume_table.asm"
 	.byte	 64		 ; splash
 	.p2align 2
 
@@ -495,22 +450,7 @@ durationTable:
 
 ; break between tunes
 songpausetable:
-    .long    100         ; flight gone
-    .long    100         ; wavering kb
-    .long    100         ; chips asmussen
-    .long    100         ; me doing me
-    .long    100         ; crome take me back
-    .long    100         ; bang for the beep
-    .long    100         ; darkside
-    .long    100         ; herr irrtum
-    .long    100         ; no mistake
-    .long    100         ; novel
-    .long    100         ; echoes of the past
-    .long    100         ; chipfly
-    .long    100         ; vproject7
-    .long    100         ; rettungsgasse
-    .long    100         ; my life in melody
-    .long    100         ; slik body chip
+.include "build/song_pause_table.asm"
 	.long	 0			 ; splash
 
 ; ============================================================================

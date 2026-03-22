@@ -88,33 +88,18 @@ build:
 	$(VLINK) -T link_script.txt -b rawbin1 -o $@ build/archie-verse.o -Mbuild/linker.txt
 
 .PHONY:./build/archie-verse.o	# always build as we don't have submodule dependencies...
-./build/archie-verse.o: build archie-verse.asm ./build/assets.txt ./build/duration_table.asm
+./build/archie-verse.o: build archie-verse.asm ./build/assets.txt ./build/dj3_gen.stamp
 	$(VASM) -L build/compile.txt -m250 -Fvobj -opt-adr -o build/archie-verse.o archie-verse.asm
 
 ##########################################################################
 # MUSIC
 ##########################################################################
 
-DJ3_MODS := \
-	./data/music/dj3/adkd-flight-gone.mod \
-	./data/music/dj3/505-23-wavering-kb.mod \
-	./data/music/dj3/andy-chips-asmussen.mod \
-	./data/music/dj3/chavez-me-doing-me.mod \
-	./data/music/dj3/crome-take-me-back.mod \
-	./data/music/dj3/curt-cool-bang-for-the-beep.mod \
-	./data/music/dj3/filippp-darkside.mod \
-	./data/music/dj3/herr-irrtum-die-nmi-miamichip-gang.mod \
-	./data/music/dj3/nomistake-wattwurmshredde.mod \
-	./data/music/dj3/novel-django.mod \
-	./data/music/dj3/okeanos-echoes-of-the-past.mod \
-	./data/music/dj3/slaxx-chipfly.mod \
-	./data/music/dj3/teis-vproject7.mod \
-	./data/music/dj3/vincenzo-rettungsgasse.mod \
-	./data/music/dj3/wotw-my-life-in-melody.mod \
-	./data/music/dj3/slik-body-chip.mod
+SONGS_CSV := ./data/music/dj3/songs.csv
 
-./build/duration_table.asm: build $(DJ3_MODS) ./bin/mod_duration.py
-	$(PYTHON3) ./bin/mod_duration.py -o $@
+./build/dj3_gen.stamp: $(SONGS_CSV) $(wildcard ./data/music/dj3/*.mod) ./bin/dj3_gen.py | build
+	$(PYTHON3) ./bin/dj3_gen.py
+	echo done > $@
 
 ##########################################################################
 # SEPARATE DEMO PARTS
