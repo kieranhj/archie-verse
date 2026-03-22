@@ -100,10 +100,6 @@ flight_gone_mod_no_adr:
 .incbin "build/flight-gone.mod"
 
 .p2align 2
-take_me_back_mod_no_adr:
-.incbin "build/take-me-back.mod"
-
-.p2align 2
 bang_for_beep_mod_no_adr:
 .incbin "build/bang-for-beep.mod"
 
@@ -144,20 +140,24 @@ rettungsgasse_mod_no_adr:
 .incbin "build/rettungsgasse.mod"
 
 .p2align 2
-funky_delicious_mod_no_adr:
-.incbin "build/funky_delicious.mod"
-
-.p2align 2
-cool_beans_mod_no_adr:
-.incbin "build/cool_beans.mod"
-
-.p2align 2
-digitags_mod_no_adr:
-.incbin "build/digitags.mod"
-
-.p2align 2
 splash_mod_no_adr:
 .incbin "build/music_splash.mod"
+
+.p2align 2
+wavering_kb_mod_no_adr:
+.incbin "build/wavering-kb.mod"
+
+.p2align 2
+me_doing_me_mod_no_adr:
+.incbin "build/me-doing-me.mod"
+
+.p2align 2
+crome_take_me_back_mod_no_adr:
+.incbin "build/crome-take-me-back.mod"
+
+.p2align 2
+vproject7_mod_no_adr:
+.incbin "build/vproject7.mod"
 
 ; ============================================================================
 ; Music MOD (MUST BE LAST in DATA SEGMENT).

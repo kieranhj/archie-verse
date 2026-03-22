@@ -4,7 +4,7 @@
 ; Want this file to be hackable.
 ; ============================================================================
 
-.equ Dj_Max_Songs,              12
+.equ Dj_Max_Songs,              15
 .equ Glitch_Time,				20 	; frames
 
 ;.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
@@ -419,22 +419,28 @@ set_autoplay:
 
 music_table:
 	.long flight_gone_mod_no_adr		; 0
-	.long chips_asmussen_mod_no_adr		; 1
-	.long bang_for_beep_mod_no_adr	    ; 2
-	.long darkside_mod_no_adr		    ; 3
-	.long herr_irrtum_mod_no_adr		; 4
-	.long no_mistake_mod_no_adr			; 5
-	.long novel_mod_no_adr			    ; 6
-	.long echoes_past_mod_no_adr		; 7
-	.long chipfly_mod_no_adr			; 8
-	.long rettungsgasse_mod_no_adr		; 9
-	.long my_life_mod_no_adr		    ; 10
-	.long take_me_back_mod_no_adr		; 11
+	.long wavering_kb_mod_no_adr        ; 1
+	.long chips_asmussen_mod_no_adr		; 2
+	.long me_doing_me_mod_no_adr        ; 3
+	.long crome_take_me_back_mod_no_adr ; 4
+	.long bang_for_beep_mod_no_adr	    ; 5
+	.long darkside_mod_no_adr		    ; 6
+	.long herr_irrtum_mod_no_adr		; 7
+	.long no_mistake_mod_no_adr			; 8
+	.long novel_mod_no_adr			    ; 9
+	.long echoes_past_mod_no_adr		; 10
+	.long chipfly_mod_no_adr			; 11
+	.long vproject7_mod_no_adr          ; 12
+	.long rettungsgasse_mod_no_adr		; 13
+	.long my_life_mod_no_adr		    ; 14
 
 .p2align 2
 dj_menu_strings:
 	.byte "flight gone", 0, "adkd", 0
+	.byte "23 wavering kb", 0, "505", 0
     .byte "chips asmussen", 0, "andy", 0
+	.byte "me doing me", 0, "chavez", 0
+	.byte "take me back", 0, "crome", 0
 	.byte "bang for the beep", 0, "curt cool", 0
 	.byte "darkside", 0, "filippp", 0
 	.byte "die nmi miamichip gang", 0, "herr irrum", 0
@@ -442,9 +448,9 @@ dj_menu_strings:
 	.byte "django", 0, "novel", 0
 	.byte "echoes of the past", 0, "okeanos", 0
 	.byte "chipfly", 0, "slaxx", 0
+	.byte "vproject7", 0, "teis", 0
 	.byte "rettungsgasse", 0, "uncen20", 0
 	.byte "my life in melody", 0, "wotw", 0
-	.byte "take me back", 0, "crm 2021", 0
 	.byte "autoplay off", 0
 	.byte "autoplay on ", 0
 ; End of string list.
@@ -453,49 +459,58 @@ dj_menu_strings:
 .p2align 2
 
 ; master volume of each tune
-volumeTable:    
-    .byte    64 ;60      ; digitags
-    .byte    64 ;35      ; birdhouse
-    .byte    64 ;50-10   ; funky delicious
-    .byte    64 ;62-2  ; autumn
-    .byte    64 ;51  ; je suis k
-    .byte    64 ;60-2-2  ; square circles
-    .byte    64 ;50+5     ; coolbeans
-    .byte    64 ;54+2  ; la soupe
-    .byte    64 ;56-3  ; sajt
-    .byte    64 ;59-1+2  ; bodoaxian
-    .byte    64 ;64    ; holodash
-    .byte    64 ;39-2  ; squid ring
+volumeTable:
+    .byte    64      ; flight gone
+    .byte    64      ; wavering kb
+    .byte    64      ; chips asmussen
+    .byte    64      ; me doing me
+    .byte    64      ; crome take me back
+    .byte    64      ; bang for the beep
+    .byte    64      ; darkside
+    .byte    64      ; herr irrtum
+    .byte    64      ; no mistake
+    .byte    64      ; novel
+    .byte    64      ; echoes of the past
+    .byte    64      ; chipfly
+    .byte    64      ; vproject7
+    .byte    64      ; rettungsgasse
+    .byte    64      ; my life in melody
 	.p2align 2
 
 durationTable:
-    .long    50*122      ; digitags
-    .long    51*50       ; birdhouse
-    .long    50*92      ; funky delicious
-    .long    192*50-40      ; autumn
-    .long    159*50      ; je suis k
-    .long    173*50      ; square circles
-    .long    145*50      ; coolbeans
-    .long    120*50      ; la soupe
-    .long    95*50       ; sajt
-    .long    110*50      ; bodoaxian
-    .long    116*50      ; holodash
-    .long    174*50      ; squid ring
-    
+    .long    50*122      ; flight gone
+    .long    50*120      ; wavering kb
+    .long    51*50       ; chips asmussen
+    .long    50*120      ; me doing me
+    .long    50*120      ; crome take me back
+    .long    50*92       ; bang for the beep
+    .long    192*50-40   ; darkside
+    .long    159*50      ; herr irrtum
+    .long    173*50      ; no mistake
+    .long    145*50      ; novel
+    .long    120*50      ; echoes of the past
+    .long    95*50       ; chipfly
+    .long    50*120      ; vproject7
+    .long    110*50      ; rettungsgasse
+    .long    116*50      ; my life in melody
+
 ; break between tunes
 songpausetable:
-    .long    100+20      ; digitags
-    .long    70+30      ; birdhouse
-    .long    60+30      ; funky delicious
-    .long    10       ; autumn
-    .long    70+20      ; je suis k
-    .long    80+30      ; square circles
-    .long    50      ; coolbeans
-    .long    80+20+30      ; la soupe
-    .long    50+40      ; sajt
-    .long    70      ; bodoaxian
-    .long    90+20      ; holodash
-    .long    90      ; squid ring
+    .long    100         ; flight gone
+    .long    100         ; wavering kb
+    .long    100         ; chips asmussen
+    .long    100         ; me doing me
+    .long    100         ; crome take me back
+    .long    100         ; bang for the beep
+    .long    100         ; darkside
+    .long    100         ; herr irrtum
+    .long    100         ; no mistake
+    .long    100         ; novel
+    .long    100         ; echoes of the past
+    .long    100         ; chipfly
+    .long    100         ; vproject7
+    .long    100         ; rettungsgasse
+    .long    100         ; my life in melody
 
 ; ============================================================================
 ; FX code modules.

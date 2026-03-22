@@ -96,13 +96,14 @@ build:
 ##########################################################################
 
 .PHONY:music
-music: build ./build/flight-gone.mod ./build/take-me-back.mod ./build/bang-for-beep.mod \
+music: build ./build/flight-gone.mod ./build/bang-for-beep.mod \
 	./build/darkside.mod ./build/herr-irrtum.mod ./build/echoes-past.mod ./build/my-life.mod \
 	./build/chips-asmussen.mod ./build/no-mistake.mod ./build/music_splash.mod \
 	./build/novel.mod ./build/chipfly.mod ./build/rettungsgasse.mod \
-	./build/funky_delicious.mod \
-	./build/cool_beans.mod \
-	./build/digitags.mod
+	./build/wavering-kb.mod \
+	./build/me-doing-me.mod \
+	./build/crome-take-me-back.mod \
+	./build/vproject7.mod
 
 ##########################################################################
 # SEPARATE DEMO PARTS
@@ -342,9 +343,6 @@ clean:
 ./build/flight-gone.mod: ./data/music/dj3/adkd-flight-gone.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
-./build/take-me-back.mod: ./data/music/dj3/crm_2021_takemeback.mod
-	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
-
 ./build/bang-for-beep.mod: ./data/music/dj3/curt-cool-bang-for-the-beep.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
@@ -385,6 +383,18 @@ clean:
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ./build/music_splash.mod: ./data/music/dj3/mod.raven-stereo.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/wavering-kb.mod: ./data/music/dj3/505-23-wavering-kb.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/me-doing-me.mod: ./data/music/dj3/chavez-me-doing-me.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/crome-take-me-back.mod: ./data/music/dj3/crome-take-me-back.mod
+	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
+
+./build/vproject7.mod: ./data/music/dj3/teis-vproject7.mod
 	$(COPY) $(subst /,\\,$+) $(subst /,\\,$@)
 
 ##########################################################################
