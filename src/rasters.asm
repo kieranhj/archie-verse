@@ -2,7 +2,8 @@
 ; Rasters via RasterMan.
 ; ============================================================================
 
-.equ Dj3_Adjust,    -2
+.equ Dj3_Adjust,                -2
+.equ Dj3_Rasters_VidcWrites,    8
 
 raster_table_p:
     .long vidc_table_1_no_adr
@@ -10,7 +11,11 @@ raster_table_p:
 raster_tables:
 	.long vidc_table_1_no_adr
 	.long vidc_table_2_no_adr
-	.long vidc_table_3_no_adr
+.if Dj3_Rasters_VidcWrites > 8
+    .long vidc_table_3_no_adr
+.else
+	.long 0                 ; vidc_table_3_no_adr
+.endif
 	.long -1
 
 rasters_default:
@@ -39,8 +44,11 @@ rasters_init:
 .1:
 	stmia r0!, {r6-r9}		        ; 4x VIDC commands per line.
 	stmia r1!, {r6-r9}		        ; 4x VIDC commands per line.
+.if Dj3_Rasters_VidcWrites > 8
 	stmia r2!, {r6-r9}		        ; 4x VIDC commands per line.
 	stmia r2!, {r6-r9}		        ; 4x VIDC commands per line.
+.endif
+
     ; NB. No longer need to fill redundant buffers.
 	subs r5, r5, #1
 	bne .1
@@ -109,10 +117,10 @@ rasters_tick:
 .endm
 
 rasters_sub_all_to_zero:
-	; Init tables.
 	adr r5, raster_tables
 	ldmia r5, {r0-r3}
 
+    ; Reduce all raster lines by 0x0111.
     mov r12, #256*4
 .1:
     ; Read VIDC reg write.
@@ -124,6 +132,7 @@ rasters_sub_all_to_zero:
     rgb12_sub r4
     str r4, [r1], #4
 
+.if Dj3_Rasters_VidcWrites > 8
     ldr r4, [r2]
     rgb12_sub r4
     str r4, [r2], #4
@@ -131,10 +140,21 @@ rasters_sub_all_to_zero:
     ldr r4, [r2]
     rgb12_sub r4
     str r4, [r2], #4
+.endif
 
     subs r12, r12, #1
     bne .1
 
+    ; And the VIDC table...
+    ldr r0, palette_array_p             ; Hacky...
+    mov r12, #16
+.2:
+    ldr r4, [r0]
+    rgb12_sub r4
+    str r4, [r0], #4
+
+    subs r12, r12, #1
+    bne .2
     mov pc, lr
 
 ; ============================================================================
