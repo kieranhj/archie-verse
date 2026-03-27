@@ -55,18 +55,15 @@ deploy: $(FOLDER)
 	$(COPY) "$(FOLDER)\*.*" "$(HOSTFS)\$(FOLDER)\*.*"
 	$(PYTHON3) $(MAKE_SPARK) $(FOLDER) -o $(ARCHIVE)
 
-$(FOLDER): build ./build/archie-verse.bin ./build/!run.txt
+$(FOLDER): build ./build/archie-verse.bin ./build/!run.txt ./build/icon.bin
 	$(RM_RF) $(FOLDER)
 	$(MKDIR_P) $(FOLDER)
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
-#   $(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
+	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\RasterM38,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
-#	$(COPY) ".\build\music.mod" "$(FOLDER)\Music,001"
-#	$(COPY) ".\build\events.bin" "$(FOLDER)\Events,ffd"
 	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ff8"
-# TODO: Don't need all these files for a Release build.
 
 build:
 	$(MKDIR_P) "./build"
@@ -135,11 +132,11 @@ compress: shrink
 	$(PYTHON3) $(MAKE_SPARK) $(FOLDER) -o $(ARCHIVE)
 
 .PHONY:shrink
-shrink: build ./build/!run.txt ./build/loader.bin
+shrink: build ./build/!run.txt ./build/loader.bin ./build/icon.bin
 	$(RM_RF) $(FOLDER)
 	$(MKDIR_P) $(FOLDER)
 	$(COPY) .\build\!run.txt "$(FOLDER)\!Run,feb"
-#	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
+	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\RasterM38,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
@@ -356,8 +353,8 @@ clean:
 # RISCOS ASSETS
 ##########################################################################
 
-./build/icon.bin: ./data/gfx/aklang_icon16.png $(PNG2ARC_DEPS)
-	$(PYTHON3) $(PNG2ARC_SPRITE) --name !aklang -o $@ $< 9
+./build/icon.bin: ./data/gfx/cdlogo16.png $(PNG2ARC_DEPS)
+	$(PYTHON3) $(PNG2ARC_SPRITE) --name !dj3 -o $@ $< 9
 
 ./build/!run.txt: ./data/text/!run.txt
 	$(DOS2UNIX) -n $< $@
