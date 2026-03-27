@@ -25,7 +25,7 @@ PLAN:
     - Fonts - DONE
 - Get music assets from Bodo. - DONE
 - Add raster palette per line of logo. - DONE
-    - Convert abc palette data to VIDC register writes in RasterMan tables.
+    - Convert abc palette data to VIDC register writes in RasterMan tables. - DONE
 - Need narrower 'i' in menu again. - DONE
 
 TODO:

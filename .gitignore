@@ -3,3 +3,4 @@ loader.txt
 build/
 *.pyc
 \!*/
+.claude/settings.local.json

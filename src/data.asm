@@ -38,7 +38,7 @@ dj_scroller_font_data_no_adr:
 dj_scroller_text_string_no_adr:
 ; Add 20 blank chars so that scroller begins on RHS of the screen, as per Amiga.
 .byte "                    "
-.include "src/data/django/scrolltxt-final.asm"
+.include "src/data/dj3/scrolltxt.i"
 dj_scroller_text_string_end_no_adr:
 .p2align 2
 
@@ -99,7 +99,7 @@ events_data_no_adr:
 
 .p2align 2
 splash_mod_no_adr:
-.incbin "data/music/dj3/mod.raven-stereo.mod"
+.incbin "data/music/dj3/raven.mod"
 
 ; ============================================================================
 ; Music MOD (MUST BE LAST in DATA SEGMENT).
