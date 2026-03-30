@@ -1,5 +1,5 @@
 ; scrolltxt  
-; change:  25.04.2026 Time: 13:32
+; change:  29.04.2026 Time: 22:57
 ;
 ;       End of txt   0
 ;       Pause   1,(0-255)
@@ -46,6 +46,10 @@
     .byte "CONTACT YOU ;) GREETINGS TO ALL MY FRIENDS AROUND THE SCENE!     ...KANN ICH NOCH MEINE MUTTI GRUESSEN? "
     .byte "               "
 ;
+    .byte "MOIN FROM NOVEL OF MOODS PLATEAU! HAPPY TO BE PART OF A MUSIC DISK FOR THE VERY FIRST TIME IN 22 YEARS. "
+    .byte "SPECIAL GREETINGS FLY OUT TO BODO AND THE SCENERS IN BERLIN, AND TO EVERYBODY AT REVISION. "
+    .byte "VIBES ARE GOOD, BEER IS COLD - AND NOW: SHOWTIME!"
+    .byte "               "
     .byte "               "  
     .byte "WOTW: ROUND TWO AT REVISION -LET'S GO! "
     .byte "SO HAPPY TO BE PART OF THE CHIPO DJANGO 3 COMPILATION, THANKS TO BODO OF RABENAUGE.    "
