@@ -11,7 +11,7 @@
 
 .equ Dj_Menu_MaxSpriteStride, 	22
 
-.equ Dj_Menu_Top_YPos, 			84
+.equ Dj_Menu_Top_YPos, 			78
 .equ Dj_Menu_Row_Height, 		7
 .equ Dj_Menu_Item_Colour, 		4
 .equ Dj_Menu_Selection_Colour, 	8

@@ -274,8 +274,8 @@ raster_list:
     .long 0,    0,        256,      VIDC_Col0,  0x000000,   0x000000
     .long 1,    0,        256,      VIDC_Border,0x000000,   0x000000
 
-    .long 1,    81,       1,        VIDC_Col4,  0xffff00,   0x000000    ; menu item
-    .long 2,    81,       1,        VIDC_Col8,  0x333333,   0x000000    ; menu selection
+    .long 1,    Dj_Menu_Top_YPos-1,       1,        VIDC_Col4,  0xffff00,   0x000000    ; menu item
+    .long 2,    Dj_Menu_Top_YPos-1,       1,        VIDC_Col8,  0x333333,   0x000000    ; menu selection
 
     .long 0,    VU_Bars_Y_Pos-VU_Bars_Gap,                  VU_Bars_Height,        VIDC_Col0,  0x330000,   0x000000
     .long 0,    VU_Bars_Y_Pos+1,                            VU_Bars_Height,        VIDC_Col0,  0x330000,   0x000000
