@@ -8,6 +8,8 @@
 ; ============================================================================
 
 seq_django3:
+    call_1      app_set_panning, PanningPos_Default
+
     ; Setup.
 .if AppConfig_UsingRasterMan
     call_0      rasters_init

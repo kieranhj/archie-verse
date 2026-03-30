@@ -60,7 +60,6 @@ audio_init:
     mov r0, #AudioConfig_VuBars_Effect
     mov r1, #AudioConfig_VuBars_Gravity
     QTMSWI QTM_VUBarControl
-    .endif
 
     mov r0, #1
     mov r1, #AudioConfig_StereoPos_Ch1
@@ -77,6 +76,7 @@ audio_init:
     mov r0, #4
     mov r1, #AudioConfig_StereoPos_Ch4
     QTMSWI QTM_Stereo
+    .endif
 
     ; NOTE: Music looping flag is ignored if using the RasterMan version of QTM.
     ; From Steve: The stop code has to call a bunch of SWIs, and it cannot do that

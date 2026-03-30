@@ -5,7 +5,16 @@
 ; ============================================================================
 
 .include "build/dj3_defs.asm"
+
 .equ Glitch_Time,				20 	; frames
+
+.equ PanningPos_Full,			0
+.equ PanningPos_Half,			1
+.equ PanningPos_Quarter,		2
+.equ PanningPos_Centre,			3	; mono
+.equ PanningPos_MAX,			4
+
+.equ PanningPos_Default			PanningPos_Centre
 
 ;.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
 
@@ -311,6 +320,9 @@ glitch_timer:
 exit_fade:
 	.long -1
 
+panning_pos:
+	.long PanningPos_Default
+
 ; R0=song number
 play_song:
 	QTMSWI QTM_Stop
@@ -442,7 +454,41 @@ app_fade_at_exit:
 	QTMSWI QTM_Volume
 	mov pc, lr
 
+; R0=panning pos
+app_set_panning:
+	str r0, panning_pos
+
+	adr r2, panning_table
+	add r2, r2, r0, lsl #4
+
+    mov r0, #1
+	ldr r1, [r2], #4
+    QTMSWI QTM_Stereo
+
+    mov r0, #2
+	ldr r1, [r2], #4
+    QTMSWI QTM_Stereo
+
+    mov r0, #3
+	ldr r1, [r2], #4
+    QTMSWI QTM_Stereo
+
+    mov r0, #4
+	ldr r1, [r2], #4
+    QTMSWI QTM_Stereo
+
+	mov pc, lr
+
 ; ============================================================================
+
+panning_table:
+	.long -127, -127, -127, -127		; TEST: ALL LEFT
+	.long 127, 127, 127, 127			; TEST: ALL RIGHT
+	.long -127, 127, 127, -127			; Full LRRL
+;	.long -64, 64, 64, -64				; Half LRRL
+;	.long -32, 32, 32, -32				; Quarter LRRL
+	.long 0, 0, 0, 0					; Centre (mono)
+.p2align 2
 
 music_table:
 .include "build/music_table.asm"
@@ -453,6 +499,10 @@ dj_menu_strings:
 .include "build/dj_menu_strings.asm"
 	.byte "autoplay off", 0
 	.byte "autoplay on ", 0
+	.byte "full stereo ", 0
+	.byte "half stereo ", 0
+	.byte "quarter sep", 0
+	.byte "centred mono", 0
 ; End of string list.
 	.byte -1
 

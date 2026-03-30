@@ -36,6 +36,7 @@ TODO:
 - Add compressed loader. - DONE
 - Add icon and help. - ICON NOT HELP
 - Fade volume out on exit. - DONE
+- Add Hotkey to change stereo pos: 127 L/R, 64 L/R, 32 L/R and mono
 
 ASSETS:
 - Final MODs?

@@ -2,10 +2,12 @@
 ; Menu stuff.
 ; ============================================================================
 
+.equ Dj_Menu_Enable_Panning,	1
+
 .equ Mouse_Enable,				1			; TODO: Add mouse control back.
 .equ Mouse_Sensitivity, 		10
 
-.equ Dj_Menu_MaxSprites, 		(Dj_Max_Songs+1)*2
+.equ Dj_Menu_MaxSprites, 		(Dj_Max_Songs+3)*2
 .equ Dj_Menu_Song_Column, 		22			; aligned right.
 .equ Dj_Menu_Artist_Column, 	26			; aligned left.
 
@@ -17,6 +19,8 @@
 .equ Dj_Menu_Selection_Colour, 	8
 
 .equ Dj_Menu_Autoplay_Column, 	1
+.equ Dj_Menu_Panning_Column, 	28
+
 .equ Dj_Menu_Raster_Lines,		(Dj_Max_Songs + 2) * Dj_Menu_Row_Height
 
 .equ Dj_Menu_Use_Rasters,		(AppConfig_UsingRasterMan && 0)
@@ -246,7 +250,21 @@ dj_menu_draw_autoplay:
 	add r12, r12, #Screen_Stride*Dj_Menu_Row_Height
 	add r11, r12, #Dj_Menu_Autoplay_Column*4
 	bl plot_dj_menu_sprite
-	
+
+.if Dj_Menu_Enable_Panning
+	ldr r0, panning_pos
+	add r0, r0, #1
+	add r8, r8, r0
+
+	adr r7, dj_menu_sprite_strides
+	ldr r7, [r7, r8, lsl #2]		; sprite stride.
+	adr r9, dj_menu_sprite_buffer_ptrs
+	ldr r9, [r9, r8, lsl #2]		; sprite ptr.
+
+	add r11, r12, #Dj_Menu_Panning_Column*4
+	bl plot_dj_menu_sprite
+.endif
+
 	ldr pc, [sp], #4	
 
 ; ============================================================================
@@ -342,6 +360,13 @@ dj_menu_init:
 	; Fake/Effect/Real 1/2/3 set R0 of QTM_VUBarControl
 	; S to toggle scroller sine wave.
 
+.if Dj_Menu_Enable_Panning
+    mov r0, #RMKey_P
+	adr r1, dj_menu_cycle_panning
+    mov r2, #0
+    bl keys_register_callback
+.endif
+
 	ldr r12, [sp], #4
 	ldr pc, [sp], #4	
 
@@ -381,6 +406,18 @@ dj_menu_flag_quit:
 	mov r0, #0
 	str r0, dj_menu_still_playing
 	mov pc, lr 
+
+dj_menu_cycle_panning:
+.if Dj_Menu_Use_Rasters
+	mov r0, #1
+	str r0, dj_menu_repaint_autoplay
+.endif
+
+	ldr r0, panning_pos
+	add r0, r0, #1
+	cmp r0, #PanningPos_MAX
+	movge r0, #0
+	b app_set_panning
 
 ; ============================================================================
 
