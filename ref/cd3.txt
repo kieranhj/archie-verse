@@ -29,12 +29,13 @@ PLAN:
 - Need narrower 'i' in menu again. - DONE
 
 TODO:
-- Add vertical scrolling logo at the start w/ raven sample.
+- Add vertical scrolling logo at the start w/ raven sample. - DONE
 - Add glitch logo on song load. - DONE
 - Palette fade/animation for the logo.
 - Add fade out at the end. - DONE
 - Add compressed loader. - DONE
-- Add icon and help.
+- Add icon and help. - ICON NOT HELP
+- Fade volume out on exit. - DONE
 
 ASSETS:
 - Final MODs?

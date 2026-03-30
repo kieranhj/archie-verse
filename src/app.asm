@@ -308,6 +308,9 @@ prev_sound_flags:
 glitch_timer:
 	.long 0
 
+exit_fade:
+	.long -1
+
 ; R0=song number
 play_song:
 	QTMSWI QTM_Stop
@@ -420,6 +423,23 @@ check_autoplay:
 ; R0=autoplay flag.
 set_autoplay:
 	str r0, autoplay_flag
+	mov pc, lr
+
+app_fade_at_exit:
+	ldr r0, exit_fade
+	cmp r0, #0
+	bpl .1
+
+	; First time.
+	ldr r1, song_number
+	adr r2, volumeTable
+	ldrb r0, [r2, r1]					; get start volume
+
+.1:
+	subs r0, r0, #2
+	movlt r0, #0
+	str r0, exit_fade
+	QTMSWI QTM_Volume
 	mov pc, lr
 
 ; ============================================================================

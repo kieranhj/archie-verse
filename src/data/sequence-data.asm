@@ -35,7 +35,7 @@ seq_django3:
     gosub seq_wait_for_quit
 
     call_3      fx_set_layer_fns,   0, 0,                   dj_scroller_cls
-    call_3      fx_set_layer_fns,   1, 0,                   logo_glitch_plot
+    call_3      fx_set_layer_fns,   1, app_fade_at_exit,    logo_glitch_plot
     call_3      fx_set_layer_fns,   2, dj_scroller_tick,    dj_scroller_draw
     call_3      fx_set_layer_fns,   3, rasters_sub_all_to_zero, 0   
 

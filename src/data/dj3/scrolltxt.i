@@ -1,5 +1,5 @@
 ; scrolltxt  
-; change:  29.04.2026 Time: 22:57
+; change:  30.03.2026 Time: 13:22
 ;
 ;       End of txt   0
 ;       Pause   1,(0-255)
@@ -41,7 +41,7 @@
     .byte "MEMBERS OF RABENAUGE, GNUMPF AND BITSHIFTERS, AND OF COURSE TO ALL THE VISITORS OF REVISION "
     .byte "2026!        HOPE YOU ENJOY THE SHOW!           CHEERS, BODO. "
     .byte "               "
-    .byte "RAMSES: HEY CHIP LOVERS, RAMSES HERE. HUGE THANKS AND KUDOS TO ALL THE ARTIST WHO CONTRIBUTED TO THIS RELEASES. "
+    .byte "RAMSES: HEY CHIP LOVERS, RAMSES HERE. HUGE THANKS AND KUDOS TO ALL THE ARTISTS WHO CONTRIBUTED TO THIS RELEASES. "
     .byte "WE LOVE YOU! PLEASE CONTACT US IF YOU WANT TO BE A PART OF THE NEXT CHIPO DJANGO ISSUE OR WE WILL "
     .byte "CONTACT YOU ;) GREETINGS TO ALL MY FRIENDS AROUND THE SCENE!     ...KANN ICH NOCH MEINE MUTTI GRUESSEN? "
     .byte "               "
@@ -121,7 +121,7 @@
     .byte "                         "	
     .byte "GREETINGS FROM RABENAUGE AND BITSHIFTERS FLY OUT TO:",1,4
     .byte "   "
-    .byte 2,8,"ABYSS    "
+    .byte 2,4,"ABYSS    "
     .byte "ABYSS CONNECTION    "
     .byte "AKRONYME ANABOLIKA    "
     .byte "ALTAIR    "
