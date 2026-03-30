@@ -14,7 +14,7 @@
 .equ PanningPos_Centre,			3	; mono
 .equ PanningPos_MAX,			4
 
-.equ PanningPos_Default			PanningPos_Centre
+.equ PanningPos_Default,		PanningPos_Centre
 
 ;.equ AppVsync_IrqRasterLine,    56+90			; 56 lines from vsync to screen start
 
@@ -189,6 +189,11 @@ app_late_init:
     swi OS_WriteI+22
     swi OS_WriteI+9
     swi OS_RemoveCursors
+
+	; Steve says this helps mis-aligned sound buffer "stutter" problem.
+	swi RasterMan_Wait
+	swi RasterMan_Wait
+	swi RasterMan_Wait
 
 	mov r0, #0
 	bl play_song
@@ -482,11 +487,11 @@ app_set_panning:
 ; ============================================================================
 
 panning_table:
-	.long -127, -127, -127, -127		; TEST: ALL LEFT
-	.long 127, 127, 127, 127			; TEST: ALL RIGHT
+;	.long -127, -127, -127, -127		; TEST: ALL LEFT
+;	.long 127, 127, 127, 127			; TEST: ALL RIGHT
 	.long -127, 127, 127, -127			; Full LRRL
-;	.long -64, 64, 64, -64				; Half LRRL
-;	.long -32, 32, 32, -32				; Quarter LRRL
+	.long -64, 64, 64, -64				; Half LRRL
+	.long -32, 32, 32, -32				; Quarter LRRL
 	.long 0, 0, 0, 0					; Centre (mono)
 .p2align 2
 

@@ -2,7 +2,7 @@
 ; Menu stuff.
 ; ============================================================================
 
-.equ Dj_Menu_Enable_Panning,	1
+.equ Dj_Menu_Enable_Panning,	0
 
 .equ Mouse_Enable,				1			; TODO: Add mouse control back.
 .equ Mouse_Sensitivity, 		10
@@ -19,7 +19,7 @@
 .equ Dj_Menu_Selection_Colour, 	8
 
 .equ Dj_Menu_Autoplay_Column, 	1
-.equ Dj_Menu_Panning_Column, 	28
+.equ Dj_Menu_Panning_Column, 	27
 
 .equ Dj_Menu_Raster_Lines,		(Dj_Max_Songs + 2) * Dj_Menu_Row_Height
 
