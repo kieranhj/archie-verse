@@ -271,9 +271,7 @@ vsync_lock_flag:
 .if AppConfig_UseKeys
 vsync_scankeyboard:
     .if AppVsync_UseRasterMan
-    swi RasterMan_ScanKeyboard
-    str r0, keys_rm_code        ; R0=(low key nibble << 8) | (high key nibble)
-
+    ldr r0, keys_rm_code        ; R0=(low key nibble << 8) | (high key nibble)
     mov r2, r0, lsr #12         ; 0xc=key down 0xd=key up
 	cmp r2, #0xc
 	moveq r1, #1
@@ -296,7 +294,7 @@ vsync_scankeyboard:
 
 vsync_check_escape:
     .if AppVsync_UseRasterMan
-	swi RasterMan_ScanKeyboard
+	ldr r0, keys_rm_code
 	mov r1, #0xc0c0             ; down and keycode 0x00
 	cmp r0, r1
     moveq r0, #1
@@ -324,6 +322,12 @@ vsync_do_callback:
 	ldr r0, vsync_count
 	add r0, r0, #1
 	str r0, vsync_count
+
+	.if AppVsync_UseRasterMan
+	; Keyboard scan.
+    swi RasterMan_ScanKeyboard
+    str r0, keys_rm_code        ; R0=(low key nibble << 8) | (high key nibble)
+	.endif
 
     ; Call the app's vsync callback.
     bl app_vsync_callback
