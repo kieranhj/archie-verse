@@ -6,6 +6,7 @@
 
 .include "build/dj3_defs.asm"
 
+.equ Mouse_Enable,				1
 .equ Glitch_Time,				20 	; frames
 
 .equ PanningPos_Full,			0
@@ -166,10 +167,12 @@ app_late_init:
 	bne .3
 
 	; Check for mouse button.
+	.if Mouse_Enable
 	swi OS_Mouse
 	cmp r2, #0
 	bne .3
-
+	.endif
+	
 	; Check for keypress.
   	MOV     R0, #129
   	MOV     R1, #0      ; timeout low byte (centiseconds)
@@ -235,6 +238,12 @@ app_vsync_callback:
     ; Actually does it matter if we're ready from vidc_buffer[displayed_bank]?
 
     bl video_set_display_bank_palette
+
+.if Mouse_Enable
+	; Check mouse.
+	swi OS_Mouse
+	str r1, live_mouse_y
+.endif
 
     .if 0
     ; Custom screen split code for donut.

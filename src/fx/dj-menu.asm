@@ -4,7 +4,6 @@
 
 .equ Dj_Menu_Enable_Panning,	0
 
-.equ Mouse_Enable,				1			; TODO: Add mouse control back.
 .equ Mouse_Sensitivity, 		10
 
 .equ Dj_Menu_MaxSprites, 		(Dj_Max_Songs+3)*2
@@ -27,6 +26,9 @@
 .equ Dj_Menu_Use_Mask_Plot,		0
 
 .if Mouse_Enable
+live_mouse_y:
+	.long 0
+
 prev_mouse_y:
 	.long 0
 .endif
@@ -57,7 +59,7 @@ dj_menu_tick:
 
 .if Mouse_Enable
 	; Check mouse.
-	swi OS_Mouse
+	ldr r1, live_mouse_y
 	ldr r0, prev_mouse_y
 	str r1, prev_mouse_y
 	subs r0, r0, r1
