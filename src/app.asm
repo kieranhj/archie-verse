@@ -244,8 +244,10 @@ app_vsync_callback:
 
 .if Mouse_Enable
 	; Check mouse.
+	str r2, [sp, #-4]!
 	swi OS_Mouse
 	str r1, live_mouse_y
+	ldr r2, [sp], #4
 .endif
 
 	; Read VU Bars.
