@@ -194,9 +194,12 @@ app_late_init:
     swi OS_RemoveCursors
 
 	; Steve says this helps mis-aligned sound buffer "stutter" problem.
-	swi RasterMan_Wait
-	swi RasterMan_Wait
-	swi RasterMan_Wait
+	mov r0, #19
+	mov r1, #13
+.4:
+	swi OS_Byte
+	subs r1, r1, #1
+	bne .4
 
 	mov r0, #0
 	bl play_song

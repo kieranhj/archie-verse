@@ -131,7 +131,7 @@ main:
     ; Can now write to the screen for final init.
     bl app_late_init
 
-    ; Kick off anything that happens just before start.
+    ; Kick off anything that happens just before start, including RasterMan & vsync callback.
     bl vsync_late_init
 
 	; Play music!
