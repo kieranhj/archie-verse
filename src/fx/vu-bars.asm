@@ -9,6 +9,9 @@
 .equ VU_Bars_Effect, 	2	; 'effect'
 .equ VU_Bars_Gravity, 	2	; lines per vsync
 
+vu_bars_levels:
+	.long 0
+
 vu_bars_init:
 	mov r0, #VU_Bars_Effect
 	mov r1, #VU_Bars_Gravity
@@ -17,8 +20,7 @@ vu_bars_init:
 
 vu_bars_tick:
 	str lr, [sp, #-4]!
-	mov r0, #0
-	swi QTM_ReadVULevels
+	ldr r0, vu_bars_levels
 	; R0 = word containing 1 byte per channel 1-4 VU bar heights 0-64
 
 	and r10, r0, #0xff

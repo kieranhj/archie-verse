@@ -172,7 +172,7 @@ app_late_init:
 	cmp r2, #0
 	bne .3
 	.endif
-	
+
 	; Check for keypress.
   	MOV     R0, #129
   	MOV     R1, #0      ; timeout low byte (centiseconds)
@@ -244,6 +244,11 @@ app_vsync_callback:
 	swi OS_Mouse
 	str r1, live_mouse_y
 .endif
+
+	; Read VU Bars.
+	mov r0, #0
+	QTMSWI QTM_ReadVULevels
+	str r0, vu_bars_levels
 
     .if 0
     ; Custom screen split code for donut.
@@ -545,8 +550,8 @@ songpausetable:
 .if AppConfig_UsingRasterMan
 .include "src/rasters.asm"
 .endif
-.include "src/fx/logo-glitch.asm"
 .include "src/fx/vu-bars.asm"
+.include "src/fx/logo-glitch.asm"
 .include "src/fx/dj-scroller.asm"
 .include "src/fx/dj-font.asm"
 .include "lib/screen.asm"
