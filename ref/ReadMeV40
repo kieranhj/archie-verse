@@ -1,0 +1,12 @@
+RasterMan v0.40 01Apr26
+
+Recent changes:
+ v0.39 Moved VSync CallBack in front of QTM DMA fill code
+ v0.40 CallBack now in SVC mode and removed disable IRQs between DMA and return to user code
+ 
+User CallBack could should now support calling re-entrant SWIs, although the
+R13_SVC stack will be pointing to RasterMan's internal stack, with only ~240
+entries remaining, so if the SWI or CallBack code uses the stack extensively,
+there will be problems...
+
+SH 01Apr2026

@@ -172,6 +172,7 @@ video_mark_screen_as_pending_display:
 ; FALL THROUGH!
 
 video_get_next_screen:
+    .if VideoConfig_ScreenBanks > 1
 	; Increment to next bank for writing
 	ldr r1, write_bank
 	add r1, r1, #1
@@ -179,14 +180,15 @@ video_get_next_screen:
 	movgt r1, #1
 
 	; Block here if trying to write to displayed bank.
-    .if VideoConfig_ScreenBanks > 1
 	.1:
 	ldr r0, displayed_bank
 	cmp r1, r0
 	beq .1
-    .endif
 
 	str r1, write_bank
+    .else
+    mov pc, lr
+    .endif
 
 	; Now set the screen bank to write to
 .if !AppConfig_UseMemcBanks
