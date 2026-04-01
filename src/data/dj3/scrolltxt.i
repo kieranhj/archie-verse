@@ -1,5 +1,5 @@
 ; scrolltxt  
-; change:  30.03.2026 Time: 13:22
+; change:  01.04.2026 Time: 0847
 ;
 ;       End of txt   0
 ;       Pause   1,(0-255)
@@ -23,12 +23,13 @@
     .byte "                           "
 ;
     .byte "          CREDITS:               GFX:   OZAN              "
+    .byte "ASCII ART:  NE7  AND SK!N               "
     .byte "CODE:   KIERAN (ARCHIMEDES)         "
     .byte "INSANE (ATARI STE)         "
     .byte "BODO (AMIGA)  "
     .byte "                                        "
     .byte "MUSIC BY THE GREAT ARTISTS LISTED HERE.         "
-    .byte "THIS TIME WE HAVE A PLAYING TIME OF MORE THAN 41 MINUTES.     "
+    .byte "THIS TIME WE HAVE A PLAYING TIME OF MORE THAN 42 MINUTES.     "
     .byte "ENJOY IT!     "
     .byte "                               "
 ;
@@ -44,6 +45,10 @@
     .byte "RAMSES: HEY CHIP LOVERS, RAMSES HERE. HUGE THANKS AND KUDOS TO ALL THE ARTISTS WHO CONTRIBUTED TO THIS RELEASES. "
     .byte "WE LOVE YOU! PLEASE CONTACT US IF YOU WANT TO BE A PART OF THE NEXT CHIPO DJANGO ISSUE OR WE WILL "
     .byte "CONTACT YOU ;) GREETINGS TO ALL MY FRIENDS AROUND THE SCENE!     ...KANN ICH NOCH MEINE MUTTI GRUESSEN? "
+    .byte "               "
+    .byte "KIERAN: BIG THANKS TO STEVE3000 (PHOENIX OF QUANTUM) FOR RASTERMAN AND QTM THAT MAKE ARCHIE DEMOS POSSIBLE! "
+    .byte "AND THANK YOU AGAIN TO BODO FOR INVITING ME TO COLLABORATE ON THIS MUSICDISK, IT WAS A LOT OF FUN TO BRING SOMETHING "
+    .byte "TO REVISION 2026 AND NOT TURN UP EMPTY HANDED!! HAVE A FANTASTIC PARTY EVERYONE. $$$$ "
     .byte "               "
 ;
     .byte "MOIN FROM NOVEL OF MOODS PLATEAU! HAPPY TO BE PART OF A MUSIC DISK FOR THE VERY FIRST TIME IN 22 YEARS. "
@@ -129,7 +134,6 @@
     .byte "ATLANTIS    "
     .byte "ATTENTION WHORE    "
     .byte "BAUKNECHT    "
-    .byte "BITSHIFTERS   "
     .byte "CRTC    "
     .byte "CYANOACRYLATE DREAMS    "
     .byte "DANISH GOLD    "
