@@ -387,6 +387,10 @@ dj_menu_change_selection:
 	mov pc, lr
 
 dj_menu_play_selection:
+	ldr r0, dj_menu_still_playing
+	cmp r0, #0
+	moveq pc, lr
+
 	ldr r0, selection_number
 	cmp r0, #Dj_Max_Songs
 	beq dj_menu_toggle_autoplay

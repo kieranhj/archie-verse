@@ -119,9 +119,9 @@ app_late_init:
     swi OS_WriteI+18
     swi OS_RemoveCursors
 
-	mov r3, #0
+	mov r3, #1
 	mov r4, #0x00000000
-	;bl app_set_colour
+	bl app_set_colour
 
 	ldr r8, startlogo_height
 	mov r14, #2
@@ -137,7 +137,7 @@ app_late_init:
 	mov r0, #19
 	swi OS_Byte
 
-	mov r3, #1
+	mov r3, #0
 	ldr r2, startlogo_colour
 	orr r4, r2, r2, lsl #8
 	orr r4, r4, r2, lsl #16
@@ -183,10 +183,16 @@ app_late_init:
 	beq .2
 
 .3:
-	; Start fade out here.
+	; Fade volume.
+	mov r0, r4, lsr #4
+	QTMSWI QTM_Volume
+
+	; Start colour fade out here.
 	subs r4, r4, #8
 	str r4, startlogo_colour
 	bpl .2
+
+	QTMSWI QTM_Stop
 
 	; Reset to MODE 9.
     swi OS_WriteI+22
