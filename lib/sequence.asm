@@ -71,13 +71,6 @@ sequence_init:
 sequence_tick:
     str lr, [sp, #-4]!
 
-    mov r0, #-1
-    mov r1, #-1
-    QTMSWI QTM_Pos          ; read position.
-
-    strb r1, music_pos+0    ; row
-    strb r0, music_pos+1    ; pattern
-
     .if AppConfig_UseSyncTracks
     ; Update in-memory variables from external track.
     bl sync_update_vars

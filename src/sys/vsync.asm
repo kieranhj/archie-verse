@@ -323,6 +323,14 @@ vsync_do_callback:
 	add r0, r0, #1
 	str r0, vsync_count
 
+	; Read music player pos.
+    mov r0, #-1
+    mov r1, #-1
+    QTMSWI QTM_Pos          ; read position.
+
+    strb r1, music_pos+0    ; row
+    strb r0, music_pos+1    ; pattern
+
 	.if AppVsync_UseRasterMan
 	; Keyboard scan.
     swi RasterMan_ScanKeyboard
