@@ -62,6 +62,7 @@ $(FOLDER): build ./build/archie-verse.bin ./build/!run.txt ./build/icon.bin
 	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\RasterM40,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\QTM149rm24,ffa" "$(FOLDER)"
+#	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
 	$(COPY) .\build\archie-verse.bin "$(FOLDER)\!RunImage,ff8"
 
@@ -139,6 +140,7 @@ shrink: build ./build/!run.txt ./build/loader.bin ./build/icon.bin
 	$(COPY) .\build\icon.bin "$(FOLDER)\!Sprites,ff9"
 	$(COPY) ".\data\riscos\RasterM40,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\QTM149rm24,ffa" "$(FOLDER)"
+#	$(COPY) ".\data\riscos\QTM149rm48,ffa" "$(FOLDER)"
 	$(COPY) ".\data\riscos\MemAlloc,ffa" "$(FOLDER)"
 	$(COPY) .\build\loader.bin "$(FOLDER)\!RunImage,ff8"
 

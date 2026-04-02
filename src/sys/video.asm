@@ -164,7 +164,7 @@ video_mark_screen_as_pending_display:
 
 .2:
 	; Show pending bank at next vsync.
-    .if !AppConfig_UseMemcBanks
+    .if !AppConfig_UseMemcBanks && VideoConfig_ScreenBanks > 1
 	MOV r0, #OSByte_WriteDisplayBank
 	swi OS_Byte
     .endif
