@@ -42,7 +42,8 @@ vsync_init:
     .if AppVsync_UseRasterMan
    	; Required to make QTM play nicely with RasterMan.
 	mov r0, #4
-	mov r1, #-1
+	mov r1, #4			; Steve saysset R1=4 (bit 2 set),
+	; this will stop QTM_Clear handing back to RISC OS, and solve the scroll bar jumping issue.
 	mov r2, #-1
 	QTMSWI QTM_SoundControl
     .endif
