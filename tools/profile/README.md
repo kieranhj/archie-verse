@@ -1,5 +1,8 @@
 # Profiling harness
 
+**Start with [PLAN.md](PLAN.md)** - status, what is done, what is left,
+and the traps. This file only covers how to run the harness.
+
 Cycle-accurate measurement of Mikroreise, used to drive the ARM2 optimisation
 work on this branch. Not part of the demo build — safe to delete before any
 merge to `main`.
