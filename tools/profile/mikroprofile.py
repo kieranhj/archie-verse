@@ -136,13 +136,23 @@ def run_to_frame(m, table, frame):
     the last stretch a quarter-frame at a time.
     """
     fc = table.resolve("frame_counter")
+    vs = table.resolve("vsync_count")
     while read_word(m, fc) < frame - 30:
         m.command_json("run_us 500000")
     while read_word(m, fc) < frame:
-        m.command_json("run_us 4000")
+        m.command_json("run_us 2000")
     got = read_word(m, fc)
     if got != frame:
         raise SystemExit(f"overshot frame {frame}, landed on {got}")
+
+    # Landing on the right frame is not enough on its own. We arrive at an
+    # arbitrary point within it, and the screenshot returns whichever frame
+    # VIDC last presented - so a sample can fall either side of a display swap
+    # depending only on how fast the build ran. Advance to the next vsync so
+    # the sample is pinned to a hardware-timed boundary.
+    v0 = read_word(m, vs)
+    while read_word(m, vs) == v0:
+        m.command_json("run_us 1000")
     return got
 
 

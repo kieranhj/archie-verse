@@ -184,6 +184,22 @@ transform_3d_scene:
     mov r10, r0, asr #MULTIPLICATION_SHIFT  ; r10 = sin(A)
     mov r11, r1, asr #MULTIPLICATION_SHIFT  ; r11 = cos(A)
 
+    ; See the note on cos(C) below - same trick, same reason.
+    cmp r11, #0
+    bpl transform_cosa_pos
+    rsb r11, r11, #0                        ; r11 = |cos(A)|
+    ldr r0, transform_op_rsb_r0
+    str r0, transform_patch_cosa_1
+    ldr r0, transform_op_mov_r14
+    str r0, transform_patch_cosa_2
+    b transform_cosa_done
+transform_cosa_pos:
+    ldr r0, transform_op_mov_r0
+    str r0, transform_patch_cosa_1
+    ldr r0, transform_op_rsb_r14
+    str r0, transform_patch_cosa_2
+transform_cosa_done:
+
     ldr r0, object_rot + 0
     bl sin_cos
     mov r6, r0, asr #MULTIPLICATION_SHIFT  ; r6 = sin(C)
@@ -218,6 +234,22 @@ transform_cosc_done:
     mov r8, r0, asr #MULTIPLICATION_SHIFT  ; r8 = sin(B)
     mov r9, r1, asr #MULTIPLICATION_SHIFT  ; r9 = cos(B)
 
+    ; See the note on cos(C) above - same trick, same reason.
+    cmp r9, #0
+    bpl transform_cosb_pos
+    rsb r9, r9, #0                          ; r9 = |cos(B)|
+    ldr r0, transform_op_rsb_r14
+    str r0, transform_patch_cosb_1
+    ldr r0, transform_op_mov_r14
+    str r0, transform_patch_cosb_2
+    b transform_cosb_done
+transform_cosb_pos:
+    ldr r0, transform_op_mov_r14
+    str r0, transform_patch_cosb_1
+    ldr r0, transform_op_rsb_r14
+    str r0, transform_patch_cosb_2
+transform_cosb_done:
+
     ldr r1, object_verts_p
     ldr r2, transformed_verts_p
     ldr r12, object_num_verts
@@ -238,23 +270,29 @@ transform_cosc_done:
 
 	; x'  = x*cos(A) + y*sin(A)
 	; y'  = x*sin(A) - y*cos(A)  
-    mul r0, r3, r11                     ; x*cos(A)
+    mul r0, r3, r11                     ; x*|cos(A)|
+transform_patch_cosa_1:
+    mov r0, r0                          ; RSB when cos(A) is negative
     mla r0, r4, r10, r0                 ; x' = y*sin(A) + x*cos(A)
     mov r0, r0, asr #MULTIPLICATION_SHIFT
 
-    mul r14, r4, r11                    ; y*cos(A)
-    rsb r14, r14, #0                    ; -y*cos(A)
+    mul r14, r4, r11                    ; y*|cos(A)|
+transform_patch_cosa_2:
+    rsb r14, r14, #0                    ; MOV when cos(A) is negative
     mla r4, r3, r10, r14                ; y' = x*sin(A) - y*cos(A)
     mov r4, r4, asr #MULTIPLICATION_SHIFT
 
 	; x'' = x'*cos(B) + z*sin(B)
 	; z'  = x'*sin(B) - z*cos(B)
 
-    mul r14, r0, r9                     ; x'*cos(B)
+    mul r14, r0, r9                     ; x'*|cos(B)|
+transform_patch_cosb_1:
+    mov r14, r14                        ; RSB when cos(B) is negative
     mla r3, r5, r8, r14                 ; x'' = z*sin(B) + x'*cos(B)
 
-    mul r14, r5, r9                     ; z*cos(B)
-    rsb r14, r14, #0                    ; -z*cos(B)
+    mul r14, r5, r9                     ; z*|cos(B)|
+transform_patch_cosb_2:
+    rsb r14, r14, #0                    ; MOV when cos(B) is negative
     mla r5, r0, r8, r14                 ; z' = x'*sin(B) - z*cos(B)
     mov r5, r5, asr #MULTIPLICATION_SHIFT
 
@@ -319,6 +357,10 @@ transform_op_mov_r14:
     mov r14, r14
 transform_op_rsb_r14:
     rsb r14, r14, #0
+transform_op_mov_r0:
+    mov r0, r0
+transform_op_rsb_r0:
+    rsb r0, r0, #0
 
 update_3d_scene_move_in_z:
     ldr r0, object_pos+8            ; POSTION_Z

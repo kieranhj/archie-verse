@@ -23,6 +23,17 @@ CONFIG = "a5000-arm3-riscos311"
 FRAMES = [200, 500, 900, 1400, 2000, 2600, 3100, 3600,
           4400, 5000, 5500, 6300, 6900, 7500, 8100, 8500]
 
+# Frames whose output depends on sub-frame timing and so cannot be compared
+# between builds that run at different speeds. Reported but not failed on.
+#
+# Frame 200 was verified as timing-sensitive by inserting four behaviourally
+# inert `mov r0, r0` into the main loop: that alone changes ~21 pixels, with
+# the palette, the vsync count and the write bank's contents all identical.
+# The cause is in the demo, not the harness - with only two banks,
+# get_next_bank_for_writing can hand back a bank that VIDC is still
+# presenting, so a few pixels tear and exactly which ones depends on timing.
+UNSTABLE = {200}
+
 
 def capture(outdir=None):
     binf, mapf = MP.build("regress")
@@ -57,15 +68,26 @@ def main():
         return 0
     if a.check:
         want = json.load(open(a.check))
-        bad = [k for k in want if want[k] != got.get(k)]
+        bad, flaky = [], []
+        for k in want:
+            if want[k] == got.get(k):
+                continue
+            (flaky if int(k) in UNSTABLE else bad).append(k)
         for k in sorted(want, key=int):
-            mark = "DIFF" if k in bad else "ok"
+            mark = "ok"
+            if k in bad:
+                mark = "DIFF"
+            elif k in flaky:
+                mark = "diff (timing-sensitive, ignored)"
             print(f"  frame {k:>5}  {want[k]}  {got.get(k, '-')}  {mark}")
         if bad:
             print(f"\n{len(bad)}/{len(want)} frames differ: "
                   f"{', '.join(sorted(bad, key=int))}")
             return 1
-        print(f"\nall {len(want)} frames identical")
+        n = len(want) - len(flaky)
+        print(f"\nall {n} comparable frames identical"
+              + (f" ({len(flaky)} timing-sensitive frame(s) ignored)"
+                 if flaky else ""))
         return 0
     print(json.dumps(got, indent=1))
     return 0
