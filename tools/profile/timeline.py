@@ -12,7 +12,13 @@ import sys
 
 import mikroprofile as MP
 
-WINDOW_US = 2_000_000
+# Windows are aligned to frames, not to wall time. A fixed 2-second window
+# would cover different parts of the demo once a build runs at a different
+# speed, which makes before/after comparison meaningless - notably the
+# worst-window figure, which is a single sample.
+WINDOW_FRAMES = 100
+FIRST_FRAME = 100
+LAST_FRAME = 8600
 TEXT_LEN = 0x36700
 
 
@@ -26,10 +32,13 @@ def measure(config, samples_out=None, label=""):
     fc = table.resolve("frame_counter")
     vs = table.resolve("vsync_count")
     rows = []
-    while MP.read_word(m, fc) < 8600:
+    for start in range(FIRST_FRAME, LAST_FRAME, WINDOW_FRAMES):
+        while MP.read_word(m, fc) < start:
+            m.command_json("run_us 100000")
         f0, v0 = MP.read_word(m, fc), MP.read_word(m, vs)
         m.command_json(f"profile start {MP.TEXT_BASE:x} {TEXT_LEN:x}")
-        m.command_json(f"run_us {WINDOW_US}")
+        while MP.read_word(m, fc) < f0 + WINDOW_FRAMES:
+            m.command_json("run_us 20000")
         p = m.command_json("profile read 900")
         f1, v1 = MP.read_word(m, fc), MP.read_word(m, vs)
         m.command_text("profile stop")
