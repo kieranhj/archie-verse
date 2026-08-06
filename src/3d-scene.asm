@@ -189,6 +189,30 @@ transform_3d_scene:
     mov r6, r0, asr #MULTIPLICATION_SHIFT  ; r6 = sin(C)
     mov r7, r1, asr #MULTIPLICATION_SHIFT  ; r7 = cos(C)
 
+    ; The ARM2/ARM250 multiplier only terminates early once the remaining bits
+    ; of Rs have cleared, so a sign-extended negative Rs runs all 16 Booth
+    ; cycles - measured at 16-17 cycles against 5-6 for a positive operand of
+    ; the same magnitude. cos(C) sits in Rs for two multiplies per vertex, so
+    ; when it is negative that is ~22 wasted cycles on every vertex.
+    ;
+    ; Keep |cos(C)| in r7 and move the sign into the accumulate instead. The
+    ; sign is fixed for the whole frame, so patch the two sites once here
+    ; rather than testing per vertex. Same idiom as drawline_set_to_orr.
+    cmp r7, #0
+    bpl transform_cosc_pos
+    rsb r7, r7, #0                          ; r7 = |cos(C)|
+    ldr r0, transform_op_rsb_r14
+    str r0, transform_patch_cosc_1          ; negate y'*|cos(C)|
+    ldr r0, transform_op_mov_r14
+    str r0, transform_patch_cosc_2          ; -z'*cos(C) is now +z'*|cos(C)|
+    b transform_cosc_done
+transform_cosc_pos:
+    ldr r0, transform_op_mov_r14
+    str r0, transform_patch_cosc_1
+    ldr r0, transform_op_rsb_r14
+    str r0, transform_patch_cosc_2
+transform_cosc_done:
+
     ldr r0, object_rot + 4
     bl sin_cos                  ; uses r9
     mov r8, r0, asr #MULTIPLICATION_SHIFT  ; r8 = sin(B)
@@ -206,7 +230,7 @@ transform_3d_scene:
     add r12, r12, r3                      ; object_num_verts + object_num_faces
 
     ; ASSUMES THAT VERTEX AND NORMAL ARRAYS ARE CONSECUTIVE!
-    .1:
+    transform_rot_loop:
     ldmia r1!, {r3-r5}                    ; x,y,z
     mov r3, r3, asr #MULTIPLICATION_SHIFT
     mov r4, r4, asr #MULTIPLICATION_SHIFT
@@ -237,18 +261,21 @@ transform_3d_scene:
 	; y'' = y'*cos(C) + z'*sin(C)
 	; z'' = y'*sin(C) - z'*cos(C)
 
-    mul r14, r4, r7                     ; y'*cos(C)
+    mul r14, r4, r7                     ; y'*|cos(C)|
+transform_patch_cosc_1:
+    mov r14, r14                        ; RSB when cos(C) is negative
     mla r0, r5, r6, r14                 ; y'' = y'*cos(C) + z'*sin(C)
 
-    mul r14, r5, r7                     ; z'*cos(C)
-    rsb r14, r14, #0                    ; -z'*cos(C)
+    mul r14, r5, r7                     ; z'*|cos(C)|
+transform_patch_cosc_2:
+    rsb r14, r14, #0                    ; MOV when cos(C) is negative
     mla r5, r4, r6, r14                 ; z'' = y'*sin(C) - z'*cos(C)
 
     ; x''=r3, y''=r0, z''=r5
     mov r4, r0
     stmia r2!, {r3-r5}                  ; x'',y'',z'''
     subs r12, r12, #1
-    bne .1
+    bne transform_rot_loop
 
     ; Transform to world coordinates.
     adr r11, object_pos
@@ -262,7 +289,7 @@ transform_3d_scene:
 
     ldr r2, transformed_verts_p
     ldr r12, object_num_verts
-    .2:
+    transform_scale_loop:
     ldmia r2, {r3-r5}
 
     ; Scale rotated verts.
@@ -282,9 +309,16 @@ transform_3d_scene:
 
     stmia r2!, {r3-r5}
     subs r12, r12, #1
-    bne .2
+    bne transform_scale_loop
 
     ldr pc, [sp], #4
+
+; Instruction templates for the cos(C) sign patch above. Data, never executed
+; from here - the function returns before reaching them.
+transform_op_mov_r14:
+    mov r14, r14
+transform_op_rsb_r14:
+    rsb r14, r14, #0
 
 update_3d_scene_move_in_z:
     ldr r0, object_pos+8            ; POSTION_Z
