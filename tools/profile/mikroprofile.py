@@ -68,7 +68,8 @@ def make_app(binf, dest):
     """Build a runnable !Reise folder around a freshly linked image."""
     src = os.path.join(REPO, "!Reise")
     shutil.rmtree(dest, ignore_errors=True)
-    shutil.copytree(src, dest)
+    # dirs_exist_ok because rmtree can fail silently under OneDrive
+    shutil.copytree(src, dest, dirs_exist_ok=True)
     shutil.copy(binf, os.path.join(dest, "!RunImage,ff8"))
     return dest
 
@@ -104,7 +105,7 @@ def launch(config, app_dir, table):
     mid, m = pool.create(config=config)
     dest = os.path.join(m.hostfs, "!Reise")
     shutil.rmtree(dest, ignore_errors=True)
-    shutil.copytree(app_dir, dest)
+    shutil.copytree(app_dir, dest, dirs_exist_ok=True)
     for _ in range(12):
         m.command_json("run_us 1000000")
     _tap(m, keymap.SCANCODES["f12"])
@@ -127,10 +128,22 @@ def read_word(m, addr):
 
 
 def run_to_frame(m, table, frame):
+    """Advance until frame_counter lands exactly on `frame`.
+
+    Coarse stepping alone is not good enough for the correctness gate: a 0.5s
+    step covers ~25 frames, so where it stops depends on execution speed, and a
+    build that is merely faster would be compared at a different frame. Close
+    the last stretch a quarter-frame at a time.
+    """
     fc = table.resolve("frame_counter")
-    while read_word(m, fc) < frame:
+    while read_word(m, fc) < frame - 30:
         m.command_json("run_us 500000")
-    return read_word(m, fc)
+    while read_word(m, fc) < frame:
+        m.command_json("run_us 4000")
+    got = read_word(m, fc)
+    if got != frame:
+        raise SystemExit(f"overshot frame {frame}, landed on {got}")
+    return got
 
 
 def screenshot_hash(m):
