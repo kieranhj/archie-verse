@@ -1,0 +1,51 @@
+(vx - cx) / (vz - cz)
+cz = -80
+And cx = +/-ex
+fz = 10
+
+Left X = (vx+ex)/(vz+80)
+Right X = (vx-ex)/(vz+80)
+
+Say vx=5 and ex=10
+When vz=20 (beyond)
+Lx = (5+10)/(100) = 15/100 =  0.15  => Lp=80*0.15=12
+Rx = (5-10)/(100) = -5/100 = -0.05  => Rp=80*-0.05=-4
+
+Project to single frustum:
+Ls = 80*(Lp-ex-cx)/(fz-cz) = 80*(12-10)/90 = 1.7777
+Rs = 80*(Rp+ex-cx)/(fz-cz) = 80*(-4+10)/90 = 5.3333
+
+Ls = 128*(Lp-ex)/(fz) = 128*Lp/fz - 128*ex/fz
+Rs = 128*(Rp+ex)/(fz) = 128*Rs/fz + 128*ex/fz
+
+Lp*128/fz - eye_sep*128/fz
+Rp*128/fz + eye_sep*128/fz
+
+Say vx=5 and ex=10
+When vz=20
+Lx = (5+10)/(100) = 15/100 =  0.15  => Lp=80*0.15=12
+Rx = (5-10)/(100) = -5/100 = -0.05  => Rp=80*-0.05=-4
+
+Say fz=20 = vz then everything should be coincident
+Project to single frustum:
+Ls = 80*(Lp-ex-cx)/(fz-cz) = 80*(12-10)/100 = 1.6
+Rs = 80*(Rp+ex-cx)/(fz-cz) = 80*(-4+10)/100 = 4.8
+NOT CORRECT!
+So I guess I got lucky. :)
+
+Something like:
+Lx = (vx-ex) / (vz - (cz + fz)) to project onto our focal plane.
+Then project onto our screen plane
+Ls = 80 * (Lp-ex-cx)/(cz + fz)
+
+Lx = 80 * (5+10) / (20 + 80 - 20) = 15
+Ls = 80 * (15-10) / (20 + 80) = 4
+Rx = 80 * (5-10) / (20 + 80 - 20) = -5
+Rs = 80 * (-5+10) / (20 + 80) = 4
+
+So for Elite where everything is projected onto the plane cz=0
+Lx = 256 * (vx-ex) / (vz-fz) to project onto our focal plane.
+But can't do this as divisor has to be positive?
+And would explode for anything on the focal plane!
+
+Adjust_x_pixels = 256 * eye_sep / focal_z
