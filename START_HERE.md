@@ -23,8 +23,9 @@ Push, a 64 KB demo for the Acorn Archimedes (ARM2, 2 MB) by Bitshifters, release
   builds `!Push` and copies it to `..\arculator\hostfs\!Push`.
 - Other targets: `make folder` (build `!Push` only), `make shrink` (Shrinkler-packed loader build,
   likely the 64 KB release form), `make compress` (shrink + copy to hostfs), `make seq`, `make help`.
-- PNG conversion uses `C:\Dev\Python27\python.exe` (Python 2, **not on this machine**); only needed
-  if a source PNG is newer than its `build\*.bin`.
+- PNG conversion: the `bin\*.py` converters were ported to Python 3 on 2026-11-22 (byte-identical
+  output) and `Makefile.mk` runs them with `PYTHON2?=py -3` (override with `PYTHON2=...`); they only
+  run if a source PNG is newer than its `build\*.bin`.
 
 ## Local changes
 - Working tree clean; no stashes. `upstream/wip/*` refs are archie-verse branches, not Push's.

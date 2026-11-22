@@ -6,7 +6,7 @@ VASM?=bin\vasmarm_std_win32.exe
 VLINK?=bin\vlink.exe
 LZ4?=bin\lz4.exe
 SHRINKLER?=bin\Shrinkler.exe
-PYTHON2?=C:\Dev\Python27\python.exe
+PYTHON2?=py -3
 PYTHON3?=python.exe
 DOS2UNIX?=bin\dos2unix.exe
 else

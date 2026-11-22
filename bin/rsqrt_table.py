@@ -7,7 +7,7 @@ import argparse,sys,math,arc
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(''.join([chr(x) for x in data]))
+            f.write(bytes(data))
 
 def word_to_bytes(value):
     return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff]
@@ -18,7 +18,7 @@ def word_to_bytes(value):
 def main(options):
     data=[]
     for x in range(0, options.size):
-        v = options.min + (options.max-options.min) * x / options.size
+        v = options.min + (options.max-options.min) * x // options.size
         value = math.sqrt(v)
 
         if options.recip is True:
@@ -29,7 +29,7 @@ def main(options):
         data.extend(word_to_bytes(int(options.scale * value)))
 
     save_file(data,options.output_path)
-    print 'Wrote {0} bytes Arc data.'.format(len(data))
+    print('Wrote {0} bytes Arc data.'.format(len(data)))
 
 
 ##########################################################################
