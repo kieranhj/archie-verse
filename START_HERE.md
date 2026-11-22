@@ -37,4 +37,4 @@
 
 ## See also
 
-- `CLAUDE.md`, `README.md`, `ref/`; derived repos `D:\archie\mine\aklang`, `D:\archie\mine\allstar-parts`; `D:\archie\mine\arc-django`, `D:\archie\mine\arc-django-2` (parts 1 and 2).
+- `CLAUDE.md`, `README.md`, `ref/`; derived repos `D:\bitshifters\aklang`, `D:\bitshifters\allstar-parts`; `D:\archie\mine\arc-django`, `D:\archie\mine\arc-django-2` (parts 1 and 2).
