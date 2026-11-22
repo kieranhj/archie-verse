@@ -1,0 +1,26 @@
+# Wrapper so that `make` works from PowerShell / Windows Terminal.
+# The real build is Makefile.mk, run by the bundled bin\snmake.exe via make.bat
+# (make.bat calls snmake -f Makefile.mk, so it does not recurse into this file).
+# GNU make runs recipes with cmd.exe here (no sh on PATH).
+.PHONY: all build folder shrink compress seq help
+all: build
+
+# Makefile.mk's default target "deploy": build !Push and copy it to ..\arculator\hostfs.
+build:
+	cmd /c .\make.bat
+
+# Build the !Push folder only, no hostfs copy.
+folder:
+	cmd /c .\make.bat !Push
+
+shrink compress seq:
+	cmd /c .\make.bat $@
+
+help:
+	@echo make           - build !Push and copy it to ..\arculator\hostfs (make.bat = snmake -f Makefile.mk deploy)
+	@echo make folder    - build !Push only
+	@echo make shrink    - Shrinkler-compressed !Push
+	@echo make compress  - shrink, then copy to hostfs
+	@echo make seq       - rebuild the sequence only and copy it to hostfs
+	@echo make help      - this list
+	@echo See START_HERE.md
