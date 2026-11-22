@@ -19,7 +19,7 @@ Bitshifters' parts for the Allstar Megademo for the Acorn Archimedes (ARM2/ARM25
 
 ## Build and run
 
-- `make`: builds the `!Verse` folder (`make.bat !Verse`). Blocked (2026-11-22): there is no `build\` yet, and the first asset steps call Python 2.7 at `C:\Dev\Python27\python.exe`, which is not on this machine. The converters in `bin\` are Python 2 only (print statements); archie-verse has later copies of some of them.
+- `make`: builds the `!Verse` folder (`make.bat !Verse`). Works (2026-11-22), including the asset conversion from an empty `build\`. The `bin\*.py` converters were ported to Python 3 on 2026-11-22 and `Makefile.mk` now runs them with `PYTHON2?=py -3` (variable name kept; override with `PYTHON2=...`). `akp2arc.py` was already Python 3.
 - Other targets: `make deploy` (to `..\arculator\hostfs`), `make compress`, `make parts` (donut / space binaries), `make seq`, `make help`.
 - Run: `!Verse` in Arculator (`D:\archie\mine\arculator`).
 
@@ -30,7 +30,7 @@ Bitshifters' parts for the Allstar Megademo for the Acorn Archimedes (ARM2/ARM25
 ## Status and next steps
 
 - Delivered to the Megademo; last work (2025-06) removed unused assets/FX and split out the notes file. See `ref/framework-todos.txt` for framework follow-ups.
-- To build again: install Python 2.7 (pass `PYTHON2=...`) or port the `bin\*.py` converters to Python 3.
+- Builds again since the Python 3 port (2026-11-22).
 
 ## See also
 

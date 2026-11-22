@@ -1,7 +1,7 @@
 # Wrapper so that `make` works from PowerShell / Windows Terminal.
 # GNU make runs recipes with cmd.exe here (no sh on PATH).
 # The real build is Makefile.mk, run by bin\snmake.exe via make.bat.
-# Note: Makefile.mk converts assets with Python 2.7 (PYTHON2, default C:\Dev\Python27\python.exe).
+# Note: Makefile.mk converts assets with Python 3 (variable PYTHON2, default "py -3"; scripts ported 2026-11-22).
 FOLDER := !Verse
 .PHONY: all build deploy compress parts seq help
 all: build

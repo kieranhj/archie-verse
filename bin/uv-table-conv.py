@@ -7,7 +7,7 @@ import png,argparse,math
 def save_file(data,path):
     if path is not None:
         with open(path,'wb') as f:
-            f.write(''.join([chr(x) for x in data]))
+            f.write(bytes(data))
 
 ##########################################################################
 ##########################################################################
@@ -140,8 +140,8 @@ def main(options):
 
         png_result=png.Reader(filename=options.rgb_path).asRGBA8()
 
-        print 'Image width: {0} height: {1}'.format(png_result[0],png_result[1])
-        print 'Blue channel hit mask: 0x{0:02x}'.format(bm)
+        print('Image width: {0} height: {1}'.format(png_result[0],png_result[1]))
+        print('Blue channel hit mask: 0x{0:02x}'.format(bm))
 
         for row in png_result[2]:
 
@@ -186,7 +186,7 @@ def main(options):
     else:
         sw=options.sw or 160
         sh=options.sh or 128
-        print 'Image width: {0} height: {1}'.format(sw,sh)
+        print('Image width: {0} height: {1}'.format(sw,sh))
 
         func_name = options.func_name or 'fancy_func1'
         param1 = options.param1 or 1.0
@@ -231,7 +231,7 @@ def main(options):
                     pixel_data.append(1)       # v1
 
     if options.new:
-        print "Using new encoding scheme!"
+        print("Using new encoding scheme!")
 
         u_data=[]
         v_data=[]
@@ -272,7 +272,7 @@ def main(options):
 
     #assert(len(pixel_data)==sw*sh*2)
     save_file(pixel_data,options.output_path)
-    print 'Wrote {0} bytes Arc data.'.format(len(pixel_data))
+    print('Wrote {0} bytes Arc data.'.format(len(pixel_data)))
 
 
 ##########################################################################
