@@ -21,7 +21,7 @@ The ArchieKlang Announcetro: a 28 KB Acorn Archimedes intro (ARM assembler, vasm
 
 - `make`: builds the `!AKlang` folder in the repo (`make.bat !AKlang`). Works (2026-11-22), using the converted assets already in `build\`.
 - Other targets: `make deploy` (make.bat's default: also copies `!AKlang` to `..\arculator\hostfs`), `make compress` (Shrinkler-packed release, deployed), `make seq`, `make help`.
-- Tools: all in `bin\`. Asset conversion in `Makefile.mk` calls Python 2.7 at `C:\Dev\Python27\python.exe` (not on this machine): a clean build (empty `build\`) or changed PNGs will fail until that is ported/overridden (`PYTHON2=...`).
+- Tools: all in `bin\`. Asset conversion: the `bin\*.py` PNG converters were ported to Python 3 on 2026-11-22 (byte-identical output) and `Makefile.mk` runs them with `PYTHON2?=py -3` (override with `PYTHON2=...`); `akp2arc.py` was already Python 3.
 - Run: in Arculator (`D:\archie\mine\arculator`, hostfs `..\arculator\hostfs`), run `!AKlang`.
 
 ## Local changes
