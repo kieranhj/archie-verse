@@ -24,9 +24,9 @@ archie-verse demo framework.
 - `make`: runs `make.bat` = `snmake -f Makefile.mk` default target `deploy` (works, 2026-11-22):
   builds `!Reise` and copies it to `..\arculator\hostfs\!Reise`.
 - Other targets: `make folder` (build `!Reise` only), `make shrink`, `make compress`, `make seq`, `make help`.
-- Tools: bundled in `bin\`. The PNG converters use `C:\Dev\Python27\python.exe` (Python 2, **not on
-  this machine**); they only run if a source PNG is newer than its `build\*.bin`, which was not
-  the case on 2026-11-22.
+- Tools: bundled in `bin\`. The PNG converters (`bin\*.py`) were ported to Python 3 on 2026-11-22
+  (byte-identical output) and `Makefile.mk` runs them with `PYTHON2?=py -3` (override with
+  `PYTHON2=...`); they only run if a source PNG is newer than its `build\*.bin`.
 - Run in Arculator with an ARM250 / 4 MB config; needs anaglyph glasses.
 
 ## Local changes
