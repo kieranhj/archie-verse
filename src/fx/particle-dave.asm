@@ -139,6 +139,8 @@ particle_dave_tick_all:
     str r0, particle_grid_inv_radius        ; [1.12]
 
     ldr r0, particle_grid_sqrt_p
+    ldr r3, particle_grid_gloop_factor   ; factor [1.16]
+    mov r3, r3, asr #8                  ; R3 = factor [1.8] for the whole loop
 
     ; R12=ptr to prev particle.
     ; R11=ptr to current particle.
@@ -171,13 +173,13 @@ particle_dave_tick_all_loop:
     bgt particle_dave_tick_all_clamp_zero                              ; clamp_dist=0.0
 
     ; Calcluate dist^2=dx*dx + dy*dy
-    mov r4, r8, asr #10             ; [10.6]
-    mov r14, r4
-    mul r4, r14, r4                 ; dx*dx [20.12]
+    movs r14, r8, asr #10           ; [10.6]
+    rsbmi r14, r14, #0              ; |dx|: x*x = |x|*|x|, ARM2: MUL time grows with Rs, and a negative Rs costs the full 16 cycles
+    mul r4, r14, r14                ; dx*dx [20.12]
 
-    mov r5, r9, asr #10
-    mov r14, r5
-    mla r5, r14, r5, r4             ; distsq=dx*dx + dy*dy [20.12]
+    movs r14, r9, asr #10
+    rsbmi r14, r14, #0              ; |dy|
+    mla r5, r14, r14, r4            ; distsq=dx*dx + dy*dy [20.12]
 
     ; TODO: Can early out here if distsq > radiussq. See R10 above.
 
@@ -251,13 +253,13 @@ particle_dave_tick_all_clamp_zero:
     ; Calculate the length of this vector for colour!
 
     ; Calcluate dist^2=dx*dx + dy*dy
-    mov r4, r1, asr #10             ; [10.6]
-    mov r14, r4
-    mul r4, r14, r4                 ; dx*dx [20.12]
+    movs r14, r1, asr #10           ; [10.6]
+    rsbmi r14, r14, #0              ; |dx|: x*x = |x|*|x|, ARM2: MUL time grows with Rs, and a negative Rs costs the full 16 cycles
+    mul r4, r14, r14                ; dx*dx [20.12]
 
-    mov r5, r2, asr #10
-    mov r14, r5
-    mla r5, r14, r5, r4             ; distsq=dx*dx + dy*dy [20.12]
+    movs r14, r2, asr #10
+    rsbmi r14, r14, #0              ; |dy|
+    mla r5, r14, r14, r4            ; distsq=dx*dx + dy*dy [20.12]
 
     mov r5, r5, asr #14             ; distsq/4             [16.0]
 
@@ -301,10 +303,10 @@ particle_dave_tick_all_velocity_load:
 .endif
 
     ; vel += acceleration
-    ldr r3, particles_constant_force+0   ; acc.x
-    add r4, r4, r3
-    ldr r3, particles_constant_force+4   ; acc.y
-    add r5, r5, r3
+    ldr r14, particles_constant_force+0  ; acc.x
+    add r4, r4, r14
+    ldr r14, particles_constant_force+4  ; acc.y
+    add r5, r5, r14
 
     ; pos += vel
     add r8, r8, r4
@@ -313,13 +315,11 @@ particle_dave_tick_all_velocity_load:
     ; Lerp between desired and original position (along offset vec).
 
     ; TODO: factor might be const?
-    ldr r3, particle_grid_gloop_factor       ; factor [1.16]
-    mov r14, r3, asr #8             ; factor [1.8]
-    mov r1, r1, asr #8              ; [~9.8]
-    mov r2, r2, asr #8              ; [~9.8]
-
-    mla r1, r14, r1, r8             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
-    mla r2, r14, r2, r9             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
+    ; R3 = factor [1.8], loaded before the loop; as Rs: ARM2: MUL time grows with Rs, and a negative Rs costs the full 16 cycles
+    mov r14, r1, asr #8             ; [~9.8]
+    mla r1, r14, r3, r8             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
+    mov r14, r2, asr #8             ; [~9.8]
+    mla r2, r14, r3, r9             ; pos.y = orig.y - f * (desired.y - orig.y) [16.16]
 
     adr lr, particle_dave_tick_all_loop
 

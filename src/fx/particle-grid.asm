@@ -865,6 +865,8 @@ particle_grid_tick_all_dave_loop:
     bgt .2                              ; clamp_dist=0.0
 
     sub r9, r7, r2                      ; dy = obj.y - pos.y
+    ; (NB. no S: the abs below reads N from the cmp above. Kept as released - adding
+    ;  the S changes which particles near the ball's box edge get pushed.)
 
     rsbmi r4, r9, #0
     movpl r4, r9                        ; abs(dy)
@@ -872,13 +874,13 @@ particle_grid_tick_all_dave_loop:
     bgt .2                              ; clamp_dist=0.0
 
     ; Calcluate dist^2=dx*dx + dy*dy
-    mov r4, r8, asr #10             ; [10.6]
-    mov r14, r4
-    mul r4, r14, r4                 ; dx*dx [20.12]
+    movs r14, r8, asr #10           ; [10.6]
+    rsbmi r14, r14, #0              ; |dx|: x*x = |x|*|x|, ARM2: MUL time grows with Rs, and a negative Rs costs the full 16 cycles
+    mul r4, r14, r14                ; dx*dx [20.12]
 
-    mov r5, r9, asr #10
-    mov r14, r5
-    mla r5, r14, r5, r4             ; distsq=dx*dx + dy*dy [20.12]
+    movs r14, r9, asr #10
+    rsbmi r14, r14, #0              ; |dy|
+    mla r5, r14, r14, r4            ; distsq=dx*dx + dy*dy [20.12]
 
     ; TODO: Can early out here if distsq > radiussq. See R10 above.
 
@@ -958,13 +960,13 @@ particle_grid_tick_all_dave_loop:
     ; Calculate the length of this vector for colour!
 
     ; Calcluate dist^2=dx*dx + dy*dy
-    mov r4, r1, asr #10             ; [10.6]
-    mov r14, r4
-    mul r4, r14, r4                 ; dx*dx [20.12]
+    movs r14, r1, asr #10           ; [10.6]
+    rsbmi r14, r14, #0              ; |dx|: x*x = |x|*|x|, ARM2: MUL time grows with Rs, and a negative Rs costs the full 16 cycles
+    mul r4, r14, r14                ; dx*dx [20.12]
 
-    mov r5, r2, asr #10
-    mov r14, r5
-    mla r5, r14, r5, r4             ; distsq=dx*dx + dy*dy [20.12]
+    movs r14, r2, asr #10
+    rsbmi r14, r14, #0              ; |dy|
+    mla r5, r14, r14, r4            ; distsq=dx*dx + dy*dy [20.12]
 
     mov r5, r5, asr #14             ; distsq/4             [16.0]
 
@@ -1010,11 +1012,11 @@ particle_grid_tick_all_dave_expansion_code:
 
     ; TODO: factor might be const?
     mov r14, r3, asr #8             ; factor [1.8]
-    mov r1, r1, asr #8              ; [~9.8]
-    mov r2, r2, asr #8              ; [~9.8]
-
-    mla r1, r14, r1, r8             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
-    mla r2, r14, r2, r9             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
+    ; the factor (small, positive) as Rs: ARM2: MUL time grows with Rs, and a negative Rs costs the full 16 cycles
+    mov r4, r1, asr #8              ; [~9.8]
+    mla r1, r4, r14, r8             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
+    mov r4, r2, asr #8              ; [~9.8]
+    mla r2, r4, r14, r9             ; pos.y = orig.y - f * (desired.y - orig.y) [16.16]
 
     ; Presume no collision detection?
     ; TODO: Would it be faster to plot immediately here? A: Probably.
