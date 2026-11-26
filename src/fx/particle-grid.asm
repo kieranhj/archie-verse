@@ -847,6 +847,7 @@ particle_grid_tick_all_dave_equation:
     ldr r0, particle_grid_sqrt_p
 
     ldr r3, particle_grid_gloop_factor       ; factor [1.16]
+    mov r3, r3, asr #8              ; R3 = factor [1.8] for the whole loop
     ldr r12, particle_grid_total
     ldr r11, particle_grid_array_p
 
@@ -917,15 +918,15 @@ particle_grid_tick_all_dave_loop:
 
     ldr r5, particle_grid_inv_radius    ; 1/radius [1.12]
     mov r14, r14, asr #4            ; dist [8.12]
-    mul r14, r5, r14                ; dist / radius [1.24]
-    mov r14, r14, asr #8            ; [1.16]
+    mul r4, r14, r5                 ; dist / radius [1.24]: 1/radius (the smaller) as Rs (ARM2: a negative or large Rs costs up to 16 cycles)
+    mov r14, r4, asr #8             ; [1.16]
 
     ; TODO: Keep in reg? Or might be const.
     ldr r5, particle_grid_dave_maxpush  ; max_push   [8.16]
     mov r5, r5, asr #8              ; [8.8]
 
-    mul r14, r5, r14                ; max_push * dist / radius [8.24]
-    mov r14, r14, asr #8
+    mul r4, r14, r5                 ; max_push * dist / radius [8.24]: max_push as Rs
+    mov r14, r4, asr #8
 
     sub r14, r14, r5, asl #8        ; clamp_dist = (max_push * dist / radius) - max_push [8.16]
 
@@ -938,14 +939,18 @@ particle_grid_tick_all_dave_loop:
 
     ; Calculate desired position = current_pos + offset_vec.
 
-    mla r1, r14, r8, r1             ; desired.x = pos.x + off.x [16.16]
-    mla r2, r14, r9, r2             ; desired.y = pos.y + off.y [16.16]
+    ; clamp_dist <= 0: multiply by -clamp_dist (small, positive) as Rs and subtract (ARM2: a negative or large Rs costs up to 16 cycles)
+    rsb r14, r14, #0
+    mul r4, r8, r14
+    sub r1, r1, r4                  ; desired.x = pos.x + off.x [16.16]
+    mul r4, r9, r14
+    sub r2, r2, r4                  ; desired.y = pos.y + off.y [16.16]
 
 .2:
     ; Original position.
 
-    ldr r8, [r11, #ParticleGrid_XOrigin]    ; orig.x
-    ldr r9, [r11, #ParticleGrid_YOrigin]    ; orig.y
+    add r14, r11, #ParticleGrid_XOrigin
+    ldmia r14, {r8-r9}                      ; orig.x, orig.y (one LDM)
 
     ; NB. Updating the original position here with rotation
     ;     and expansion, causes the desired vector to get large
@@ -1011,12 +1016,11 @@ particle_grid_tick_all_dave_expansion_code:
     ; Lerp between desired and original position.
 
     ; TODO: factor might be const?
-    mov r14, r3, asr #8             ; factor [1.8]
     ; the factor (small, positive) as Rs: ARM2: MUL time grows with Rs, and a negative Rs costs the full 16 cycles
     mov r4, r1, asr #8              ; [~9.8]
-    mla r1, r4, r14, r8             ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
+    mla r1, r4, r3, r8              ; pos.x = orig.x - f * (desired.x - orig.x) [16.16]
     mov r4, r2, asr #8              ; [~9.8]
-    mla r2, r4, r14, r9             ; pos.y = orig.y - f * (desired.y - orig.y) [16.16]
+    mla r2, r4, r3, r9              ; pos.y = orig.y - f * (desired.y - orig.y) [16.16]
 
     ; Presume no collision detection?
     ; TODO: Would it be faster to plot immediately here? A: Probably.
@@ -1287,6 +1291,11 @@ particle_grid_draw_all_as_2x2_tinted:
     mov r2, r2, asr #16
 
     ; Clipping.
+    ; Fast path: 0 <= x < W-1 and 0 <= y < H-1 (unsigned compares: a negative is huge)
+    ; is inside, no edge to clip - the tests below would all fall through.
+    cmp r1, r8                          ; #Screen_Width-1
+    cmpcc r2, #Screen_Height-1
+    bcc .20                             ; inside
     .if _PARTICLE_GRID_FULL_EDGE_CLIP
     cmp r1, #-1
     blt .3                              ; cull left
@@ -1313,6 +1322,7 @@ particle_grid_draw_all_as_2x2_tinted:
     ble .3                              ; cull top
     .endif
 
+.20:
     ;  r1 = X centre
     ;  r2 = Y centre
     ;  r14 = tint

@@ -918,6 +918,7 @@ bits_text_colour:
 ; 
 ; R12=screen adrr.
 bits_draw_text:
+    str lr, [sp, #-4]!              ; (R14 is a data register in the copy)
     ldr r0, bits_text_curr
 
     ; TODO: Could have stored these as a block...
@@ -963,28 +964,37 @@ bits_draw_text:
 
     ; Copy a line to screen.
     ; Fix everything to screen width for speed.
-    .rept Screen_Stride/16
-    ldmia r11!, {r0-r3}
+    ; 8 registers a block, not 4: fewer N cycles a line (the screen is written in full each frame)
+    .rept Screen_Stride/32
+    ldmia r11!, {r0-r4, r6, r8, r14}
     and r0, r0, r5
     and r1, r1, r5
     and r2, r2, r5
     and r3, r3, r5
-    stmia r12!, {r0-r3}
+    and r4, r4, r5
+    and r6, r6, r5
+    and r8, r8, r5
+    and r14, r14, r5
+    stmia r12!, {r0-r4, r6, r8, r14}
     .endr
 
     ; Code duplicated below.
     add r7, r7, #1
     cmp r7, #128
     blt .1
-    mov pc, lr
+    ldr pc, [sp], #4
 
 .2:
     mov r0, #0
     mov r1, #0
     mov r2, #0
     mov r3, #0
-    .rept Screen_Stride/16
-    stmia r12!, {r0-r3}
+    mov r4, #0
+    mov r6, #0
+    mov r8, #0
+    mov r14, #0
+    .rept Screen_Stride/32
+    stmia r12!, {r0-r4, r6, r8, r14}
     .endr
 
     ; Code duplicated above.
@@ -992,6 +1002,6 @@ bits_draw_text:
     cmp r7, #128
     blt .1
 
-    mov pc, lr
+    ldr pc, [sp], #4
 
 ; ============================================================================

@@ -153,8 +153,7 @@ particle_dave_tick_all_loop:
 
     ; Particle dynamics as per Dave's Blender graph.
 
-    ldr r1, [r11, #ParticleDave_XPos]   ; pos.x, pos.y
-    ldr r2, [r11, #ParticleDave_YPos]
+    ldmib r11, {r1-r2}                  ; pos.x, pos.y (XPos, YPos: +4, +8)
 
     ; Compute delta_vec to object.
     subs r8, r6, r1                      ; dx = obj.x - pos.x
@@ -216,15 +215,15 @@ particle_dave_tick_all_loop:
 
     ldr r5, particle_grid_inv_radius    ; 1/radius [1.12]
     mov r14, r14, asr #4            ; dist [8.12]
-    mul r14, r5, r14                ; dist / radius [1.24]
-    mov r14, r14, asr #8            ; [1.16]
+    mul r4, r14, r5                 ; dist / radius [1.24]: 1/radius (the smaller) as Rs (ARM2: a negative or large Rs costs up to 16 cycles)
+    mov r14, r4, asr #8             ; [1.16]
 
     ; TODO: Keep in reg? Or might be const.
     ldr r5, particle_grid_dave_maxpush  ; max_push   [8.16]
     mov r5, r5, asr #8              ; [8.8]
 
-    mul r14, r5, r14                ; max_push * dist / radius [8.24]
-    mov r14, r14, asr #8
+    mul r4, r14, r5                 ; max_push * dist / radius [8.24]: max_push as Rs
+    mov r14, r4, asr #8
 
     sub r14, r14, r5, asl #8        ; clamp_dist = (max_push * dist / radius) - max_push [8.16]
 
@@ -237,14 +236,18 @@ particle_dave_tick_all_loop:
 
     ; Calculate desired position = current_pos + offset_vec.
 
-    mla r1, r14, r8, r1             ; desired.x = pos.x + off.x [16.16]
-    mla r2, r14, r9, r2             ; desired.y = pos.y + off.y [16.16]
+    ; clamp_dist <= 0: multiply by -clamp_dist (small, positive) as Rs and subtract (ARM2: a negative or large Rs costs up to 16 cycles)
+    rsb r14, r14, #0
+    mul r4, r8, r14
+    sub r1, r1, r4                  ; desired.x = pos.x + off.x [16.16]
+    mul r4, r9, r14
+    sub r2, r2, r4                  ; desired.y = pos.y + off.y [16.16]
 
 particle_dave_tick_all_clamp_zero:
 
     ; Original position.
-    ldr r8, [r11, #ParticleDave_XOrigin]    ; orig.x
-    ldr r9, [r11, #ParticleDave_YOrigin]    ; orig.y
+    add r14, r11, #ParticleDave_XOrigin
+    ldmia r14, {r8-r9}                  ; orig.x, orig.y (one LDM: cheaper than two LDRs)
 
     ; Calculate offset vec = desired position - original position:
     sub r1, r1, r8                  ; desired.x - orig.x
@@ -291,8 +294,8 @@ particle_dave_tick_all_clamp_zero:
     ; Load particle context. TODO: Make this ldmia again.
 
 particle_dave_tick_all_velocity_load:    
-    ldr r4, [r11, #ParticleDave_XVel]
-    ldr r5, [r11, #ParticleDave_YVel]
+    add r14, r11, #ParticleDave_XVel
+    ldmia r14, {r4-r5}                  ; vel.x, vel.y
 
     ; Particle dynamics.
 
@@ -343,9 +346,7 @@ particle_dave_tick_all_velocity_load:
     blt particle_dave_destroy             ; loads R0.
 
     ; Save particle state.
-    add r11, r11, #ParticleDave_XPos        ; step over next ptr.
-    stmia r11, {r1-r2, r4-r5, r8-r9}
-    sub r11, r11, #ParticleDave_XPos
+    stmib r11, {r1-r2, r4-r5, r8-r9}        ; from XPos (+4): step over next ptr.
 
     b particle_dave_tick_all_loop
 
@@ -470,15 +471,11 @@ particle_dave_draw_all_as_2x2:
     blt .1                              ; cull top
     beq .7                              ; full clip to edge
     .else
-    cmp r1, #-1
-    ble .1                              ; cull left
+    ; Cull unless 0 <= x < W-1 and 0 <= y < H-1: unsigned compares (a negative is huge),
+    ; the same particles as the four signed tests, in three instructions.
     cmp r1, r8                          ; #Screen_Width-1
-    bge .1                              ; cull right
-
-    cmp r2, #Screen_Height-1
-    bge .1                              ; cull bottom
-    cmp r2, #-1
-    ble .1                              ; cull top
+    cmpcc r2, #Screen_Height-1
+    bcs .1
     .endif
 
     ; Calculate screen ptr to the byte.
