@@ -13,7 +13,7 @@ import sys
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ARC_ROOT = os.environ.get(
     "ARCULATOR_ROOT",
-    r"C:\Users\khcon\OneDrive\Projects\arculator-sarah")
+    r"D:\archie\mine\arculator")
 EXE = os.path.join(ARC_ROOT, "arculator-headless.exe")
 WORK = os.path.join(REPO, "build", "profile")
 

@@ -8,7 +8,7 @@ archie-verse demo framework.
 |---|---|
 | GitHub | https://github.com/bitshifters/mikroreise (public) |
 | Upstream | remote `upstream` = https://github.com/kieranhj/archie-verse (the framework it grew from) |
-| Local path | D:\archie\mine\mikroreise (moved from OneDrive\Archie\Repos\mikroreise on 2026-11-22) |
+| Local path | D:\bitshifters\mikroreise (moved from OneDrive\Archie\Repos\mikroreise on 2026-11-22) |
 | Branch | wip/arm2-50hz; others: main, wip/2026-11-tidy |
 | Last commit | 2026-08-06: tools/profile: PLAN.md as the single handover document |
 
@@ -34,8 +34,8 @@ archie-verse demo framework.
   `tools/profile` harness. Pushed to origin.
 - wip/2026-11-tidy (pushed 2026-11-21): snapshot of the uncommitted work below.
 - Uncommitted now: `ref/three-dee.txt` (modified), `ref/elite-3d-temp.txt` and `.vscode/` (untracked).
-- `tools/profile/mikroprofile.py` still names `C:\Users\khcon\OneDrive\Projects\arculator-sarah`
-  (now D:\archie\third-party\arculator-sarah); not changed.
+- `tools/profile/mikroprofile.py` defaults to `D:\archie\mine\arculator`
+  (fixed from the old OneDrive path on 2026-11-26).
 
 ## Status and next steps
 - tools/profile/PLAN.md is the handover: aim is a 50 Hz release build on an A3000 (ARM2) with no
@@ -44,4 +44,4 @@ archie-verse demo framework.
   reachable without content changes.
 
 ## See also
-- README.md, tools/profile/PLAN.md, D:\archie\mine\archie-verse, D:\archie\mine\push.
+- README.md, tools/profile/PLAN.md, D:\archie\mine\archie-verse, D:\bitshifters\push.
