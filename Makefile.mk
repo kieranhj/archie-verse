@@ -35,7 +35,7 @@ PNG2ARC_DEPS:=./bin/png2arc.py ./bin/arc.py ./bin/png2arc_font.py ./bin/png2arc_
 UV_TABLE=./bin/uv-table-conv.py
 UV_SHADER=./bin/uv-shader-conv.py
 FOLDER=!Verse
-HOSTFS=../arculator/hostfs
+HOSTFS=../arculator/hostfs/Builds
 # TODO: Need a copy command that copes with forward slash directory separator. (Maybe MSYS cp?)
 
 ##########################################################################

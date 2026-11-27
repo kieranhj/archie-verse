@@ -17,7 +17,7 @@ compress parts seq:
 
 help:
 	@echo make           - build the $(FOLDER) RISC OS folder in the repo (make.bat $(FOLDER))
-	@echo make deploy    - build and copy $(FOLDER) to ..\arculator\hostfs (make.bat's default)
+	@echo make deploy    - build and copy $(FOLDER) to ..\arculator\hostfs\Builds (make.bat's default)
 	@echo make compress  - Shrinkler-compressed build, deployed to hostfs
 	@echo make parts     - separate donut / space part binaries
 	@echo make seq       - sequence-only build
