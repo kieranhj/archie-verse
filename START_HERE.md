@@ -7,7 +7,7 @@ Push, a 64 KB demo for the Acorn Archimedes (ARM2, 2 MB) by Bitshifters, release
 |---|---|
 | GitHub | https://github.com/bitshifters/push (public) |
 | Upstream | remote `upstream` = https://github.com/kieranhj/archie-verse (the framework it grew from) |
-| Local path | D:\archie\mine\push (moved from OneDrive\Archie\Repos\push on 2026-11-22) |
+| Local path | D:\bitshifters\push (moved from OneDrive\Archie\Repos\push on 2026-11-22) |
 | Branch | main (only local branch) |
 | Last commit | 2024-04-02: Remove unused code modules. |
 
@@ -20,7 +20,7 @@ Push, a 64 KB demo for the Acorn Archimedes (ARM2, 2 MB) by Bitshifters, release
 
 ## Build and run
 - `make`: runs `make.bat` = `snmake -f Makefile.mk` default target `deploy` (works, 2026-11-22):
-  builds `!Push` and copies it to `..\arculator\hostfs\!Push`.
+  builds `!Push` and copies it to `..\arculator\hostfs\Builds\!Push`.
 - Other targets: `make folder` (build `!Push` only), `make shrink` (Shrinkler-packed loader build,
   likely the 64 KB release form), `make compress` (shrink + copy to hostfs), `make seq`, `make help`.
 - PNG conversion: the `bin\*.py` converters were ported to Python 3 on 2026-11-22 (byte-identical
@@ -35,4 +35,4 @@ Push, a 64 KB demo for the Acorn Archimedes (ARM2, 2 MB) by Bitshifters, release
   No TODO or plan notes found.
 
 ## See also
-- README.md, D:\archie\mine\archie-verse, D:\archie\mine\mikroreise.
+- README.md, D:\archie\mine\archie-verse, D:\bitshifters\mikroreise.
