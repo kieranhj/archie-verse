@@ -6,7 +6,7 @@ Bitshifters' parts for the Allstar Megademo for the Acorn Archimedes (ARM2/ARM25
 |---|---|
 | GitHub | https://github.com/bitshifters/allstar-parts (public) |
 | Upstream | none; split out of `D:\archie\mine\archie-verse` (branch wip/allstar-parts there) |
-| Local path | D:\archie\mine\allstar-parts (moved from OneDrive\Archie\Repos\allstar-parts on 2026-11-22) |
+| Local path | D:\bitshifters\allstar-parts (moved from OneDrive\Archie\Repos\allstar-parts on 2026-11-22) |
 | Branch | master (only branch) |
 | Last commit | 2025-06-23: More nits. |
 
@@ -20,7 +20,7 @@ Bitshifters' parts for the Allstar Megademo for the Acorn Archimedes (ARM2/ARM25
 ## Build and run
 
 - `make`: builds the `!Verse` folder (`make.bat !Verse`). Works (2026-11-22), including the asset conversion from an empty `build\`. The `bin\*.py` converters were ported to Python 3 on 2026-11-22 and `Makefile.mk` now runs them with `PYTHON2?=py -3` (variable name kept; override with `PYTHON2=...`). `akp2arc.py` was already Python 3.
-- Other targets: `make deploy` (to `..\arculator\hostfs`), `make compress`, `make parts` (donut / space binaries), `make seq`, `make help`.
+- Other targets: `make deploy` (to `..\arculator\hostfs\Builds`), `make compress`, `make parts` (donut / space binaries), `make seq`, `make help`.
 - Run: `!Verse` in Arculator (`D:\archie\mine\arculator`).
 
 ## Local changes
