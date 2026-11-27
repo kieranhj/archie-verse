@@ -6,7 +6,7 @@ The ArchieKlang Announcetro: a 28 KB Acorn Archimedes intro (ARM assembler, vasm
 |---|---|
 | GitHub | https://github.com/bitshifters/aklang (public; GitHub fork of kieranhj/archie-verse) |
 | Upstream | https://github.com/kieranhj/archie-verse (remote `upstream`; it is the user's own framework, `D:\archie\mine\archie-verse`) |
-| Local path | D:\archie\mine\aklang (moved from OneDrive\Archie\Repos\aklang on 2026-11-22) |
+| Local path | D:\bitshifters\aklang (moved from OneDrive\Archie\Repos\aklang on 2026-11-22) |
 | Branch | main (only local branch) |
 | Last commit | 2025-01-30: Add a small README. |
 
@@ -20,9 +20,9 @@ The ArchieKlang Announcetro: a 28 KB Acorn Archimedes intro (ARM assembler, vasm
 ## Build and run
 
 - `make`: builds the `!AKlang` folder in the repo (`make.bat !AKlang`). Works (2026-11-22), using the converted assets already in `build\`.
-- Other targets: `make deploy` (make.bat's default: also copies `!AKlang` to `..\arculator\hostfs`), `make compress` (Shrinkler-packed release, deployed), `make seq`, `make help`.
+- Other targets: `make deploy` (make.bat's default: also copies `!AKlang` to `..\arculator\hostfs\Builds`), `make compress` (Shrinkler-packed release, deployed), `make seq`, `make help`.
 - Tools: all in `bin\`. Asset conversion: the `bin\*.py` PNG converters were ported to Python 3 on 2026-11-22 (byte-identical output) and `Makefile.mk` runs them with `PYTHON2?=py -3` (override with `PYTHON2=...`); `akp2arc.py` was already Python 3.
-- Run: in Arculator (`D:\archie\mine\arculator`, hostfs `..\arculator\hostfs`), run `!AKlang`.
+- Run: in Arculator (`D:\archie\mine\arculator`, hostfs `..\arculator\hostfs\Builds`), run `!AKlang`.
 
 ## Local changes
 
