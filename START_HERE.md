@@ -22,7 +22,7 @@ archie-verse demo framework.
 
 ## Build and run
 - `make`: runs `make.bat` = `snmake -f Makefile.mk` default target `deploy` (works, 2026-11-22):
-  builds `!Reise` and copies it to `..\arculator\hostfs\!Reise`.
+  builds `!Reise` and copies it to `..\arculator\hostfs\Builds\!Reise`.
 - Other targets: `make folder` (build `!Reise` only), `make shrink`, `make compress`, `make seq`, `make help`.
 - Tools: bundled in `bin\`. The PNG converters (`bin\*.py`) were ported to Python 3 on 2026-11-22
   (byte-identical output) and `Makefile.mk` runs them with `PYTHON2?=py -3` (override with

@@ -132,6 +132,13 @@ Project to single frustum:
 Ls = 80*(Lp-ex-cx)/(0-cz) = 80*(15-10)/80 = 5
 Rs = 80*(Rp+ex-cx)/(0-cz) = 80*(-5+10)/80 = 5
 
+As per slide 11 in the GDC presentation, we're finding a depth we want to be coincident
+and moving these together to overlap. So project the eye separation distance onto our
+projection plane and then onto the view plane (into pixels) and adjust each eye by that
+distance.
+
+In my simple case we're projecting onto z=0 so already in pixels...
+
 
 Per dx plot routine?
 ~~~
