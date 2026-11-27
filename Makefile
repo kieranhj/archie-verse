@@ -16,7 +16,7 @@ compress parts seq music:
 
 help:
 	@echo make           - build the $(FOLDER) RISC OS folder in the repo (make.bat $(FOLDER))
-	@echo make deploy    - build, copy $(FOLDER) to ..\arculator\hostfs and make build\django3,ddc (make.bat's default)
+	@echo make deploy    - build, copy $(FOLDER) to ..\arculator\hostfs\Builds and make build\django3,ddc (make.bat's default)
 	@echo make compress  - Shrinkler-compressed build, deployed to hostfs
 	@echo make parts / seq / music - other Makefile.mk targets, passed to make.bat
 	@echo make help      - this list

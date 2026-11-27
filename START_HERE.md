@@ -20,7 +20,7 @@
 ## Build and run
 
 - `make`: builds the `!dj3` folder in the repo (`make.bat !dj3`). Works (2026-11-22). Uses `python.exe` (Python 3) for asset conversion.
-- Other targets: `make deploy` (make.bat's default: copies `!dj3` to `..\arculator\hostfs` and writes the Spark archive `build\django3,ddc`), `make compress`, `make parts`, `make seq`, `make music`, `make help`.
+- Other targets: `make deploy` (make.bat's default: copies `!dj3` to `..\arculator\hostfs\Builds` and writes the Spark archive `build\django3,ddc`), `make compress`, `make parts`, `make seq`, `make music`, `make help`.
 - Run `!dj3` in Arculator (`D:\archie\mine\arculator`).
 - `latest.bat` copies from `..\..\..\..\Seafile\musicdisk3`, which was `C:\Users\khcon\Seafile` from the old OneDrive location and now resolves off the top of `D:`: needs an absolute path.
 

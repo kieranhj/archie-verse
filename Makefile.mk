@@ -41,7 +41,7 @@ UV_SHADER=./bin/uv-shader-conv.py
 MAKE_SPARK=./bin/make_spark.py
 FOLDER=!dj3
 ARCHIVE=build/django3,ddc
-HOSTFS=../arculator/hostfs
+HOSTFS=../arculator/hostfs/Builds
 # TODO: Need a copy command that copes with forward slash directory separator. (Maybe MSYS cp?)
 
 ##########################################################################
