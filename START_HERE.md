@@ -30,6 +30,18 @@
 - `wip/2026-11-tidy` (pushed): wip/chipo-django3 plus `CLAUDE.md` (the zips were not included).
 - Branches ahead of main: wip/chipo-django3 (+79), wip/rasterman-v40 (+63), debug/keyboard-vsync (+64), debug/mouse-vsync (+65), wip/django3-min-pal (+41) are the 2026 Chipo Django 3 line; wip/mod-parser (+18, 2025-08). The 2023-2025 wip/* branches are 0-6 commits ahead and mostly merged history (party versions of aklang, allstar-parts, cracktro etc.).
 
+## Prod history and WIP kept here
+
+The Bitshifters prod repos built on this framework (aklang, allstar-parts, push, mikroreise, chipo-django3) are single-commit release snapshots since 2026-11-27. Their full history lives here:
+
+- **Archive tags** `archive/<repo>-main`: each prod repo's default branch as it was before the snapshot (aklang, allstar-parts, push, mikroreise).
+- **Release tags** `release/<prod>`: the commit each published download rebuilds from: `release/aklang`, `release/push-party`, `release/push`, `release/mikroreise` (needs `_CHECK_FRAME_DROP` set to 0, never committed), `release/allstar-donut`, `release/allstar-space`, `release/chipo-django3-party`, `release/chipo-django3-fix1`, `release/chipo-django3`. Each tag's message says how it was checked.
+- **WIP branches** moved out of the prod repos, each with that prod's full tree, so they build as before:
+  - `push/a3000-perf`: A3000 speed-ups for Push (tighter particle loops, ARM2 multiply ordering).
+  - `mikroreise/arm2-50hz`: Mikroreise 3D fixes and the cycle-accurate profiling harness (`tools/profile`, `PLAN.md`).
+  - `mikroreise/2026-11-tidy`: a snapshot of that work's uncommitted state on 2026-11-21.
+- To carry on with one without disturbing this checkout, use a worktree: `git worktree add ..\push-a3000 push/a3000-perf` (`..\arculator\hostfs\Builds` resolves the same from `D:\archie\mine`).
+
 ## Status and next steps
 
 - Chipo Django 3 is released. The clean release record is `D:\bitshifters\chipo-django3` (https://github.com/bitshifters/chipo-django3), cut from d9f27fa on 2026-11-27; it rebuilds the live `bs-django03,ddc` byte for byte. Released builds map to commits here as: party 2026-04-05 = 3387994, fix 1 2026-04-07 = bbfa5a1, fix 2 (live) 2026-04-23 = d9f27fa. The release form is `make compress` / `shrink` (LZ4 loader), not the default target.
