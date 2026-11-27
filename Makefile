@@ -5,7 +5,7 @@
 .PHONY: all build folder shrink compress seq help
 all: build
 
-# Makefile.mk's default target "deploy": build !Reise and copy it to ..\arculator\hostfs.
+# Makefile.mk's default target "deploy": build !Reise and copy it to ..\arculator\hostfs\Builds.
 build:
 	cmd /c .\make.bat
 
@@ -17,7 +17,7 @@ shrink compress seq:
 	cmd /c .\make.bat $@
 
 help:
-	@echo make           - build !Reise and copy it to ..\arculator\hostfs (make.bat = snmake -f Makefile.mk deploy)
+	@echo make           - build !Reise and copy it to ..\arculator\hostfs\Builds (make.bat = snmake -f Makefile.mk deploy)
 	@echo make folder    - build !Reise only
 	@echo make shrink    - Shrinkler-compressed !Reise
 	@echo make compress  - shrink, then copy to hostfs
